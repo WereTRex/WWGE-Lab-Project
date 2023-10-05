@@ -8,15 +8,21 @@ public class Gun : MonoBehaviour
 
     
     [Header("Fire Rate")]
-    [SerializeField] private float _fireRate = 5; // How many bullets this weapon can fire in a second.
+    [Tooltip("The minimum time between when the player fires the gun and when they can next fire it")]
+        [SerializeField] private float _fireDelay = 0.2f;
     private float _fireRateDelayRemaining = 0f;
+
+    [Tooltip("If true, the player can just hold down the fire button and will continuously fire")]
+        [SerializeField] private bool _fullAuto = false;
 
 
     [Header("Ammo & Reloading")]
-    [SerializeField] private int _maxAmmo = 20; // The maximum number of bullets the player can hold for this gun.
+    [Tooltip("The maximum number of bullets the player can hold for this gun")]
+        [SerializeField] private int _maxAmmo = 20;
     private int _ammoRemaining;
 
-    [SerializeField] private int _maxClipSize = 8; // The maximum number of bullets in each clip of this gun.
+    [Tooltip("The maximum number of bullets in each magazine")]
+        [SerializeField] private int _maxClipSize = 8;
     private int _currentAmmo; // The current number of bullets in this clip.
 
     [Space(5)]
@@ -24,6 +30,13 @@ public class Gun : MonoBehaviour
     [SerializeField] private float _reloadTime;
     private float _reloadTimeRemaining;
     private bool _isReloading = false;
+
+
+    #region Public Accessors
+    public int MaxClipSizeProperty { get => _maxClipSize; }
+    public int CurrentAmmoProperty { get => _currentAmmo; }
+    public bool GetIsReloading() => _isReloading;
+    #endregion
 
 
     private void Start()
@@ -48,11 +61,11 @@ public class Gun : MonoBehaviour
             _fireRateDelayRemaining -= Time.deltaTime;
 
         // Note: We don't need to check if we are reloading, but we shall do it anyway to prevent possible errors if we change the reload function.
-        if (Input.GetMouseButtonDown(0) && _fireRateDelayRemaining <= 0f && !_isReloading && _currentAmmo > 0)
+        if (((Input.GetMouseButton(0) && _fullAuto) || Input.GetMouseButtonDown(0)) && _fireRateDelayRemaining <= 0f && !_isReloading && _currentAmmo > 0)
         {
             Fire();
 
-            _fireRateDelayRemaining = 1f / _fireRate;
+            _fireRateDelayRemaining = _fireDelay;
             _currentAmmo--;
         }
 
