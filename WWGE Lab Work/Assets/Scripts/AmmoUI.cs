@@ -10,28 +10,21 @@ public class AmmoUI : MonoBehaviour
 
     private void OnEnable()
     {
-        
+        Gun.OnStartedReloading += OnWeaponReloading;
+        Gun.OnWeaponAmmoChanged += OnAmmoValuesChanged;
     }
     private void OnDisable()
     {
-        
-    }
-
-
-    private void Update()
-    {
-        if (!_weaponManager.GetIsReloading())
-            _ammoText.text = _weaponManager.GetCurrentAmmo() + "/" + _weaponManager.GetMaxClipAmmo();
-        else
-            _ammoText.text = "...";
+        Gun.OnStartedReloading -= OnWeaponReloading;
+        Gun.OnWeaponAmmoChanged -= OnAmmoValuesChanged;
     }
 
 
     private void OnWeaponReloading()
     {
-        _ammoText.text += "...";
+        _ammoText.text = "...";
     }
-    private void OnWeaponAmmoChanged(int newCurrentAmmo, int newAmmoRemaining)
+    private void OnAmmoValuesChanged(int newCurrentAmmo, int newAmmoRemaining)
     {
         _ammoText.text = newCurrentAmmo + "/" + newAmmoRemaining;
     }

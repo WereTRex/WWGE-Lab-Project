@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,14 @@ public class Manager : MonoBehaviour
     [SerializeField] private Slider _fovSlider;
     [SerializeField] private Camera _cam;
 
+    [Space(5)]
 
+    [SerializeField] private TMP_Text _hitRigidbodiesText;
+    private int _hitObjectCount = 0;
+
+
+    private void OnEnable() => Gun.OnHitRigidbodyObject += IncreaseHitObjectCount;
+    private void OnDisable() => Gun.OnHitRigidbodyObject -= IncreaseHitObjectCount;
     private void Start()
     {
         _paused = false;
@@ -49,5 +57,10 @@ public class Manager : MonoBehaviour
             // Hide Pause Menu.
             _fovSlider.gameObject.SetActive(false);
         }
+    }
+    void IncreaseHitObjectCount()
+    {
+        _hitObjectCount += 1;
+        _hitRigidbodiesText.text = _hitObjectCount.ToString();
     }
 }

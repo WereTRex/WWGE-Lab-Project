@@ -1,15 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    private event Action OnStartedReloading;
-    private event Action<int, int> OnWeaponAmmoChanged;
-    
-    
     private List<Gun> _playerWeapons = new List<Gun>();
     private int _selectedWeaponIndex;
     private int selectedWeaponIndexProperty
@@ -35,6 +29,9 @@ public class WeaponManager : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale == 0f)
+            return;
+        
         // Weapon Swapping.
         if (Input.GetAxis("Mouse ScrollWheel") > 0f || Input.GetKeyDown(KeyCode.E))
         {
@@ -57,31 +54,9 @@ public class WeaponManager : MonoBehaviour
     {
         for (int i = 0; i < _playerWeapons.Count; i++)
         {
-            _playerWeapons[i].gameObject.SetActive(i == _selectedWeaponIndex);
+            _playerWeapons[i].gameObject.SetActive(i == selectedWeaponIndexProperty);
         }
     }
-
-
-    #region (Temp) Adding and Removing Weapons
-    public void AddNewWeapon(Gun newWeapon)
-    {
-        newWeapon.transform.SetParent(transform, false);
-        _playerWeapons.Add(newWeapon);
-    }
-    public void AddNewWeapon(GameObject newWeapon)
-    {
-        Gun weaponInstance = Instantiate(newWeapon, transform).GetComponent<Gun>();
-        _playerWeapons.Add(weaponInstance);
-    }
-    public void RemoveWeapon(int weaponIndex)
-    {
-        Destroy(_playerWeapons[weaponIndex].gameObject);
-        _playerWeapons.RemoveAt(weaponIndex);
-
-        selectedWeaponIndexProperty = Mathf.Clamp(selectedWeaponIndexProperty, 0, _playerWeapons.Count - 1);
-        ActivateSelectedWeapon();
-    }
-    #endregion
 
 
     // REPLACE THESE WITH A BETTER METHOD.
