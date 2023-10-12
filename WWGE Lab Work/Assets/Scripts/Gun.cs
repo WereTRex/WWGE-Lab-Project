@@ -5,8 +5,10 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     [SerializeField] private Camera _playerCamera;
-
+    [SerializeField] private float _force;
+    [SerializeField] private GameObject[] _bulletHoldPrefabs;
     
+
     [Header("Fire Rate")]
     [Tooltip("The minimum time between when the player fires the gun and when they can next fire it")]
         [SerializeField] private float _fireDelay = 0.2f;
@@ -28,7 +30,6 @@ public class Gun : MonoBehaviour
     [Space(5)]
 
     [SerializeField] private float _reloadTime;
-    private float _reloadTimeRemaining;
     private bool _isReloading = false;
 
 
@@ -48,30 +49,32 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
-        if (_isReloading)
-        {
-            _reloadTimeRemaining -= Time.deltaTime;
-            if (_reloadTimeRemaining < 0)
-                FinishedReload();
-            else
-                return;
-        }
-        
+        if (Time.timeScale == 0f)
+            return;
+
         if (_fireRateDelayRemaining > 0f)
             _fireRateDelayRemaining -= Time.deltaTime;
+        if (_isReloading)
+            return;
+
+
 
         // Note: We don't need to check if we are reloading, but we shall do it anyway to prevent possible errors if we change the reload function.
-        if (((Input.GetMouseButton(0) && _fullAuto) || Input.GetMouseButtonDown(0)) && _fireRateDelayRemaining <= 0f && !_isReloading && _currentAmmo > 0)
+        if (((Input.GetMouseButton(0) && _fullAuto) || Input.GetMouseButtonDown(0)) && _fireRateDelayRemaining <= 0f && !_isReloading)
         {
-            Fire();
+            if (_currentAmmo > 0)
+            {
+                Fire();
 
-            _fireRateDelayRemaining = _fireDelay;
-            _currentAmmo--;
+                _fireRateDelayRemaining = _fireDelay;
+                _currentAmmo--;
+            } else
+                StartCoroutine(Reload());
         }
 
         if (Input.GetKeyDown(KeyCode.R) && (_currentAmmo != _maxClipSize && _ammoRemaining > 0))
         {
-            StartReload();
+            StartCoroutine(Reload());
         }
     }
 
@@ -81,25 +84,46 @@ public class Gun : MonoBehaviour
         Ray ray = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
         if (Physics.Raycast(ray, out RaycastHit hit))
-            Debug.Log("I'm looking at " + hit.transform.name);
+        {
+            GameObject chosenBulletHole = _bulletHoldPrefabs[Random.Range(0, _bulletHoldPrefabs.Length)];
+
+            // Add force.
+            if (hit.rigidbody)
+            {
+                var direction = new Vector3(hit.transform.position.x - transform.position.x,
+                    hit.transform.position.y - transform.position.y,
+                    hit.transform.position.z - transform.position.z);
+                hit.rigidbody.AddForceAtPosition(_force * Vector3.Normalize(direction), hit.point);
+
+                // Create Bullet Holes and make them a child of the Physics Object.
+                var tempBullet = Instantiate(chosenBulletHole, hit.point, Quaternion.LookRotation(hit.normal));
+                tempBullet.transform.parent = hit.transform;
+            }
+            else
+            {
+                // Create Bullet Holes if it isn't a physics object.
+                Instantiate(chosenBulletHole, hit.point, Quaternion.LookRotation(hit.normal));
+            }
+        }
         else
             Debug.Log("I'm looking at nothing!");
     }
 
 
-    private void StartReload()
+    private IEnumerator Reload()
     {
         _ammoRemaining += _currentAmmo;
         _currentAmmo = 0;
         
-        _reloadTimeRemaining = _reloadTime;
         _isReloading = true;
+        yield return new WaitForSeconds(_reloadTime);
+        
+        _isReloading = false;
+        FinishedReload();
     }
 
     private void FinishedReload()
-    {
-        _isReloading = false;
-        
+    {        
         if (_ammoRemaining > _maxClipSize)
         {
             _ammoRemaining -= _maxClipSize;

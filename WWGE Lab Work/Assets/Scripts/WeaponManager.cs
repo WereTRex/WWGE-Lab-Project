@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,6 +6,10 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
+    private event Action OnStartedReloading;
+    private event Action<int, int> OnWeaponAmmoChanged;
+    
+    
     private List<Gun> _playerWeapons = new List<Gun>();
     private int _selectedWeaponIndex;
     private int selectedWeaponIndexProperty
