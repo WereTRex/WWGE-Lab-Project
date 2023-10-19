@@ -27,7 +27,23 @@ public class Gun : MonoBehaviour
         [SerializeField] private float _fireDelay = 0.2f;
     private float _fireDelayRemaining = 0f;
 
-    [SerializeField] private FireType _fireType;
+
+    // We could use Enum Flags here instead, but as _currentFireType would then also use Flags, that would make our code more annoying to work with.
+    [SerializeField] private FireType[] _availableFireTypes;
+    private int _currentFireIndex;
+    private int currentFireIndexProperty
+    {
+        get => _currentFireIndex;
+        set
+        {
+            if (value < 0)
+                _currentFireIndex = _availableFireTypes.Length - 1;
+            else if (value > _availableFireTypes.Length - 1)
+                _currentFireIndex = 0;
+            else
+                _currentFireIndex = value;
+        }
+    }
     #endregion
 
     #region Ammo and Reloading
@@ -59,22 +75,18 @@ public class Gun : MonoBehaviour
     [Header("Alt Fire")]
     [SerializeField] private GameObject _grenadePrefab;
     [SerializeField] private float _grenadeFireDelay;
+    private float _grenadeDelayRemaining;
+
     [SerializeField] private float _grenadeLaunchForce;
     #endregion
 
-
-
-    #region Public Accessors
-    public int MaxClipSizeProperty { get => _maxClipSize; }
-    public int CurrentAmmoProperty { get => currentAmmoProperty; }
-    public bool GetIsReloading() => _isReloading;
-    #endregion
 
 
     private void Start()
     {
         _ammoRemaining = _maxAmmo;
         currentAmmoProperty = _maxClipSize;
+        currentFireIndexProperty = 0;
     }
     private void OnEnable()
     {
@@ -93,10 +105,15 @@ public class Gun : MonoBehaviour
     }
 
 
+    public void SelectNextFiringType()
+    {
+        currentFireIndexProperty++;
+    }
+
 
     public void StartAttacking()
     {
-        if (_fireType == FireType.FullAuto)
+        if (_availableFireTypes[currentFireIndexProperty] == FireType.FullAuto)
             _isAttacking = true;
         else {
             AttemptFire();
@@ -122,6 +139,8 @@ public class Gun : MonoBehaviour
 
         if (_fireDelayRemaining > 0f && !_firing)
             _fireDelayRemaining -= Time.deltaTime;
+        if (_grenadeDelayRemaining > 0f)
+            _grenadeDelayRemaining -= Time.deltaTime;
 
         if (_isAttacking)
             AttemptFire();
@@ -135,7 +154,7 @@ public class Gun : MonoBehaviour
 
         if (currentAmmoProperty > 0)
         {
-            switch (_fireType)
+            switch (_availableFireTypes[currentFireIndexProperty])
             {
                 case FireType.TwoRoundBurst:
                     StartCoroutine(BurstFire(2));
@@ -208,11 +227,11 @@ public class Gun : MonoBehaviour
     // Currently the same for all guns.
     public void AttemptAlternateFire()
     {
-        if (_fireDelayRemaining > 0f || _isReloading || _firing)
+        if (_grenadeDelayRemaining > 0f || _isReloading || _firing)
             return;
 
         AltFire();
-        _fireDelayRemaining = _grenadeFireDelay;
+        _grenadeDelayRemaining = _grenadeFireDelay;
     }
     private void AltFire()
     {

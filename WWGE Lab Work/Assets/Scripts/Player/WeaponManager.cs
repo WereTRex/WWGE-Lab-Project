@@ -12,7 +12,13 @@ public class WeaponManager : MonoBehaviour
         get => _selectedWeaponIndex;
         set
         {
-            _selectedWeaponIndex = value;
+            if (value < 0)
+                _selectedWeaponIndex = _playerWeapons.Count - 1;
+            else if (value > _playerWeapons.Count - 1)
+                _selectedWeaponIndex = 0;
+            else
+                _selectedWeaponIndex = value;
+
             ActivateSelectedWeapon();
         }
     }
@@ -39,6 +45,21 @@ public class WeaponManager : MonoBehaviour
         if (context.performed)
             _playerWeapons[_selectedWeaponIndex].StartReloading();
     }
+    public void OnSwapWeapon(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (context.ReadValue<Vector2>().y > 0)
+                selectedWeaponIndexProperty++;
+            else
+                selectedWeaponIndexProperty--;
+        }
+    }
+    public void OnSwapFiringMode(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            _playerWeapons[_selectedWeaponIndex].SelectNextFiringType();
+    }
     #endregion
 
 
@@ -57,22 +78,6 @@ public class WeaponManager : MonoBehaviour
     {
         if (Time.timeScale == 0f)
             return;
-        
-        // Weapon Swapping.
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f || Input.GetKeyDown(KeyCode.E))
-        {
-            if (selectedWeaponIndexProperty >= transform.childCount - 1)
-                selectedWeaponIndexProperty = 0;
-            else
-                selectedWeaponIndexProperty++;
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f || Input.GetKeyDown(KeyCode.Q))
-        {
-            if (selectedWeaponIndexProperty <= 0)
-                selectedWeaponIndexProperty = transform.childCount - 1;
-            else
-                selectedWeaponIndexProperty--;
-        }
     }
 
 
@@ -83,12 +88,4 @@ public class WeaponManager : MonoBehaviour
             _playerWeapons[i].gameObject.SetActive(i == selectedWeaponIndexProperty);
         }
     }
-
-
-    // REPLACE THESE WITH A BETTER METHOD.
-    #region Replace ASAP with a better method
-    public int GetCurrentAmmo() => transform.GetChild(_selectedWeaponIndex).GetComponent<Gun>().CurrentAmmoProperty;
-    public int GetMaxClipAmmo() => transform.GetChild(_selectedWeaponIndex).GetComponent<Gun>().MaxClipSizeProperty;
-    public bool GetIsReloading() => transform.GetChild(_selectedWeaponIndex).GetComponent<Gun>().GetIsReloading();
-    #endregion
 }

@@ -438,6 +438,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 8288749b-bb48-43e7-9c31-0d02dd5323b5
     m_ActionName: Default/Reload[/Keyboard/r]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1655954516}
+        m_TargetAssemblyTypeName: WeaponManager, Assembly-CSharp
+        m_MethodName: OnSwapFiringMode
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: dbbde021-3ce7-4c78-a990-8580da86a2b2
+    m_ActionName: Default/Select Next Fire Mode[/Keyboard/q]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1655954516}
+        m_TargetAssemblyTypeName: WeaponManager, Assembly-CSharp
+        m_MethodName: OnSwapWeapon
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: b34ab84b-9c29-461e-823d-d63716a76473
+    m_ActionName: Default/Swap Weapon[/Mouse/scroll,/Keyboard/q,/Keyboard/e]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: MnK
   m_DefaultActionMap: Default
@@ -1119,7 +1151,7 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _fireDelay: 0.3
-  _fireType: 0
+  _availableFireTypes: 00000000
   _maxAmmo: 12
   _maxClipSize: 2
   _reloadTime: 0.5
@@ -1858,7 +1890,7 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _fireDelay: 0.125
-  _fireType: 3
+  _availableFireTypes: 0300000002000000
   _maxAmmo: 50
   _maxClipSize: 20
   _reloadTime: 0.5
@@ -3299,7 +3331,7 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _fireDelay: 0.2
-  _fireType: 0
+  _availableFireTypes: 00000000
   _maxAmmo: 20
   _maxClipSize: 8
   _reloadTime: 0.25
