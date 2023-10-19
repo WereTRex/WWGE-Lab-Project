@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class Gun : MonoBehaviour
@@ -11,11 +12,14 @@ public class Gun : MonoBehaviour
 
 
     [SerializeField] private Camera _playerCamera;
-    [SerializeField] private float _force;
+    [SerializeField] private Transform _barrelPosition;
+
+    [SerializeField] private float _hitForce;
     [SerializeField] private GameObject[] _bulletHoldPrefabs;
 
 
     private bool _isAttacking = false;
+    private bool _firing = false;
 
     #region Fire Rate
     [Header("Fire Rate")]
@@ -80,6 +84,12 @@ public class Gun : MonoBehaviour
     {
         _isReloading = false;
         _isAttacking = false;
+
+        if (_firing)
+        {
+            _firing = false;
+            _fireDelayRemaining = _fireDelay;
+        }
     }
 
 
@@ -110,7 +120,7 @@ public class Gun : MonoBehaviour
         if (Time.timeScale == 0f)
             return;
 
-        if (_fireDelayRemaining > 0f)
+        if (_fireDelayRemaining > 0f && !_firing)
             _fireDelayRemaining -= Time.deltaTime;
 
         if (_isAttacking)
@@ -120,25 +130,50 @@ public class Gun : MonoBehaviour
 
     private void AttemptFire()
     {
-        if (_fireDelayRemaining > 0f || _isReloading)
+        if (_fireDelayRemaining > 0f || _isReloading || _firing)
             return;
 
         if (currentAmmoProperty > 0)
         {
-            if (_fireType == FireType.ThreeRoundBurst)
+            switch (_fireType)
             {
-                StartCoroutine(BurstFire());
-            } else if (_fireType == FireType.SingleFire) {
-                Fire();
-                _fireDelayRemaining = _fireDelay;
-                currentAmmoProperty--;
+                case FireType.TwoRoundBurst:
+                    StartCoroutine(BurstFire(2));
+                    break;
+                case FireType.ThreeRoundBurst:
+                    StartCoroutine(BurstFire(3));
+                    break;
+                default:
+                    Fire();
+
+                    _fireDelayRemaining = _fireDelay;
+                    currentAmmoProperty--;
+                    break;
             }
         } else
             StartCoroutine(Reload());
     }
-    private IEnumerator BurstFire()
+    private IEnumerator BurstFire(int bursts)
     {
-        throw new NotImplementedException();
+        int burstsRemaining = bursts;
+        float _timeBetweenBursts = 0.15f;
+
+        _firing = true;
+        while (burstsRemaining > 0)
+        {
+            if (currentAmmoProperty > 0)
+            {
+                Fire();
+
+                currentAmmoProperty--;
+                burstsRemaining--;
+                yield return new WaitForSeconds(_timeBetweenBursts);
+            } else
+                break;
+        }
+
+        _fireDelayRemaining = _fireDelay;
+        _firing = false;
     }
     private void Fire()
     {
@@ -159,7 +194,7 @@ public class Gun : MonoBehaviour
                 var direction = new Vector3(hit.transform.position.x - transform.position.x,
                     hit.transform.position.y - transform.position.y,
                     hit.transform.position.z - transform.position.z);
-                hit.rigidbody.AddForceAtPosition(_force * Vector3.Normalize(direction), hit.point);
+                hit.rigidbody.AddForceAtPosition(_hitForce * Vector3.Normalize(direction), hit.point);
 
                 OnHitRigidbodyObject?.Invoke();
 
@@ -173,7 +208,7 @@ public class Gun : MonoBehaviour
     // Currently the same for all guns.
     public void AttemptAlternateFire()
     {
-        if (_fireDelayRemaining > 0f || _isReloading)
+        if (_fireDelayRemaining > 0f || _isReloading || _firing)
             return;
 
         AltFire();
@@ -183,11 +218,11 @@ public class Gun : MonoBehaviour
     {
         Debug.Log("Alt Fire");
         
-        GameObject grenadeInstance = Instantiate(_grenadePrefab, _playerCamera.transform.position, _playerCamera.transform.rotation);
+        GameObject grenadeInstance = Instantiate(_grenadePrefab, _barrelPosition.position, _barrelPosition.rotation);
 
         if (grenadeInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
-            rb.AddForce(_playerCamera.transform.forward * _grenadeLaunchForce, ForceMode.Impulse);
+            rb.AddForce(_barrelPosition.forward * _grenadeLaunchForce, ForceMode.Impulse);
         }
     }
 

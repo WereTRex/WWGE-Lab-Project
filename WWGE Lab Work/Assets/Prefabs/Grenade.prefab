@@ -133,6 +133,8 @@ MonoBehaviour:
   _explosionRadius: 3
   _explosionForce: 500
   _fuseTime: 2
+  _explosionPrefab: {fileID: 8779840912387216700, guid: db57bcac240559e45b78399fb1d7c6d6, type: 3}
+  _explosionLifetime: 5
 --- !u!54 &6651287832380373786
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -141,7 +143,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6928705110215313758}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 0.5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
