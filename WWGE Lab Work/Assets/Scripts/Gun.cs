@@ -79,8 +79,29 @@ public class Gun : MonoBehaviour
     }
     private void OnDisable()
     {
-        if(_isReloading)
-            _isReloading = false;
+        _isReloading = false;
+        _isAttacking = false;
+    }
+
+
+
+    public void StartAttacking()
+    {
+        if (_fullAuto)
+            _isAttacking = true;
+        else {
+            AttemptFire();
+        }
+    }
+    public void StopAttacking()
+    {
+        _isAttacking = false;
+    }
+
+    public void StartReloading()
+    {
+        if (currentAmmoProperty != _maxClipSize && _ammoRemaining > 0)
+            StartCoroutine(Reload());
     }
 
 
@@ -91,42 +112,26 @@ public class Gun : MonoBehaviour
             return;
 
         if (_fireDelayRemaining > 0f)
-        {
             _fireDelayRemaining -= Time.deltaTime;
-            return;
-        }
-        if (_isReloading)
-            return;
 
-        /*if (_isAttacking && _fireRateDelayRemaining <= 0f)
-            AttemptAttack();*/
-
-
-        // Note: We don't need to check if we are reloading or if the fire delay remaining is below zero, but we shall do it anyway to prevent possible errors if we change the reload function.
-        if (((Input.GetMouseButton(0) && _fullAuto) || Input.GetMouseButtonDown(0)) && _fireDelayRemaining <= 0f && !_isReloading)
-        {
-            if (CurrentAmmoProperty > 0)
-            {
-                Fire();
-
-                _fireDelayRemaining = _fireDelay;
-                currentAmmoProperty--;
-            } else
-                StartCoroutine(Reload());
-        }
-        if (Input.GetMouseButtonDown(1) && _fireDelayRemaining <= 0f)
-        {
-            AltFire();
-            _fireDelayRemaining = _grenadeFireDelay;
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.R) && (currentAmmoProperty != _maxClipSize && _ammoRemaining > 0))
-        {
-            StartCoroutine(Reload());
-        }
+        if (_isAttacking)
+            AttemptFire();
     }
 
+
+    private void AttemptFire()
+    {
+        if (_fireDelayRemaining > 0f || _isReloading)
+            return;
+
+        if (currentAmmoProperty > 0)
+        {
+            Fire();
+            _fireDelayRemaining = _fireDelay;
+            currentAmmoProperty--;
+        } else
+            StartCoroutine(Reload());
+    }
     private void Fire()
     {
         // Shooting.
@@ -160,7 +165,16 @@ public class Gun : MonoBehaviour
             Debug.Log("I'm looking at nothing!");
     }
 
+
     // Currently the same for all guns.
+    public void AttemptAlternateFire()
+    {
+        if (_fireDelayRemaining > 0f || _isReloading)
+            return;
+
+        AltFire();
+        _fireDelayRemaining = _grenadeFireDelay;
+    }
     private void AltFire()
     {
         Debug.Log("Alt Fire");

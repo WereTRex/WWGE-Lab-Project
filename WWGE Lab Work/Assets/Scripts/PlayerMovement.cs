@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float _speed = 10f;
     [SerializeField] private float _jumpForce = 10f;
+    private Vector2 _movementInput;
 
     [Header("Gravity & Ground Check")]
     [SerializeField] private float _gravity = -9.81f;
@@ -20,6 +22,17 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController _controller;
     private Vector3 _velocity;
 
+
+    #region New Input System
+    public void OnMove(InputAction.CallbackContext context) => _movementInput = context.ReadValue<Vector2>();
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed && _isGrounded)
+            Jump();
+    }
+    #endregion
+
+
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
@@ -32,10 +45,7 @@ public class PlayerMovement : MonoBehaviour
         
 
         // Player Movement.
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * x + transform.forward * y;
+        Vector3 move = transform.right * _movementInput.x + transform.forward * _movementInput.y;
         _controller.Move(move * _speed * Time.deltaTime);
 
 
@@ -47,10 +57,16 @@ public class PlayerMovement : MonoBehaviour
             _velocity.y = -2f;
         
 
-        // Jumping.
+        /*// Jumping.
         if (Input.GetButtonDown("Jump") && _isGrounded)
-            _velocity.y = _jumpForce;
+            _velocity.y = _jumpForce;*/
 
         _controller.Move(_velocity * Time.deltaTime);
+    }
+
+
+    private void Jump()
+    {
+        _velocity.y = _jumpForce;
     }
 }

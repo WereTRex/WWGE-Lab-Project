@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -15,6 +16,31 @@ public class WeaponManager : MonoBehaviour
             ActivateSelectedWeapon();
         }
     }
+
+
+    #region New Input System
+    public void OnFire(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            _playerWeapons[_selectedWeaponIndex].StartAttacking();
+        } else if (context.canceled) {
+            _playerWeapons[_selectedWeaponIndex].StopAttacking();
+        }
+    }
+    public void OnAlternateFire(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            _playerWeapons[_selectedWeaponIndex].AttemptAlternateFire();
+        
+    }
+    public void OnReload(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            _playerWeapons[_selectedWeaponIndex].StartReloading();
+    }
+    #endregion
+
 
     private void Start()
     {
