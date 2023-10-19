@@ -23,8 +23,7 @@ public class Gun : MonoBehaviour
         [SerializeField] private float _fireDelay = 0.2f;
     private float _fireDelayRemaining = 0f;
 
-    [Tooltip("If true, the player can just hold down the fire button and will continuously fire")]
-        [SerializeField] private bool _fullAuto = false;
+    [SerializeField] private FireType _fireType;
     #endregion
 
     #region Ammo and Reloading
@@ -87,7 +86,7 @@ public class Gun : MonoBehaviour
 
     public void StartAttacking()
     {
-        if (_fullAuto)
+        if (_fireType == FireType.FullAuto)
             _isAttacking = true;
         else {
             AttemptFire();
@@ -126,11 +125,20 @@ public class Gun : MonoBehaviour
 
         if (currentAmmoProperty > 0)
         {
-            Fire();
-            _fireDelayRemaining = _fireDelay;
-            currentAmmoProperty--;
+            if (_fireType == FireType.ThreeRoundBurst)
+            {
+                StartCoroutine(BurstFire());
+            } else if (_fireType == FireType.SingleFire) {
+                Fire();
+                _fireDelayRemaining = _fireDelay;
+                currentAmmoProperty--;
+            }
         } else
             StartCoroutine(Reload());
+    }
+    private IEnumerator BurstFire()
+    {
+        throw new NotImplementedException();
     }
     private void Fire()
     {
@@ -139,11 +147,15 @@ public class Gun : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
+            // Create a bullet hole.
             GameObject chosenBulletHole = _bulletHoldPrefabs[UnityEngine.Random.Range(0, _bulletHoldPrefabs.Length)];
+            var tempBullet = Instantiate(chosenBulletHole, hit.point, Quaternion.LookRotation(hit.normal));
 
-            // Add force.
+
+            // Add force to the object if it has a rigidbody.
             if (hit.rigidbody)
             {
+                // Get the direction of the force to be applied, and apply it.
                 var direction = new Vector3(hit.transform.position.x - transform.position.x,
                     hit.transform.position.y - transform.position.y,
                     hit.transform.position.z - transform.position.z);
@@ -151,18 +163,10 @@ public class Gun : MonoBehaviour
 
                 OnHitRigidbodyObject?.Invoke();
 
-                // Create Bullet Holes and make them a child of the Physics Object.
-                var tempBullet = Instantiate(chosenBulletHole, hit.point, Quaternion.LookRotation(hit.normal));
+                // Make the bullet a child of the physics object so that it travels with it.
                 tempBullet.transform.parent = hit.transform;
             }
-            else
-            {
-                // Create Bullet Holes if it isn't a physics object.
-                Instantiate(chosenBulletHole, hit.point, Quaternion.LookRotation(hit.normal));
-            }
         }
-        else
-            Debug.Log("I'm looking at nothing!");
     }
 
 
@@ -178,12 +182,12 @@ public class Gun : MonoBehaviour
     private void AltFire()
     {
         Debug.Log("Alt Fire");
-        ;
+        
         GameObject grenadeInstance = Instantiate(_grenadePrefab, _playerCamera.transform.position, _playerCamera.transform.rotation);
 
         if (grenadeInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
-            rb.AddForce(grenadeInstance.transform.forward * _grenadeLaunchForce, ForceMode.Impulse);
+            rb.AddForce(_playerCamera.transform.forward * _grenadeLaunchForce, ForceMode.Impulse);
         }
     }
 
@@ -212,4 +216,14 @@ public class Gun : MonoBehaviour
             _ammoRemaining = 0;
         }
     }
+}
+
+
+[System.Serializable]
+public enum FireType
+{
+    SingleFire,
+    TwoRoundBurst,
+    ThreeRoundBurst,
+    FullAuto
 }
