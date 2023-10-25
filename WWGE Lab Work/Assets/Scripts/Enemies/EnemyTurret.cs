@@ -11,6 +11,11 @@ public class EnemyTurret : MonoBehaviour
     [SerializeField] private float _maxFollowAngle = 0.45f;
     [SerializeField] private float _maxVisibilityDistance;
 
+
+    [Space(5)]
+    [SerializeField] private ParticleSystem _alertPS;
+    private bool _playerPreviouslySighted;
+
     private void Start()
     {
         _player = GameObject.FindGameObjectWithTag("Player");
@@ -26,7 +31,16 @@ public class EnemyTurret : MonoBehaviour
             // Rotate to face the player.
             Vector3 newDirection = Vector3.RotateTowards(transform.forward, _targetDir, _speed * Time.deltaTime, 0.0f);
             transform.rotation = Quaternion.LookRotation(newDirection);
+
+
+            if (_playerPreviouslySighted != true)
+            {
+                _alertPS.Play();
+                _playerPreviouslySighted = true;
+            }
         }
+        else
+            _playerPreviouslySighted = false;
     }
 
 
