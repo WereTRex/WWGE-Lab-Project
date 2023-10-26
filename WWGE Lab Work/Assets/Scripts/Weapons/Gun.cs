@@ -11,6 +11,10 @@ public class Gun : MonoBehaviour
     public static event Action OnHitRigidbodyObject;
 
 
+    [SerializeField] private float _weaponDamage;
+
+    [Space(5)]
+
     [SerializeField] private Camera _playerCamera;
     [SerializeField] private Transform _barrelPosition;
 
@@ -219,6 +223,13 @@ public class Gun : MonoBehaviour
 
                 // Make the bullet a child of the physics object so that it travels with it.
                 tempBullet.transform.parent = hit.transform;
+            }
+
+
+            // Deal damage to the object, if it has a health component.
+            if (hit.transform.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+            {
+                healthComponent.TakeDamage(_weaponDamage);
             }
         }
     }
