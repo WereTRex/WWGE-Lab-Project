@@ -15,9 +15,14 @@ public class EnemyTurret : MonoBehaviour
     [Space(5)]
     public float DetectionCheckDelay = 0.2f;
 
-    [Header("Rotation Varialbes")]
+    [Header("Rotation Variables")]
     [SerializeField] private Transform _rotationTarget;
     [SerializeField] private float _rotationSpeed;
+
+    [Header("Idle State Variables")]
+    [SerializeField] private Vector3[] _idleLookTargets;
+    [SerializeField] private float _idleRotationSpeed;
+    [SerializeField] private float _idleRotationPause;
 
     [Header("Alert State Variables")]
     [SerializeField] private ParticleSystem _alertPS;
@@ -40,7 +45,7 @@ public class EnemyTurret : MonoBehaviour
     {
         _stateMachine = new StateMachine();
 
-        var idle = new TurretIdle(this);
+        var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationPause);
         var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _alertPS);
         var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _fireDelay, _fireRotationDelay, _shotObstructionLayers, _damage, _burstCount, _burstDelay);
         var deactivated = new TurretDeactivated(_healthComponent, _deactivationDuration);
@@ -89,5 +94,16 @@ public class EnemyTurret : MonoBehaviour
     public void TryGetTarget()
     {
         Target = _senses.TryGetTarget(out _withinShootingAngle);
+    }
+
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        for (int i = 0; i < _idleLookTargets.Length; i++)
+        {
+            Gizmos.DrawSphere(_idleLookTargets[i], 0.25f);
+        }
     }
 }
