@@ -17,8 +17,8 @@ public class Manager : MonoBehaviour
     private int _hitObjectCount = 0;
 
 
-    private void OnEnable() => Gun.OnHitRigidbodyObject += IncreaseHitObjectCount;
-    private void OnDisable() => Gun.OnHitRigidbodyObject -= IncreaseHitObjectCount;
+    /*private void OnEnable() => Gun.OnHitRigidbodyObject += IncreaseHitObjectCount;
+    private void OnDisable() => Gun.OnHitRigidbodyObject -= IncreaseHitObjectCount;*/
     private void Start()
     {
         _paused = false;

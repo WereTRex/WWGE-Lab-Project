@@ -8,7 +8,7 @@ public class AmmoUI : MonoBehaviour
     [SerializeField] private TMPro.TMP_Text _ammoText;
 
 
-    private void OnEnable()
+    /*private void OnEnable()
     {
         Gun.OnStartedReloading += OnWeaponReloading;
         Gun.OnWeaponAmmoChanged += OnAmmoValuesChanged;
@@ -17,7 +17,7 @@ public class AmmoUI : MonoBehaviour
     {
         Gun.OnStartedReloading -= OnWeaponReloading;
         Gun.OnWeaponAmmoChanged -= OnAmmoValuesChanged;
-    }
+    }*/
 
 
     private void OnWeaponReloading()

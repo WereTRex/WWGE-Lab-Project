@@ -36,14 +36,14 @@ public class WeaponManager : MonoBehaviour
     }
     public void OnAlternateFire(InputAction.CallbackContext context)
     {
-        if (context.performed)
-            _playerWeapons[_selectedWeaponIndex].AttemptAlternateFire();
+        /*if (context.performed)
+            _playerWeapons[_selectedWeaponIndex].AttemptAlternateFire();*/
         
     }
     public void OnReload(InputAction.CallbackContext context)
     {
         if (context.performed)
-            _playerWeapons[_selectedWeaponIndex].StartReloading();
+            _playerWeapons[_selectedWeaponIndex].StartReload();
     }
     public void OnSwapWeapon(InputAction.CallbackContext context)
     {
@@ -58,7 +58,7 @@ public class WeaponManager : MonoBehaviour
     public void OnSwapFiringMode(InputAction.CallbackContext context)
     {
         if (context.performed)
-            _playerWeapons[_selectedWeaponIndex].SelectNextFiringType();
+            _playerWeapons[_selectedWeaponIndex].SwitchFiringType();
     }
     #endregion
 

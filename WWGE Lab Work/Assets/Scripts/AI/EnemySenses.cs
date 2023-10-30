@@ -30,7 +30,6 @@ public class EnemySenses : MonoBehaviour
         {            
             // Is the target within the sight radius (Dot Product)?
             float currentTargetDot = Vector3.Dot(transform.forward, (potentialTarget.transform.position - transform.position).normalized);
-            Debug.Log("Target Dot: " + currentTargetDot);
             if (!(currentTargetDot > _viewAngle))
                 continue;
 
