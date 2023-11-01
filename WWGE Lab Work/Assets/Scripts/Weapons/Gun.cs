@@ -1,9 +1,341 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Pool;
 
 public class Gun : MonoBehaviour
+{
+    #region Variables
+    [Header("General")]
+    [SerializeField] private float _weaponDamage = 2f;
+    [SerializeField] private float _hitForce = 200f;
+    private bool _isAttacking = false;
+
+    [SerializeField] private ParticleSystem _muzzleFlashPS;
+
+
+    [Header("Shooting Variables")]
+    [SerializeField] private LayerMask _hitMask;
+
+    [SerializeField] private Transform _raycastOrigin;
+    [SerializeField] private Transform _bulletOrigin;
+
+
+    [Header("Fire Rate Variables")]
+    [SerializeField] private float _fireDelay = 0.25f;
+    private float _lastShotTime = 0f;
+
+
+    [Header("Ammo and Reloading")]
+    [SerializeField] private int _maxAmmo = 30;
+    [SerializeField] private int _maxClipAmmo = 12;
+    private int _totalAmmoRemaining;
+    private int _clipAmmoRemaining;
+
+    [Space(5)]
+
+    [SerializeField] private float _reloadTime = 0.7f;
+    private bool _isReloading = false;
+    [SerializeField] private bool _autoReloadWhenAttacking = true;
+
+
+    [Header("Firing Type")]
+    [SerializeField] private FiringType[] _availableFiringTypes = new FiringType[1] { FiringType.SingleFire };
+    [System.Serializable]
+    enum FiringType
+    {
+        SingleFire = 0,
+        FullAuto = 1
+    }
+    private int _currentFiringTypeIndex = 0;
+
+
+    [Header("Bullet Recoil and Spread")]
+    [SerializeField] private bool _useSpread = true;
+    [SerializeField] private Vector2 _bulletSpread = new Vector2(0.1f, 0.1f);
+
+
+    [Header("Alternate Fire")]
+    [SerializeField] private AlternateFireSO _alternateFireSO;
+    private float _lastAlternateFireTime;
+
+
+    [Header("Bullet Tracers")]
+
+    [SerializeField] private Gradient _bulletTrailColour;
+    [SerializeField] private Material _bulletTrailMaterial;
+    [SerializeField] private AnimationCurve _bulletTrailWidthCurve;
+    [SerializeField] private float _bulletTrailDuration;
+    [SerializeField] private float _bulletTrailMinVertexDistance;
+
+    [Space(5)]
+
+    [SerializeField] private float _bulletTrailSimulationSpeed;
+    [SerializeField] private float _bulletTrailMissDistance;
+
+    private ObjectPool<TrailRenderer> _trailPool;
+
+
+    [Header("Impact Effects")]
+    [SerializeField] private GameObject[] _bulletHolePrefabs;
+    
+
+    [Header("Gizmos")]
+    [SerializeField] private bool _drawGizmos = false;
+    #endregion
+
+
+    #region Awake
+    private void Awake()
+    {
+        _trailPool = new ObjectPool<TrailRenderer>(CreateTrail);
+    }
+    #endregion
+
+    #region Start
+    private void Start()
+    {
+        _totalAmmoRemaining = _maxAmmo;
+        _clipAmmoRemaining = _maxClipAmmo;
+    }
+    #endregion
+
+    #region Update
+    private void Update()
+    {
+        if (_availableFiringTypes[_currentFiringTypeIndex] == FiringType.FullAuto && _isAttacking && !_isReloading)
+            AttemptAttack();
+    }
+    #endregion
+
+    #region Input
+    public void StartAttacking()
+    {
+        _isAttacking = true;
+
+        if (_availableFiringTypes[_currentFiringTypeIndex] == FiringType.SingleFire)
+            AttemptAttack();
+    }
+    public void StopAttacking()
+    {
+        _isAttacking = false;
+    }
+    #endregion
+
+    #region Shooting
+    void AttemptAttack()
+    {
+        // Check fireRate & if we are reloading.
+        if (Time.time <= _fireDelay + _lastShotTime || _isReloading)
+            return;
+
+        // Check that we have ammo remaining.
+        if (_clipAmmoRemaining <= 0)
+        {
+            if (_autoReloadWhenAttacking && _totalAmmoRemaining > 0)
+            {
+                StartReload();
+            } else {
+                // Click.
+                return;
+            }
+        }
+
+        // We can attack, so we do so.
+        Shoot();
+    }
+    void Shoot()
+    {
+        // Fire Rate & Reduce Ammo.
+        _lastShotTime = Time.time;
+        _clipAmmoRemaining--;
+
+        // Muzzle Flash.
+        if (_muzzleFlashPS != null)
+            _muzzleFlashPS.Play();
+
+
+        // Raycast to find if we hit something.
+        Vector3 fireDirection = GetFireDirection();
+        if (Physics.Raycast(_raycastOrigin.position, fireDirection, out RaycastHit hit, float.MaxValue, _hitMask))
+        {
+            // We hit something!
+
+            // (Effect) Bullet Tracers.
+            StartCoroutine(PlayTrail(_bulletOrigin.position, hit.point, hit));
+
+            // (Effect) Ready Impact Effects.
+            GameObject bulletHole = Instantiate(_bulletHolePrefabs[Random.Range(0, _bulletHolePrefabs.Length)], hit.point, Quaternion.LookRotation(hit.normal));
+
+
+            // (Logic) Apply Damage.
+            if (hit.transform.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+                healthComponent.TakeDamage(_weaponDamage);
+            
+            // (Logic) Apply Force.
+            if (hit.rigidbody)
+            {
+                Vector3 direction = (hit.transform.position - transform.position).normalized;
+                hit.rigidbody.AddForceAtPosition(direction * _hitForce, hit.point);
+
+                // (Effect) Attach impact effects to physics object.
+                bulletHole.transform.parent = hit.transform;
+            }
+        }
+        else
+        {
+            // We missed!
+
+            // (Effect) Bullet trails.
+            StartCoroutine(PlayTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _bulletTrailMissDistance), new RaycastHit()));
+        }
+    }
+
+    private Vector3 GetFireDirection()
+    {
+        Vector3 direction = _raycastOrigin.forward;
+
+        if (_useSpread)
+        {
+            direction += new Vector3(
+                x: Random.Range(-_bulletSpread.x, _bulletSpread.x),
+                y: Random.Range(-_bulletSpread.y, _bulletSpread.y));
+            direction.Normalize();
+        }
+
+        return direction;
+    }
+    #endregion
+
+    #region Reloading
+    public void StartReload()
+    {
+        // Check that the current clip isn't already full, that we aren't completely out of ammo, and that we aren't already reloading.
+        if (_clipAmmoRemaining >= _maxClipAmmo || _totalAmmoRemaining <= 0 || _isReloading)
+            return;
+
+        // Start Reloading.
+        StartCoroutine(Reload());
+    }
+
+    private IEnumerator Reload()
+    {
+        _totalAmmoRemaining += _clipAmmoRemaining;
+        _clipAmmoRemaining = 0;
+
+        _isReloading = true;
+        yield return new WaitForSeconds(_reloadTime);
+        _isReloading = false;
+
+        if (_totalAmmoRemaining < _maxClipAmmo)
+        {
+            _clipAmmoRemaining = _totalAmmoRemaining;
+            _totalAmmoRemaining = 0;
+        } else {
+            _clipAmmoRemaining = _maxClipAmmo;
+            _totalAmmoRemaining -= _maxClipAmmo;
+        }
+    }
+    #endregion
+
+    #region Fire Modes
+    public void SwitchFiringType()
+    {
+        if (_currentFiringTypeIndex < _availableFiringTypes.Length - 1)
+            _currentFiringTypeIndex++;
+        else
+            _currentFiringTypeIndex = 0;
+    }
+    #endregion
+
+    #region Alternate Fire
+    public void AttemptAlternateFire()
+    {
+        if (Time.time <= _alternateFireSO.CooldownTime + _lastAlternateFireTime)
+            return;
+
+        _lastAlternateFireTime = Time.time;
+        _alternateFireSO.AlternateAttack(gameObject, _raycastOrigin, _bulletOrigin);
+    }
+    #endregion
+
+    #region Effects
+    // Setup a TrailRender for the ObjectPool.
+    private TrailRenderer CreateTrail()
+    {
+        GameObject instance = new GameObject("Bullet Trail");
+        TrailRenderer trail = instance.AddComponent<TrailRenderer>();
+
+        trail.colorGradient = _bulletTrailColour;
+        trail.material = _bulletTrailMaterial;
+        trail.widthCurve = _bulletTrailWidthCurve;
+        trail.time = _bulletTrailDuration;
+        trail.minVertexDistance = _bulletTrailMinVertexDistance;
+
+        trail.emitting = false;
+        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        return trail;
+    }
+    private IEnumerator PlayTrail(Vector3 startPoint, Vector3 endPoint, RaycastHit hit)
+    {
+        TrailRenderer instance = _trailPool.Get();
+        instance.gameObject.SetActive(true);
+        instance.transform.position = startPoint;
+        yield return null;
+
+        instance.emitting = true;
+
+        float distance = Vector3.Distance(startPoint, endPoint);
+        float remainingDistance = distance;
+        while (remainingDistance > 0)
+        {
+            instance.transform.position = Vector3.Lerp(startPoint, endPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));
+            remainingDistance -= _bulletTrailSimulationSpeed * Time.deltaTime;
+
+            yield return null;
+        }
+
+        instance.transform.position = endPoint;
+
+        yield return new WaitForSeconds(_bulletTrailDuration);
+        yield return null;
+
+        instance.emitting = false;
+        instance.gameObject.SetActive(false);
+        _trailPool.Release(instance);
+    }
+    #endregion
+
+    #region Gizmos
+    private void OnDrawGizmosSelected()
+    {
+        if (!_drawGizmos)
+            return;
+
+
+        if (_raycastOrigin != null)
+        {
+            Gizmos.color = Color.red;
+
+            // Vertical.
+            Gizmos.DrawRay(_raycastOrigin.position, (_raycastOrigin.forward + new Vector3(0, _bulletSpread.y, 0)).normalized * float.MaxValue);
+            Gizmos.DrawRay(_raycastOrigin.position, (_raycastOrigin.forward + new Vector3(0, -_bulletSpread.y, 0)).normalized * float.MaxValue);
+
+            // Horizontal.
+            Gizmos.DrawRay(_raycastOrigin.position, (_raycastOrigin.forward + new Vector3(_bulletSpread.x, 0, 0)).normalized * float.MaxValue);
+            Gizmos.DrawRay(_raycastOrigin.position, (_raycastOrigin.forward + new Vector3(-_bulletSpread.x, 0, 0)).normalized * float.MaxValue);
+        }
+    }
+    #endregion
+}
+
+
+
+
+
+/*public class Gun : MonoBehaviour
 {
     #region - Variables -
     #region General
@@ -51,7 +383,7 @@ public class Gun : MonoBehaviour
     [Header("Weapon VFX")]
     [SerializeField] private ParticleSystem _muzzleFlashParticleSystem;
 
-    [SerializeField] private TrailConfigScriptableObject _bulletTrailConfig;
+    [SerializeField] private TrailConfigSO _bulletTrailConfig;
     private ObjectPool<TrailRenderer> _trailPool;
 
     [SerializeField] private ParticleSystem _impactParticleSystem;
@@ -305,7 +637,7 @@ public class Gun : MonoBehaviour
         Gizmos.DrawRay(_raycastOriginPoint.position, (_raycastOriginPoint.forward + new Vector3(-_bulletSpreadVariance.x, 0, 0)).normalized * _maxShootingDistance);
     }
     #endregion
-}
+}*/
 
 
 

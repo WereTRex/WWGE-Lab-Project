@@ -4,7 +4,7 @@ using UnityEngine;
 /// A scriptable object used to contain the configuration information for bullet tracers.
 /// </summary>
 [CreateAssetMenu(fileName = "Trail Config", menuName = "Weapons/Guns/Trail Config", order = 4)]
-public class TrailConfigScriptableObject : ScriptableObject
+public class TrailConfigSO : ScriptableObject
 {
     public Material Material;
     public AnimationCurve WidthCurve;

@@ -36,8 +36,8 @@ public class WeaponManager : MonoBehaviour
     }
     public void OnAlternateFire(InputAction.CallbackContext context)
     {
-        /*if (context.performed)
-            _playerWeapons[_selectedWeaponIndex].AttemptAlternateFire();*/
+        if (context.performed)
+            _playerWeapons[_selectedWeaponIndex].AttemptAlternateFire();
         
     }
     public void OnReload(InputAction.CallbackContext context)
