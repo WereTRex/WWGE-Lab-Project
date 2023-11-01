@@ -5,9 +5,9 @@ using static UnityEngine.ParticleSystem;
 public class DamageConfigSO : ScriptableObject
 {
     public MinMaxCurve DamageCurve;
-    public float HitForce = 200f;
+    public float HitForce;
 
-    // Called when you reset the ScriptableObject in the inspector.
+    // Triggers when you reset the Scriptable Object in the inspector;
     private void Reset()
     {
         DamageCurve.mode = ParticleSystemCurveMode.Curve;
