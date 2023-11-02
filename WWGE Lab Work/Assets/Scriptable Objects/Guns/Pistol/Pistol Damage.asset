@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef294f6e3a82e8143aad7f525bf17b96, type: 3}
-  m_Name: Damage Config
+  m_Name: Pistol Damage
   m_EditorClassIdentifier: 
   DamageCurve:
     m_Mode: 1

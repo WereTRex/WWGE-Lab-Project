@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bddda24238107334aa3cff392009e4e0, type: 3}
-  m_Name: Shooting Config
+  m_Name: Pistol Shooting
   m_EditorClassIdentifier: 
   FiringType: 0
-  IsHitscan: 1
-  BulletPrefab: {fileID: 0}
-  BulletLaunchForce: 0
+  IsHitscan: 0
+  BulletPrefab: {fileID: 7573649980509865317, guid: cce50cc81154a2f4e8f348f5c8098e18, type: 3}
+  BulletLaunchForce: 1000
   HitMask:
     serializedVersion: 2
     m_Bits: 321

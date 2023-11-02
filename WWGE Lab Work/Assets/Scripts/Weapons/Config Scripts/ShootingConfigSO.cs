@@ -9,8 +9,8 @@ public class ShootingConfigSO : ScriptableObject
     [Space(5)]
 
     public bool IsHitscan = true;
-    public GameObject BulletPrefab;
-    public float BulletLaunchForce;
+    public Bullet BulletPrefab;
+    public float BulletLaunchForce = 1000f;
 
     [Space(5)]
 
