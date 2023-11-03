@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.IO.Pipes;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -90,10 +89,13 @@ public class Gun : MonoBehaviour
     #region Input
     public void StartAttacking()
     {
-        _isAttacking = true;
-
         if (_shootConfig.FiringType == FiringType.SingleFire)
+        {
             AttemptAttack();
+            _spreadTime = Mathf.Clamp(_spreadTime + _shootConfig.MaxSpreadTime / 2f, 0, _shootConfig.MaxSpreadTime);
+        } else if (_shootConfig.FiringType == FiringType.FullAuto) {
+            _isAttacking = true;
+        }
     }
     public void StopAttacking()
     {
@@ -143,15 +145,41 @@ public class Gun : MonoBehaviour
             Debug.LogError("Applying recoil with this method has no constraints. We need to find a solution");
             _model.transform.forward += _model.transform.TransformDirection(spreadAmount);
             fireDirection = _model.transform.forward;
-        } else
+        }
+        else
             fireDirection = (_raycastOrigin.forward + spreadAmount).normalized;
 
 
-        if (_shootConfig.IsHitscan)
-            HitscanShoot(fireDirection);
-        else
-            ProjectileShoot(fireDirection);
+        for (int i = 0; i < _shootConfig.BulletsPerShot; i++)
+        {
+            // Bullet Deviation for things like Shotguns.
+            Vector3 direction = GetShotDirection(fireDirection);
+
+            Debug.DrawRay(_raycastOrigin.position, direction * 10f, Color.red, 1f);
+
+            if (_shootConfig.IsHitscan)
+                HitscanShoot(direction);
+            else
+                ProjectileShoot(direction);
+        }
     }
+    private Vector3 GetShotDirection(Vector3 fireDirection)
+    {
+        float radius = Mathf.Tan((_shootConfig.MaxBulletAngle / 2f) * Mathf.Deg2Rad);
+        Vector3 circle;
+        if (_shootConfig.UseWeightedSpread)
+        {
+            float circleAngle = Random.value * Mathf.PI * 2f;
+            float circleRadius = Random.value;
+            circle = new Vector2(Mathf.Cos(circleAngle) * circleRadius, Mathf.Sin(circleAngle) * circleRadius) * radius;
+        } else {
+            circle = Random.insideUnitCircle * radius;
+        }
+        Vector3 direction = (fireDirection + _raycastOrigin.rotation * new Vector3(circle.x, circle.y)).normalized;
+
+        return direction;
+    }
+
 
 
     private void HitscanShoot(Vector3 fireDirection)
@@ -374,6 +402,28 @@ public class Gun : MonoBehaviour
     {
         if (!_drawGizmos)
             return;
+
+
+        if (_raycastOrigin != null)
+        {
+            Gizmos.color = Color.red;
+
+            // Get direction within a cone.
+            float radius = Mathf.Tan((_shootConfig.MaxBulletAngle / 2f) * Mathf.Deg2Rad);
+            Vector2 verticalCircle = Vector3.up * radius;
+            Vector3 upDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, verticalCircle.y);
+            Vector3 downDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, -verticalCircle.y);
+            
+            Gizmos.DrawRay(_raycastOrigin.position, upDirection * 10f);
+            Gizmos.DrawRay(_raycastOrigin.position, downDirection * 10f);
+            
+            Vector2 horizontalCircle = Vector3.right * radius;
+            Vector3 rightDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(horizontalCircle.x, horizontalCircle.y);
+            Vector3 leftDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(-horizontalCircle.x, horizontalCircle.y);
+
+            Gizmos.DrawRay(_raycastOrigin.position, leftDirection * 10f);
+            Gizmos.DrawRay(_raycastOrigin.position, rightDirection * 10f);
+        }
     }
     #endregion
 }

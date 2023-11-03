@@ -18,7 +18,14 @@ public class ShootingConfigSO : ScriptableObject
     public float FireDelay = 0.25f;
 
 
-    [Header("Recoil & Spread")]
+    [Header("Spread")]
+    [Min(1)] public int BulletsPerShot = 1;
+    [Range(0f, 180f)]
+    public float MaxBulletAngle = 0f;
+    public bool UseWeightedSpread = false;
+
+
+    [Header("Recoil")]
     public float RecoilRecoverySpeed = 1f;
     public float MaxSpreadTime = 1f;
 
