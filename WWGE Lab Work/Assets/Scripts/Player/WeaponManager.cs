@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,11 @@ using UnityEngine.InputSystem;
 
 public class WeaponManager : MonoBehaviour
 {
+    public static event Action OnPlayerStartedReloading;
+    public static event Action<int, int> OnPlayerAmmoChanged;
+    public static event Action OnPlayerHitPhysicsObject;
+    
+    
     private List<Gun> _playerWeapons = new List<Gun>();
     private int _selectedWeaponIndex;
     private int selectedWeaponIndexProperty
@@ -63,7 +69,7 @@ public class WeaponManager : MonoBehaviour
     #endregion
 
 
-    private void Start()
+    private void Awake()
     {
         selectedWeaponIndexProperty = 0;
 
@@ -73,6 +79,26 @@ public class WeaponManager : MonoBehaviour
                 _playerWeapons.Add(gunScript);
         }
     }
+
+    private void OnEnable()
+    {
+        for (int i = 0; i < _playerWeapons.Count; i++)
+        {
+            _playerWeapons[i].OnStartedReloading += OnPlayerStartedReloading;
+            _playerWeapons[i].OnWeaponAmmoChanged += OnPlayerAmmoChanged;
+            _playerWeapons[i].OnHitPhysicsObject += OnPlayerHitPhysicsObject;
+        }
+    }
+    private void OnDisable()
+    {
+        for (int i = 0; i < _playerWeapons.Count; i++)
+        {
+            _playerWeapons[i].OnStartedReloading -= OnPlayerStartedReloading;
+            _playerWeapons[i].OnWeaponAmmoChanged -= OnPlayerAmmoChanged;
+            _playerWeapons[i].OnHitPhysicsObject -= OnPlayerHitPhysicsObject;
+        }
+    }
+
 
     private void Update()
     {
@@ -87,5 +113,31 @@ public class WeaponManager : MonoBehaviour
         {
             _playerWeapons[i].gameObject.SetActive(i == selectedWeaponIndexProperty);
         }
+    }
+
+
+    public void AddWeaponFromPrefab(Gun newWeaponPrefab)
+    {
+        Gun instance = Instantiate(newWeaponPrefab, transform);
+
+        if (gameObject.activeInHierarchy)
+        {
+            instance.OnStartedReloading += OnPlayerStartedReloading;
+            instance.OnWeaponAmmoChanged += OnPlayerAmmoChanged;
+            instance.OnHitPhysicsObject += OnPlayerHitPhysicsObject;
+        }
+        _playerWeapons.Add(instance);
+    }
+    public void AddWeaponFromInstance(Gun instance)
+    {
+        instance.transform.SetParent(transform, false);
+
+        if (gameObject.activeInHierarchy)
+        {
+            instance.OnStartedReloading += OnPlayerStartedReloading;
+            instance.OnWeaponAmmoChanged += OnPlayerAmmoChanged;
+            instance.OnHitPhysicsObject += OnPlayerHitPhysicsObject;
+        }
+        _playerWeapons.Add(instance);
     }
 }

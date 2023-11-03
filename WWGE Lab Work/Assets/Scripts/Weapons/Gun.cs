@@ -1,5 +1,5 @@
+using System;
 using System.Collections;
-using System.IO.Pipes;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -28,6 +28,15 @@ public class Gun : MonoBehaviour
     [SerializeField] private AmmoConfigSO _ammoConfig;
     private int _totalAmmoRemaining;
     private int _clipAmmoRemaining;
+    private int _clipAmmoRemainingProperty
+    {
+        get => _clipAmmoRemaining;
+        set
+        {
+            _clipAmmoRemaining = value;
+            OnWeaponAmmoChanged?.Invoke(_clipAmmoRemaining, _ammoConfig.MaxClipAmmo);
+        }
+    }
 
     private bool _isReloading = false;
 
@@ -52,6 +61,10 @@ public class Gun : MonoBehaviour
     [SerializeField] private bool _drawGizmos = false;
     #endregion
 
+    public event Action OnStartedReloading;
+    public event Action<int, int> OnWeaponAmmoChanged;
+    public event Action OnHitPhysicsObject;
+
 
     #region Awake
     private void Awake()
@@ -67,7 +80,7 @@ public class Gun : MonoBehaviour
     private void Start()
     {
         _totalAmmoRemaining = _ammoConfig.MaxAmmo;
-        _clipAmmoRemaining = _ammoConfig.MaxClipAmmo;
+        _clipAmmoRemainingProperty = _ammoConfig.MaxClipAmmo;
     }
     #endregion
 
@@ -111,7 +124,7 @@ public class Gun : MonoBehaviour
             return;
 
         // Check that we have ammo remaining.
-        if (_clipAmmoRemaining <= 0)
+        if (_clipAmmoRemainingProperty <= 0)
         {
             if (_ammoConfig.AutoReloadWhenAttacking && _totalAmmoRemaining > 0)
             {
@@ -129,7 +142,7 @@ public class Gun : MonoBehaviour
     {
         // Fire Rate & Reduce Ammo.
         _lastShotTime = Time.time;
-        _clipAmmoRemaining--;
+        _clipAmmoRemainingProperty--;
 
 
         // Muzzle Flash & Audio.
@@ -155,8 +168,6 @@ public class Gun : MonoBehaviour
             // Bullet Deviation for things like Shotguns.
             Vector3 direction = GetShotDirection(fireDirection);
 
-            Debug.DrawRay(_raycastOrigin.position, direction * 10f, Color.red, 1f);
-
             if (_shootConfig.IsHitscan)
                 HitscanShoot(direction);
             else
@@ -169,11 +180,11 @@ public class Gun : MonoBehaviour
         Vector3 circle;
         if (_shootConfig.UseWeightedSpread)
         {
-            float circleAngle = Random.value * Mathf.PI * 2f;
-            float circleRadius = Random.value;
+            float circleAngle = UnityEngine.Random.value * Mathf.PI * 2f;
+            float circleRadius = UnityEngine.Random.value;
             circle = new Vector2(Mathf.Cos(circleAngle) * circleRadius, Mathf.Sin(circleAngle) * circleRadius) * radius;
         } else {
-            circle = Random.insideUnitCircle * radius;
+            circle = UnityEngine.Random.insideUnitCircle * radius;
         }
         Vector3 direction = (fireDirection + _raycastOrigin.rotation * new Vector3(circle.x, circle.y)).normalized;
 
@@ -265,7 +276,7 @@ public class Gun : MonoBehaviour
     private void HandleShotHit(float distanceTravelled, Vector3 hitLocation, Vector3 hitNormal, Collider hitCollider)
     {
         // (Effect) Ready Impact Effects.
-        GameObject bulletHole = Instantiate(_bulletHolePrefabs[Random.Range(0, _bulletHolePrefabs.Length)], hitLocation, Quaternion.LookRotation(hitNormal));
+        GameObject bulletHole = Instantiate(_bulletHolePrefabs[UnityEngine.Random.Range(0, _bulletHolePrefabs.Length)], hitLocation, Quaternion.LookRotation(hitNormal));
 
 
         // (Logic) Apply Damage.
@@ -281,6 +292,9 @@ public class Gun : MonoBehaviour
 
             // (Effect) Attach impact effects to physics object.
             bulletHole.transform.parent = hitCollider.transform;
+
+
+            OnHitPhysicsObject?.Invoke();
         }
     }
 
@@ -292,7 +306,7 @@ public class Gun : MonoBehaviour
     public void StartReload()
     {
         // Check that the current clip isn't already full, that we aren't completely out of ammo, and that we aren't already reloading.
-        if (_clipAmmoRemaining >= _ammoConfig.MaxClipAmmo || _totalAmmoRemaining <= 0 || _isReloading)
+        if (_clipAmmoRemainingProperty >= _ammoConfig.MaxClipAmmo || _totalAmmoRemaining <= 0 || _isReloading)
             return;
 
         // Start Reloading.
@@ -301,8 +315,10 @@ public class Gun : MonoBehaviour
 
     private IEnumerator Reload()
     {
-        _totalAmmoRemaining += _clipAmmoRemaining;
-        _clipAmmoRemaining = 0;
+        _totalAmmoRemaining += _clipAmmoRemainingProperty;
+        _clipAmmoRemainingProperty = 0;
+
+        OnStartedReloading?.Invoke();
 
         _isReloading = true;
         yield return new WaitForSeconds(_ammoConfig.ReloadTime);
@@ -310,10 +326,10 @@ public class Gun : MonoBehaviour
 
         if (_totalAmmoRemaining < _ammoConfig.MaxClipAmmo)
         {
-            _clipAmmoRemaining = _totalAmmoRemaining;
+            _clipAmmoRemainingProperty = _totalAmmoRemaining;
             _totalAmmoRemaining = 0;
         } else {
-            _clipAmmoRemaining = _ammoConfig.MaxClipAmmo;
+            _clipAmmoRemainingProperty = _ammoConfig.MaxClipAmmo;
             _totalAmmoRemaining -= _ammoConfig.MaxClipAmmo;
         }
     }

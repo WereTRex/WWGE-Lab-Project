@@ -1,23 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class AmmoUI : MonoBehaviour
 {
-    [SerializeField] private WeaponManager _weaponManager;
-    [SerializeField] private TMPro.TMP_Text _ammoText;
+    [SerializeField] private TMP_Text _ammoText;
 
 
-    /*private void OnEnable()
+    private void OnEnable()
     {
-        Gun.OnStartedReloading += OnWeaponReloading;
-        Gun.OnWeaponAmmoChanged += OnAmmoValuesChanged;
+        WeaponManager.OnPlayerStartedReloading += OnWeaponReloading;
+        WeaponManager.OnPlayerAmmoChanged += OnAmmoValuesChanged;
     }
     private void OnDisable()
     {
-        Gun.OnStartedReloading -= OnWeaponReloading;
-        Gun.OnWeaponAmmoChanged -= OnAmmoValuesChanged;
-    }*/
+        WeaponManager.OnPlayerStartedReloading -= OnWeaponReloading;
+        WeaponManager.OnPlayerAmmoChanged -= OnAmmoValuesChanged;
+    }
 
 
     private void OnWeaponReloading()
