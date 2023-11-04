@@ -7,8 +7,8 @@ using UnityEngine.InputSystem;
 public class WeaponManager : MonoBehaviour
 {
     public static event Action OnPlayerStartedReloading;
-    public static event Action<int, int> OnPlayerAmmoChanged;
     public static event Action OnPlayerHitPhysicsObject;
+    public static event Gun.WeaponAmmoChanged OnPlayerAmmoChanged;
     
     
     private List<Gun> _playerWeapons = new List<Gun>();

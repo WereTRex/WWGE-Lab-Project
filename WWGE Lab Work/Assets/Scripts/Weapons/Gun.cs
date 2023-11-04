@@ -53,6 +53,11 @@ public class Gun : MonoBehaviour
 
     [Space(5)]
 
+    [SerializeField] private AudioConfigSO _audioConfig;
+    [SerializeField] private AudioSource _audioSource;
+
+    [Space(5)]
+
     [SerializeField] private GameObject[] _bulletHolePrefabs;
     #endregion
 
@@ -62,8 +67,11 @@ public class Gun : MonoBehaviour
     #endregion
 
     public event Action OnStartedReloading;
-    public event Action<int, int> OnWeaponAmmoChanged;
     public event Action OnHitPhysicsObject;
+
+    public delegate void WeaponAmmoChanged(int currentClipAmmo, int maxClipAmmo);
+    public event WeaponAmmoChanged OnWeaponAmmoChanged;
+
 
 
     #region Awake
@@ -83,6 +91,11 @@ public class Gun : MonoBehaviour
         _clipAmmoRemainingProperty = _ammoConfig.MaxClipAmmo;
     }
     #endregion
+
+    private void OnEnable()
+    {
+        OnWeaponAmmoChanged?.Invoke(_clipAmmoRemaining, _ammoConfig.MaxClipAmmo);
+    }
 
     #region Update
     private void Update()
@@ -127,12 +140,11 @@ public class Gun : MonoBehaviour
         if (_clipAmmoRemainingProperty <= 0)
         {
             if (_ammoConfig.AutoReloadWhenAttacking && _totalAmmoRemaining > 0)
-            {
                 StartReload();
-            } else {
-                // Click.
-                return;
-            }
+            else
+                _audioConfig?.PlayOutOfAmmoClip(_audioSource);
+            
+            return;
         }
 
         // We can attack, so we do so.
@@ -148,6 +160,7 @@ public class Gun : MonoBehaviour
         // Muzzle Flash & Audio.
         if (_muzzleFlashPS != null)
             _muzzleFlashPS.Play();
+        _audioConfig?.PlayerShootingClip(_audioSource, _clipAmmoRemaining == 1);
 
 
         // Calculate Fire Direction.
@@ -310,13 +323,17 @@ public class Gun : MonoBehaviour
             return;
 
         // Start Reloading.
-        StartCoroutine(Reload());
+        if (_ammoConfig.IndividualReloading)
+            StartCoroutine(SteppedReload());
+        else
+            StartCoroutine(Reload());
     }
 
     private IEnumerator Reload()
     {
         _totalAmmoRemaining += _clipAmmoRemainingProperty;
         _clipAmmoRemainingProperty = 0;
+        _audioConfig?.PlayReloadClip(_audioSource);
 
         OnStartedReloading?.Invoke();
 
@@ -332,6 +349,24 @@ public class Gun : MonoBehaviour
             _clipAmmoRemainingProperty = _ammoConfig.MaxClipAmmo;
             _totalAmmoRemaining -= _ammoConfig.MaxClipAmmo;
         }
+    }
+    private IEnumerator SteppedReload()
+    {
+        OnStartedReloading?.Invoke();
+        _isReloading = true;
+
+        //float reloadStep = _ammoConfig.ReloadTime / _ammoConfig.MaxClipAmmo;
+        while (_clipAmmoRemainingProperty < _ammoConfig.MaxClipAmmo && _totalAmmoRemaining > 0)
+        {
+            _audioConfig.PlayIntermediateReload(_audioSource);
+            yield return new WaitForSeconds(_ammoConfig.ReloadTime);
+            _clipAmmoRemainingProperty++;
+            _totalAmmoRemaining--;
+        }
+        _audioConfig.PlayReloadClip(_audioSource);
+        yield return new WaitForSeconds(_ammoConfig.ReloadTime);
+
+        _isReloading = false;
     }
     #endregion
 

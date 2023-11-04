@@ -6,8 +6,9 @@ public class AmmoConfigSO : ScriptableObject
     public int MaxAmmo;
     public int MaxClipAmmo;
 
-    [Space(5)]
+    [Header("Reloading")]
 
     public float ReloadTime = 0.7f;
     public bool AutoReloadWhenAttacking = true;
+    public bool IndividualReloading = false;
 }

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxAmmo: 60
   MaxClipAmmo: 31
-  ReloadTime: 0.7
+  ReloadTime: 1.7
   AutoReloadWhenAttacking: 1
