@@ -9,6 +9,7 @@ public class WeaponManager : MonoBehaviour
     public static event Action OnPlayerStartedReloading;
     public static event Action OnPlayerHitPhysicsObject;
     public static event Gun.WeaponAmmoChanged OnPlayerAmmoChanged;
+    public static event Action<string> OnWeaponChanged;
     
     
     private List<Gun> _playerWeapons = new List<Gun>();
@@ -26,6 +27,8 @@ public class WeaponManager : MonoBehaviour
                 _selectedWeaponIndex = value;
 
             ActivateSelectedWeapon();
+
+            OnWeaponChanged?.Invoke(_playerWeapons[_selectedWeaponIndex].name);
         }
     }
 
@@ -71,13 +74,13 @@ public class WeaponManager : MonoBehaviour
 
     private void Awake()
     {
-        selectedWeaponIndexProperty = 0;
-
         foreach (Transform weapon in transform)
         {
             if (weapon.TryGetComponent<Gun>(out Gun gunScript))
                 _playerWeapons.Add(gunScript);
         }
+
+        selectedWeaponIndexProperty = 0;
     }
 
     private void OnEnable()
@@ -88,6 +91,8 @@ public class WeaponManager : MonoBehaviour
             _playerWeapons[i].OnWeaponAmmoChanged += OnPlayerAmmoChanged;
             _playerWeapons[i].OnHitPhysicsObject += OnPlayerHitPhysicsObject;
         }
+
+        selectedWeaponIndexProperty = Mathf.Clamp(selectedWeaponIndexProperty, 0, _playerWeapons.Count - 1);
     }
     private void OnDisable()
     {
@@ -139,5 +144,11 @@ public class WeaponManager : MonoBehaviour
             instance.OnHitPhysicsObject += OnPlayerHitPhysicsObject;
         }
         _playerWeapons.Add(instance);
+    }
+
+
+    public float GetCrosshairSize()
+    {
+        return _playerWeapons[selectedWeaponIndexProperty].GetCrosshairSize();
     }
 }

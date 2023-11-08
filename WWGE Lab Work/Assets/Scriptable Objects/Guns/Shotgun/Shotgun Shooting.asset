@@ -23,8 +23,33 @@ MonoBehaviour:
   BulletsPerShot: 8
   MaxBulletAngle: 15
   UseWeightedSpread: 1
-  RecoilRecoverySpeed: 1
+  RecoilRecoverySpeed: 1.25
   MaxSpreadTime: 1
+  MinSpreadPercent: 0
+  CrosshairCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 175
+      inSlope: 100
+      outSlope: 100
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 275
+      inSlope: 100
+      outSlope: 100
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   SpreadType: 1
   MaxSpread: 0.1
   SpreadMultiplier: 0.1

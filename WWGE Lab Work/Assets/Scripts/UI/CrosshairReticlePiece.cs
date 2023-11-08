@@ -14,10 +14,17 @@ public class CrosshairReticlePiece : MonoBehaviour
     }
     [SerializeField] private ReticlePieceAlignment _type;
     [SerializeField] private float _thicknessMultiplier = 1;
-
     private RectTransform _rectTransform;
 
-    private void Start() => _rectTransform = GetComponent<RectTransform>();
+    private float _borderThickness = 1f;
+    [SerializeField] private RectTransform _borderTransform;
+
+    private void Start()
+    {
+        _rectTransform = GetComponent<RectTransform>();
+
+        SetBorderThickness(_borderThickness);
+    }
 
 
     public void SetPieceThickness(float newThickness)
@@ -59,5 +66,12 @@ public class CrosshairReticlePiece : MonoBehaviour
                 _rectTransform.sizeDelta = new Vector2(newThickness, newThickness);
                 break;
         }
+    }
+
+    public void SetBorderThickness(float newThickness)
+    {
+        _borderThickness = newThickness;
+        _borderTransform.offsetMax = new Vector2(_borderThickness, _borderThickness);
+        _borderTransform.offsetMin = new Vector2(-_borderThickness, -_borderThickness);
     }
 }

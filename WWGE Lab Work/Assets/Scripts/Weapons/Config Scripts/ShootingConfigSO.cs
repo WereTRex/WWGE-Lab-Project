@@ -26,8 +26,14 @@ public class ShootingConfigSO : ScriptableObject
 
 
     [Header("Recoil")]
-    public float RecoilRecoverySpeed = 1f;
+    public float RecoilRecoverySpeed = 1.5f;
     public float MaxSpreadTime = 1f;
+    [Range(0, 1)]public float MinSpreadPercent = 0.1f;
+
+    [Space(5)]
+
+    [Tooltip("An AnimationCurve for the size of the dynamic crosshair depending on the current firing time")]
+        public AnimationCurve CrosshairCurve;
 
     [Space(5)]
 
@@ -54,7 +60,7 @@ public class ShootingConfigSO : ScriptableObject
                     x: Random.Range(-MaxSpread, MaxSpread),
                     y: Random.Range(-MaxSpread, MaxSpread),
                     z: Random.Range(-MaxSpread, MaxSpread)),
-                Mathf.Clamp01(shootTime / MaxSpreadTime));
+                Mathf.Clamp(shootTime / MaxSpreadTime, MinSpreadPercent, 1f));
         }
         else if (SpreadType == BulletSpreadType.TextureBased)
         {
@@ -74,7 +80,7 @@ public class ShootingConfigSO : ScriptableObject
             Mathf.Lerp(
                 0.01f,
                 halfSize.x,
-                Mathf.Clamp01(shootTime / MaxSpreadTime))
+                Mathf.Clamp(shootTime / MaxSpreadTime, MinSpreadPercent, 1f))
             );
 
         // Get the bottom left corner of this square.

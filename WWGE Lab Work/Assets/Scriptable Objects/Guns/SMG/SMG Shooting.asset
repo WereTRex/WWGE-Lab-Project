@@ -20,8 +20,36 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 321
   FireDelay: 0.1
-  RecoilRecoverySpeed: 1
-  MaxSpreadTime: 1
+  BulletsPerShot: 1
+  MaxBulletAngle: 0
+  UseWeightedSpread: 0
+  RecoilRecoverySpeed: 2
+  MaxSpreadTime: 0.5
+  MinSpreadPercent: 0.1
+  CrosshairCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 80
+      inSlope: 120
+      outSlope: 120
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 200
+      inSlope: 120
+      outSlope: 120
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   SpreadType: 1
   MaxSpread: 0.1
   SpreadMultiplier: 0.1

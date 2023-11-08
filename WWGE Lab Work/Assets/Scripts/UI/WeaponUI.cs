@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class AmmoUI : MonoBehaviour
+public class WeaponUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text _ammoText;
+
+    [SerializeField] private TMP_Text _weaponNameText;
 
 
     private void OnEnable()
     {
         WeaponManager.OnPlayerStartedReloading += OnWeaponReloading;
         WeaponManager.OnPlayerAmmoChanged += OnAmmoValuesChanged;
+        WeaponManager.OnWeaponChanged += WeaponChanged;
     }
     private void OnDisable()
     {
         WeaponManager.OnPlayerStartedReloading -= OnWeaponReloading;
         WeaponManager.OnPlayerAmmoChanged -= OnAmmoValuesChanged;
+        WeaponManager.OnWeaponChanged -= WeaponChanged;
     }
 
 
@@ -27,5 +31,9 @@ public class AmmoUI : MonoBehaviour
     private void OnAmmoValuesChanged(int newCurrentAmmo, int newAmmoRemaining)
     {
         _ammoText.text = newCurrentAmmo + "/" + newAmmoRemaining;
+    }
+    private void WeaponChanged(string newName)
+    {
+        _weaponNameText.text = newName;
     }
 }

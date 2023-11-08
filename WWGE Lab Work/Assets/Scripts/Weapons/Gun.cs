@@ -92,15 +92,18 @@ public class Gun : MonoBehaviour
     }
     #endregion
 
+    #region Enable and Disable
     private void OnEnable()
     {
         OnWeaponAmmoChanged?.Invoke(_clipAmmoRemaining, _ammoConfig.MaxClipAmmo);
+        _isReloading = false;
     }
+    #endregion
 
     #region Update
     private void Update()
     {
-        _spreadTime = Mathf.Clamp(_spreadTime + Time.deltaTime * (_isAttacking ? 1f : -_shootConfig.RecoilRecoverySpeed), 0, _shootConfig.MaxSpreadTime);
+        _spreadTime = Mathf.Clamp(_spreadTime + Time.deltaTime * (_isAttacking && _clipAmmoRemaining > 0 ? 1f : -_shootConfig.RecoilRecoverySpeed), 0, _shootConfig.MaxSpreadTime);
 
         if (_model != null)
         {
@@ -118,7 +121,6 @@ public class Gun : MonoBehaviour
         if (_shootConfig.FiringType == FiringType.SingleFire)
         {
             AttemptAttack();
-            _spreadTime = Mathf.Clamp(_spreadTime + _shootConfig.MaxSpreadTime / 2f, 0, _shootConfig.MaxSpreadTime);
         } else if (_shootConfig.FiringType == FiringType.FullAuto) {
             _isAttacking = true;
         }
@@ -142,10 +144,16 @@ public class Gun : MonoBehaviour
             if (_ammoConfig.AutoReloadWhenAttacking && _totalAmmoRemaining > 0)
                 StartReload();
             else
+            {
                 _audioConfig?.PlayOutOfAmmoClip(_audioSource);
-            
+                _lastShotTime = Time.time;
+            }
+
             return;
         }
+
+        if (_shootConfig.FiringType == FiringType.SingleFire)
+            _spreadTime = Mathf.Clamp(_spreadTime + _shootConfig.MaxSpreadTime / 2f, 0, _shootConfig.MaxSpreadTime);
 
         // We can attack, so we do so.
         MakeAttack();
@@ -477,4 +485,10 @@ public class Gun : MonoBehaviour
         }
     }
     #endregion
+
+
+    public float GetCrosshairSize()
+    {
+        return _shootConfig.CrosshairCurve.Evaluate(_spreadTime / _shootConfig.MaxSpreadTime);
+    }
 }
