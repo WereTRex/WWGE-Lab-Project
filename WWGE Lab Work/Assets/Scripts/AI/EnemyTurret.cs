@@ -79,7 +79,7 @@ public class EnemyTurret : MonoBehaviour
         Func<bool> LostTarget() => () => (Target == null) && (alert.FacingTargetDirection);
         Func<bool> TargetWithinFireCone() => () => Target != null && _withinShootingAngle;
         Func<bool> TargetOutwithinFireCone() => () => Target != null && !_withinShootingAngle;
-        Func<bool> OutOfHealth() => () => _healthComponent.CurrentHealth <= 0;
+        Func<bool> OutOfHealth() => () => _healthComponent.CurrentHealthProperty <= 0;
         Func<bool> ReactivationTimeElapsed() => () => deactivated.DeactivationTimeElapsed == true;
         #endregion
     }

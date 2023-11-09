@@ -11,34 +11,36 @@ public class HealthComponent : MonoBehaviour
     [SerializeField] private float _maxHealth;
 
     private float _currentHealth;
-    public float CurrentHealth => _currentHealth;
-
-
-    private void Start()
+    public float CurrentHealthProperty
     {
-        _currentHealth = _maxHealth;
+        get => _currentHealth;
+        private set
+        {
+            _currentHealth = value;
+
+            if (_healthBar != null)
+                _healthBar.UpdateProgressBar(maximum: _maxHealth, current: _currentHealth);
+        }
     }
+
+    [Header("UI")]
+    [SerializeField] private ProgressBar _healthBar;
+
+
+
+    private void Start() => CurrentHealthProperty = _maxHealth;
 
 
     public void TakeDamage(float damage)
     {
-        _currentHealth -= damage;
+        CurrentHealthProperty -= damage;
 
-        if (_currentHealth < 0)
+        if (CurrentHealthProperty < 0)
         {
             OnDead?.Invoke();
         }
     }
-
-    public void ReceiveHealing(float healing)
-    {
-        _currentHealth += healing;
-    }
-
-
-
-    public void ResetHealth()
-    {
-        _currentHealth = _maxHealth;
-    }
+    public void ReceiveHealing(float healing) => CurrentHealthProperty += healing;
+    
+    public void ResetHealth() => CurrentHealthProperty = _maxHealth;
 }
