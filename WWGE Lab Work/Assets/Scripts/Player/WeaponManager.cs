@@ -9,7 +9,10 @@ public class WeaponManager : MonoBehaviour
     public static event Action OnPlayerStartedReloading;
     public static event Action OnPlayerHitPhysicsObject;
     public static event Gun.WeaponAmmoChanged OnPlayerAmmoChanged;
+    
     public static event Action<string> OnWeaponChanged;
+
+    public static event Action<FiringType> OnFiringTypeChanged;
     
     
     private List<Gun> _playerWeapons = new List<Gun>();
@@ -90,6 +93,8 @@ public class WeaponManager : MonoBehaviour
             _playerWeapons[i].OnStartedReloading += OnPlayerStartedReloading;
             _playerWeapons[i].OnWeaponAmmoChanged += OnPlayerAmmoChanged;
             _playerWeapons[i].OnHitPhysicsObject += OnPlayerHitPhysicsObject;
+
+            _playerWeapons[i].OnFiringTypeChanged += OnFiringTypeChanged;
         }
 
         selectedWeaponIndexProperty = Mathf.Clamp(selectedWeaponIndexProperty, 0, _playerWeapons.Count - 1);
@@ -101,6 +106,8 @@ public class WeaponManager : MonoBehaviour
             _playerWeapons[i].OnStartedReloading -= OnPlayerStartedReloading;
             _playerWeapons[i].OnWeaponAmmoChanged -= OnPlayerAmmoChanged;
             _playerWeapons[i].OnHitPhysicsObject -= OnPlayerHitPhysicsObject;
+
+            _playerWeapons[i].OnFiringTypeChanged -= OnFiringTypeChanged;
         }
     }
 

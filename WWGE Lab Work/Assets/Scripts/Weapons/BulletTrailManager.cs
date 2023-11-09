@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -65,6 +66,45 @@ public class BulletTrailManager : MonoBehaviour
         instance.gameObject.SetActive(false);
         _trailPool[trailConfig].Pool.Release(instance);
     }
+    
+    public void AttachBulletTrail(TrailConfigSO trailConfig, Transform bullet)
+    {
+        // If there is not a valid ObjectPool currently in the scene, then create one.
+        if (!_trailPool.ContainsKey(trailConfig))
+        {
+            TrailPool pool = new TrailPool(trailConfig);
+            _trailPool.Add(trailConfig, pool);
+        }
+
+        TrailRenderer trail = _trailPool[trailConfig].Pool.Get();
+        if (trail != null)
+        {
+            trail.transform.SetParent(bullet.transform, false);
+            trail.transform.localPosition = Vector3.zero;
+            trail.emitting = true;
+            trail.gameObject.SetActive(true);
+        }
+    }
+
+    public void ReleaseTrail(TrailConfigSO trailConfig, TrailRenderer trail)
+    {
+        if (_trailPool.ContainsKey(trailConfig))
+        {
+            trail.transform.SetParent(null, true);
+            StartCoroutine(DelayedDisableTrail(trailConfig, trail));
+        }
+    }
+    // Allow the trail to end before we disable it.
+    private IEnumerator DelayedDisableTrail(TrailConfigSO trailConfig, TrailRenderer trail)
+    {
+        yield return new WaitForSeconds(trailConfig.Duration);
+        yield return null;
+
+        trail.emitting = false;
+        trail.gameObject.SetActive(false);
+        _trailPool[trailConfig].Pool.Release(trail);
+    }
+
 
     private class TrailPool
     {
