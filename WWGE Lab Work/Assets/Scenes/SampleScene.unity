@@ -2392,12 +2392,14 @@ MonoBehaviour:
   _damageConfig: {fileID: 11400000, guid: 2c56b560605f12f4c875e72b313b9792, type: 2}
   _model: {fileID: 0}
   _muzzleFlashPS: {fileID: 0}
-  _shootConfig: {fileID: 11400000, guid: 5187797cc6f0d9b4783c11d0dbe7d4f6, type: 2}
+  _shootConfig:
+  - {fileID: 11400000, guid: 5187797cc6f0d9b4783c11d0dbe7d4f6, type: 2}
   _raycastOrigin: {fileID: 963194228}
   _bulletOrigin: {fileID: 1034635643}
   _ammoConfig: {fileID: 11400000, guid: acf96be873c9ddf49b9d6fa1a17c7c20, type: 2}
   _alternateFireSO: {fileID: 11400000, guid: f52980deebeea1c48b0a2f8e21d2ada3, type: 2}
   _trailConfig: {fileID: 11400000, guid: f67bfbf9dc49a204181490b06990d657, type: 2}
+  _bulletTrailManager: {fileID: 1655954517}
   _audioConfig: {fileID: 11400000, guid: ed36e7c535203fb4fa83c90a5aa945fc, type: 2}
   _audioSource: {fileID: 70386894}
   _bulletHolePrefabs:
@@ -8109,12 +8111,16 @@ MonoBehaviour:
   _damageConfig: {fileID: 11400000, guid: f5483100210272d4b8659509deed6dc7, type: 2}
   _model: {fileID: 0}
   _muzzleFlashPS: {fileID: 0}
-  _shootConfig: {fileID: 11400000, guid: b96b9373db8b89b4cbab2efeca686c0a, type: 2}
+  _shootConfig:
+  - {fileID: 11400000, guid: b96b9373db8b89b4cbab2efeca686c0a, type: 2}
+  - {fileID: 11400000, guid: acb2f1d055cbb504c9da6d401adbace0, type: 2}
+  - {fileID: 11400000, guid: ea4316c1c2fff3b40a816523ebfc59a3, type: 2}
   _raycastOrigin: {fileID: 963194228}
   _bulletOrigin: {fileID: 1323637631}
   _ammoConfig: {fileID: 11400000, guid: ff83fee98a649624aad913eae52ba12f, type: 2}
   _alternateFireSO: {fileID: 0}
   _trailConfig: {fileID: 11400000, guid: f67bfbf9dc49a204181490b06990d657, type: 2}
+  _bulletTrailManager: {fileID: 1655954517}
   _audioConfig: {fileID: 11400000, guid: 914881fd83b167b4a9054cf307dffd8e, type: 2}
   _audioSource: {fileID: 70386894}
   _bulletHolePrefabs:
@@ -9301,12 +9307,14 @@ MonoBehaviour:
   _damageConfig: {fileID: 11400000, guid: 3e3eb56ee2f08084ba5b8590385e1024, type: 2}
   _model: {fileID: 0}
   _muzzleFlashPS: {fileID: 0}
-  _shootConfig: {fileID: 11400000, guid: 466ee26f2d2d8814281e07b523d2a079, type: 2}
+  _shootConfig:
+  - {fileID: 11400000, guid: 466ee26f2d2d8814281e07b523d2a079, type: 2}
   _raycastOrigin: {fileID: 963194228}
   _bulletOrigin: {fileID: 271981617}
   _ammoConfig: {fileID: 11400000, guid: 1da00e2bd95466240b71bf19f1f870cf, type: 2}
   _alternateFireSO: {fileID: 11400000, guid: e104611a336e93647beede55ed5f71c6, type: 2}
   _trailConfig: {fileID: 11400000, guid: f67bfbf9dc49a204181490b06990d657, type: 2}
+  _bulletTrailManager: {fileID: 1655954517}
   _audioConfig: {fileID: 11400000, guid: 7cc9a584a374cdd478c530c9a40d7300, type: 2}
   _audioSource: {fileID: 70386894}
   _bulletHolePrefabs:
@@ -9477,6 +9485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1655954515}
   - component: {fileID: 1655954516}
+  - component: {fileID: 1655954517}
   m_Layer: 3
   m_Name: Weapons
   m_TagString: Untagged
@@ -9514,6 +9523,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed041b4efd9226449c25215ef2d6afd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1655954517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655954514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67d835a37177ca54c858b988061e955f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _baseTrailConfig: {fileID: 11400000, guid: f67bfbf9dc49a204181490b06990d657, type: 2}
 --- !u!1 &1698029900
 GameObject:
   m_ObjectHideFlags: 0

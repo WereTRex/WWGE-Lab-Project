@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -14,7 +15,8 @@ public class Gun : MonoBehaviour
 
 
     [Header("Firing")]
-    [SerializeField] private ShootingConfigSO _shootConfig;
+    [SerializeField] private List<ShootingConfigSO> _shootConfig;
+    private int _currentFiringIndex = 0;
 
     [SerializeField] private Transform _raycastOrigin;
     [SerializeField] private Transform _bulletOrigin;
@@ -49,6 +51,7 @@ public class Gun : MonoBehaviour
     #region Effects
     [Header("Effects")]
     [SerializeField] private TrailConfigSO _trailConfig;
+    [SerializeField] private BulletTrailManager _bulletTrailManager;
     private ObjectPool<TrailRenderer> _trailPool;
 
     [Space(5)]
@@ -79,8 +82,8 @@ public class Gun : MonoBehaviour
     {
         _trailPool = new ObjectPool<TrailRenderer>(CreateTrail);
 
-        if (!_shootConfig.IsHitscan)
-            _bulletPool = new ObjectPool<Bullet>(CreateBullet);
+        //if (!_shootConfig.IsHitscan)
+        //    _bulletPool = new ObjectPool<Bullet>(CreateBullet);
     }
     #endregion
 
@@ -103,14 +106,14 @@ public class Gun : MonoBehaviour
     #region Update
     private void Update()
     {
-        _spreadTime = Mathf.Clamp(_spreadTime + Time.deltaTime * (_isAttacking && _clipAmmoRemaining > 0 ? 1f : -_shootConfig.RecoilRecoverySpeed), 0, _shootConfig.MaxSpreadTime);
+        _spreadTime = Mathf.Clamp(_spreadTime + Time.deltaTime * (_isAttacking && _clipAmmoRemaining > 0 ? 1f : -_shootConfig[_currentFiringIndex].RecoilRecoverySpeed), 0, _shootConfig[_currentFiringIndex].MaxSpreadTime);
 
         if (_model != null)
         {
-            _model.transform.localRotation = Quaternion.Lerp(_model.transform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _shootConfig.RecoilRecoverySpeed);
+            _model.transform.localRotation = Quaternion.Lerp(_model.transform.localRotation, Quaternion.Euler(0f, 0f, 0f), Time.deltaTime * _shootConfig[_currentFiringIndex].RecoilRecoverySpeed);
         }
 
-        if (_shootConfig.FiringType == FiringType.FullAuto && _isAttacking && !_isReloading)
+        if (_shootConfig[_currentFiringIndex].FiringType == FiringType.FullAuto && _isAttacking && !_isReloading)
             AttemptAttack();
     }
     #endregion
@@ -118,16 +121,23 @@ public class Gun : MonoBehaviour
     #region Input
     public void StartAttacking()
     {
-        if (_shootConfig.FiringType == FiringType.SingleFire)
-        {
-            AttemptAttack();
-        } else if (_shootConfig.FiringType == FiringType.FullAuto) {
+        if (_shootConfig[_currentFiringIndex].FiringType == FiringType.FullAuto) {
             _isAttacking = true;
+        } else {
+            AttemptAttack();
         }
     }
     public void StopAttacking()
     {
         _isAttacking = false;
+    }
+
+    public void SwitchFiringType()
+    {
+        if (_currentFiringIndex < _shootConfig.Count - 1)
+            _currentFiringIndex++;
+        else
+            _currentFiringIndex = 0;
     }
     #endregion
 
@@ -135,7 +145,7 @@ public class Gun : MonoBehaviour
     void AttemptAttack()
     {
         // Check fireRate & if we are reloading.
-        if (Time.time <= _shootConfig.FireDelay + _lastShotTime || _isReloading)
+        if (Time.time <= _shootConfig[_currentFiringIndex].FireDelay + _lastShotTime || _isReloading)
             return;
 
         // Check that we have ammo remaining.
@@ -152,13 +162,22 @@ public class Gun : MonoBehaviour
             return;
         }
 
-        if (_shootConfig.FiringType == FiringType.SingleFire)
-            _spreadTime = Mathf.Clamp(_spreadTime + _shootConfig.MaxSpreadTime / 2f, 0, _shootConfig.MaxSpreadTime);
-
-        // We can attack, so we do so.
-        MakeAttack();
+        // We can attack, so we do so (With some logic for single & burst firing modes).
+        switch (_shootConfig[_currentFiringIndex].FiringType)
+        {
+            case FiringType.SingleFire:
+                _spreadTime = Mathf.Clamp(_spreadTime + _shootConfig[_currentFiringIndex].MaxSpreadTime / 2f, 0, _shootConfig[_currentFiringIndex].MaxSpreadTime);
+                MakeAttack();
+                break;
+            case FiringType.FullAuto:
+                MakeAttack();
+                break;
+            case FiringType.ThreeRoundBurst:
+                StartCoroutine(BurstAttack(3));
+                break;
+        }
     }
-    void MakeAttack()
+    private void MakeAttack()
     {
         // Fire Rate & Reduce Ammo.
         _lastShotTime = Time.time;
@@ -172,7 +191,7 @@ public class Gun : MonoBehaviour
 
 
         // Calculate Fire Direction.
-        Vector3 spreadAmount = _shootConfig.GetSpread(_spreadTime);
+        Vector3 spreadAmount = _shootConfig[_currentFiringIndex].GetSpread(_spreadTime);
         Vector3 fireDirection;
         if (_model != null)
         {
@@ -184,22 +203,56 @@ public class Gun : MonoBehaviour
             fireDirection = (_raycastOrigin.forward + spreadAmount).normalized;
 
 
-        for (int i = 0; i < _shootConfig.BulletsPerShot; i++)
+        for (int i = 0; i < _shootConfig[_currentFiringIndex].BulletsPerShot; i++)
         {
             // Bullet Deviation for things like Shotguns.
             Vector3 direction = GetShotDirection(fireDirection);
 
-            if (_shootConfig.IsHitscan)
+            if (_shootConfig[_currentFiringIndex].IsHitscan)
                 HitscanShoot(direction);
             else
                 ProjectileShoot(direction);
         }
     }
+
+    private IEnumerator BurstAttack(int burstCount)
+    {
+        // Store certain values in variables so we only need to access them once.
+        float burstDelay = _shootConfig[_currentFiringIndex].FireDelay;
+        float maxSpreadTime = _shootConfig[_currentFiringIndex].MaxSpreadTime;
+        
+        int burstsRemaining = burstCount;
+        while(burstsRemaining > 0 && _clipAmmoRemainingProperty > 0)
+        {
+            // If we have ammo, fire.
+            if (_clipAmmoRemainingProperty > 0)
+            {
+                // Increment the spread.
+                _spreadTime = Mathf.Clamp(_spreadTime + maxSpreadTime / 2f, 0, maxSpreadTime);
+
+                // Fire the bullet.
+                MakeAttack();
+            }
+            // Otherwise, play out of ammo sound (Allows for further clicks).
+            else
+            {
+                _audioConfig?.PlayOutOfAmmoClip(_audioSource);
+                _lastShotTime = Time.time;
+            }
+            
+
+            // Progress.
+            yield return new WaitForSeconds(burstDelay);
+            burstsRemaining--;
+        }
+    }
+
+
     private Vector3 GetShotDirection(Vector3 fireDirection)
     {
-        float radius = Mathf.Tan((_shootConfig.MaxBulletAngle / 2f) * Mathf.Deg2Rad);
+        float radius = Mathf.Tan((_shootConfig[_currentFiringIndex].MaxBulletAngle / 2f) * Mathf.Deg2Rad);
         Vector3 circle;
-        if (_shootConfig.UseWeightedSpread)
+        if (_shootConfig[_currentFiringIndex].UseWeightedSpread)
         {
             float circleAngle = UnityEngine.Random.value * Mathf.PI * 2f;
             float circleRadius = UnityEngine.Random.value;
@@ -217,12 +270,13 @@ public class Gun : MonoBehaviour
     private void HitscanShoot(Vector3 fireDirection)
     {
         // Raycast to find if we hit something.
-        if (Physics.Raycast(_raycastOrigin.position, fireDirection, out RaycastHit hit, float.MaxValue, _shootConfig.HitMask))
+        if (Physics.Raycast(_raycastOrigin.position, fireDirection, out RaycastHit hit, float.MaxValue, _shootConfig[_currentFiringIndex].HitMask))
         {
             // We hit something!
 
             // (Effect) Bullet Tracers.
-            StartCoroutine(PlayTrail(_bulletOrigin.position, hit.point, hit));
+            //StartCoroutine(PlayTrail(_bulletOrigin.position, hit.point, hit));
+            _bulletTrailManager.SpawnTrail(_bulletOrigin.position, hit.point, _trailConfig);
 
             // Hit logic.
             HandleShotHit(hit.distance, hit.point, hit.normal, hit.collider);
@@ -232,7 +286,8 @@ public class Gun : MonoBehaviour
             // We missed!
 
             // (Effect) Bullet trails.
-            StartCoroutine(PlayTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), new RaycastHit()));
+            //StartCoroutine(PlayTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), new RaycastHit()));
+            _bulletTrailManager.SpawnTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), _trailConfig);
         }
     }
     
@@ -245,7 +300,7 @@ public class Gun : MonoBehaviour
         bullet.OnCollision += HandleBulletCollision;
         // Finish bullet setup.
         bullet.transform.position = _bulletOrigin.transform.position;
-        bullet.Spawn(fireDirection * _shootConfig.BulletLaunchForce);
+        bullet.Spawn(fireDirection * _shootConfig[_currentFiringIndex].BulletLaunchForce);
 
         // (Effect) Bullet Tracers.
         TrailRenderer trail = _trailPool.Get();
@@ -320,7 +375,7 @@ public class Gun : MonoBehaviour
     }
 
 
-    private Bullet CreateBullet() => Instantiate(_shootConfig.BulletPrefab);
+    private Bullet CreateBullet() => Instantiate(_shootConfig[_currentFiringIndex].BulletPrefab);
     #endregion
 
     #region Reloading
@@ -375,17 +430,6 @@ public class Gun : MonoBehaviour
         yield return new WaitForSeconds(_ammoConfig.ReloadTime);
 
         _isReloading = false;
-    }
-    #endregion
-
-    #region Fire Modes
-    public void SwitchFiringType()
-    {
-        /*if (_currentFiringTypeIndex < _availableFiringTypes.Length - 1)
-            _currentFiringTypeIndex++;
-        else
-            _currentFiringTypeIndex = 0;*/
-        throw new System.NotImplementedException();
     }
     #endregion
 
@@ -468,7 +512,7 @@ public class Gun : MonoBehaviour
             Gizmos.color = Color.red;
 
             // Get direction within a cone.
-            float radius = Mathf.Tan((_shootConfig.MaxBulletAngle / 2f) * Mathf.Deg2Rad);
+            float radius = Mathf.Tan((_shootConfig[_currentFiringIndex].MaxBulletAngle / 2f) * Mathf.Deg2Rad);
             Vector2 verticalCircle = Vector3.up * radius;
             Vector3 upDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, verticalCircle.y);
             Vector3 downDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, -verticalCircle.y);
@@ -489,6 +533,6 @@ public class Gun : MonoBehaviour
 
     public float GetCrosshairSize()
     {
-        return _shootConfig.CrosshairCurve.Evaluate(_spreadTime / _shootConfig.MaxSpreadTime);
+        return _shootConfig[_currentFiringIndex].CrosshairCurve.Evaluate(_spreadTime / _shootConfig[_currentFiringIndex].MaxSpreadTime);
     }
 }
