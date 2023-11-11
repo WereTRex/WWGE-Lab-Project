@@ -22,6 +22,9 @@ public class ProgressBar : MonoBehaviour
     public void UpdateProgressBar(float maximum, float current)
     {
         _fillTarget = Mathf.Clamp01(current / maximum);
+
+        if (drainHealthBarCoroutine != null)
+            StopCoroutine(drainHealthBarCoroutine);
         drainHealthBarCoroutine = StartCoroutine(DrainHealthBar());
     }
 

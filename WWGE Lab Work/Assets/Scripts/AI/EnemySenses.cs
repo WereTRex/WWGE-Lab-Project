@@ -23,7 +23,6 @@ public class EnemySenses : MonoBehaviour
     {
         Transform target = null;
         float closestDot = _viewAngle;
-        //float minDistance = _maxDetectionRange;
 
         // Get all colliders within the maxDetectionRadius (That are in a targetLayer).
         foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers))
