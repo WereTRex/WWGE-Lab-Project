@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bddda24238107334aa3cff392009e4e0, type: 3}
+  m_Name: Turret Shooting
+  m_EditorClassIdentifier: 
+  FiringType: 1
+  IsHitscan: 1
+  BulletPrefab: {fileID: 0}
+  BulletLaunchForce: 1000
+  HitMask:
+    serializedVersion: 2
+    m_Bits: 73
+  FireDelay: 0.15
+  BulletsPerShot: 1
+  MaxBulletAngle: 0
+  UseWeightedSpread: 0
+  RecoilRecoverySpeed: 1.5
+  MaxSpreadTime: 1
+  MinSpreadPercent: 0.1
+  CrosshairCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SpreadType: 1
+  MaxSpread: 0.1
+  SpreadMultiplier: 0.1
+  SpreadTexture: {fileID: 0}

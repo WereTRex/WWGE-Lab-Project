@@ -22,19 +22,17 @@ public class EnemyTurret : MonoBehaviour
     [Header("Idle State Variables")]
     [SerializeField] private Vector3[] _idleLookTargets;
     [SerializeField] private float _idleRotationSpeed;
+    [SerializeField] private float _idleRotationAcceleration;
+    [SerializeField] private float _idleRotationDeceleration;
     [SerializeField] private float _idleRotationPause;
 
     [Header("Alert State Variables")]
+    [SerializeField] private float _minimumAlertDuration = 1f;
     [SerializeField] private ParticleSystem _alertPS;
 
     [Header("Shooting State Variables")]
-    [SerializeField] private LayerMask _shotObstructionLayers;
-    [SerializeField] private float _damage;
-    [SerializeField] private int _burstCount;
-    [SerializeField] private float _burstDelay;
-
-    [SerializeField] private float _fireDelay;
-    [SerializeField] private float _fireRotationDelay;
+    [SerializeField] private Gun _turretGun;
+    [SerializeField] private bool _pauseWhileShooting;
 
     [Header("Deactivated State Variables")]
     [SerializeField] private float _deactivationDuration = 2f;
@@ -45,15 +43,14 @@ public class EnemyTurret : MonoBehaviour
     {
         _stateMachine = new StateMachine();
 
-        var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationPause);
-        var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _alertPS);
-        var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _fireDelay, _fireRotationDelay, _shotObstructionLayers, _damage, _burstCount, _burstDelay);
+        var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
+        var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _minimumAlertDuration, _alertPS);
+        var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _turretGun, _pauseWhileShooting);
         var deactivated = new TurretDeactivated(_healthComponent, _deactivationDuration);
 
         #region Transitions
         // Any.
         _stateMachine.AddAnyTransition(deactivated, OutOfHealth());
-        //At(idle, deactivated, OutOfHealth());
 
         // Idle.
         At(idle, alert, HasTarget());
@@ -76,9 +73,9 @@ public class EnemyTurret : MonoBehaviour
         
         #region Transition Conditions
         Func<bool> HasTarget() => () => Target != null;
-        Func<bool> LostTarget() => () => (Target == null) && (alert.FacingTargetDirection);
+        Func<bool> LostTarget() => () => Target == null && alert.FacingTargetDirection && alert.MinimumDurationElapsed;
         Func<bool> TargetWithinFireCone() => () => Target != null && _withinShootingAngle;
-        Func<bool> TargetOutwithinFireCone() => () => Target != null && !_withinShootingAngle;
+        Func<bool> TargetOutwithinFireCone() => () => Target == null || !_withinShootingAngle;
         Func<bool> OutOfHealth() => () => _healthComponent.CurrentHealthProperty <= 0;
         Func<bool> ReactivationTimeElapsed() => () => deactivated.DeactivationTimeElapsed == true;
         #endregion

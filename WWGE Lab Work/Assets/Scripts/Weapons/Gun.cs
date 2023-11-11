@@ -166,7 +166,7 @@ public class Gun : MonoBehaviour
         // Check that we have ammo remaining.
         if (_clipAmmoRemainingProperty <= 0)
         {
-            if (_ammoConfig.AutoReloadWhenAttacking && _totalAmmoRemaining > 0)
+            if (_ammoConfig.AutoReloadWhenAttacking && (_totalAmmoRemaining > 0 || _ammoConfig.MaxAmmo == -1))
                 StartReload();
             else
             {
@@ -303,18 +303,15 @@ public class Gun : MonoBehaviour
             // We hit something!
 
             // (Effect) Bullet Tracers.
-            //StartCoroutine(PlayTrail(_bulletOrigin.position, hit.point, hit));
             _bulletTrailManager.SpawnTrail(_bulletOrigin.position, hit.point, _trailConfig);
 
             // Hit logic.
             HandleShotHit(hit.distance, hit.point, hit.normal, hit.collider);
         }
+        // We missed!
         else
         {
-            // We missed!
-
             // (Effect) Bullet trails.
-            //StartCoroutine(PlayTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), new RaycastHit()));
             _bulletTrailManager.SpawnTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), _trailConfig);
         }
     }
@@ -397,7 +394,7 @@ public class Gun : MonoBehaviour
     public void StartReload()
     {
         // Check that the current clip isn't already full, that we aren't completely out of ammo, and that we aren't already reloading.
-        if (_clipAmmoRemainingProperty >= _ammoConfig.MaxClipAmmo || _totalAmmoRemaining <= 0 || _isReloading)
+        if (_clipAmmoRemainingProperty >= _ammoConfig.MaxClipAmmo || (_totalAmmoRemaining <= 0 && _ammoConfig.MaxAmmo != -1) || _isReloading)
             return;
 
         // Start Reloading.
@@ -419,7 +416,9 @@ public class Gun : MonoBehaviour
         yield return new WaitForSeconds(_ammoConfig.ReloadTime);
         _isReloading = false;
 
-        if (_totalAmmoRemaining < _ammoConfig.MaxClipAmmo)
+        if (_ammoConfig.MaxAmmo == -1)
+            _clipAmmoRemaining = _ammoConfig.MaxClipAmmo;
+        else if (_totalAmmoRemaining < _ammoConfig.MaxClipAmmo)
         {
             _clipAmmoRemainingProperty = _totalAmmoRemaining;
             _totalAmmoRemaining = 0;
