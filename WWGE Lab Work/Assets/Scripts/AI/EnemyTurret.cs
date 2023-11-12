@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyTurret : MonoBehaviour
 {
-    [HideInInspector] public Transform Target;
+    [ReadOnly] public Transform Target;
     private bool _withinShootingAngle;
 
 
@@ -38,9 +38,19 @@ public class EnemyTurret : MonoBehaviour
     [SerializeField] private float _deactivationDuration = 2f;
 
 
+    [Header("Debug")]
+    [SerializeField] private bool _drawGizmos = false;
+    public bool DrawDebug => _drawGizmos;
+    [field:SerializeField] public bool UseDebugLogs { get; private set; }
+
+
     private StateMachine _stateMachine;
     private void Awake()
     {
+        if (_senses == null)
+            _senses = GetComponent<EnemySenses>();
+
+        
         _stateMachine = new StateMachine();
 
         var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
@@ -97,6 +107,9 @@ public class EnemyTurret : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (!_drawGizmos)
+            return;
+        
         Gizmos.color = Color.green;
         for (int i = 0; i < _idleLookTargets.Length; i++)
         {

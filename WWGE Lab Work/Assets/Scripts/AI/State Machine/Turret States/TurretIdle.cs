@@ -37,8 +37,6 @@ public class TurretIdle : IState
 
 
     private float _foundTargetBuffer = 2f;
-    bool _displayDebug = true;
-    bool _debugAngles = true;
     public void Tick()
     {
         // Decrement Pause Delay.
@@ -58,18 +56,12 @@ public class TurretIdle : IState
         float distanceToDecelerateFromCurrentSpeed = (_currentRotationSpeed * _currentRotationSpeed) / (2f * _rotationDeceleration);
 
         #region Debug Logs
-        if (_displayDebug)
+        if (_brain.UseDebugLogs)
         {
-            if (_debugAngles)
-            {
-                Debug.Log("Distance Remaining (Deg): " + distanceRemaining * Mathf.Rad2Deg);
-                Debug.Log("Distance To Decelerate (Deg): " + distanceToDecelerateFromCurrentSpeed * Mathf.Rad2Deg);
-            }
-            else
-            {
-                Debug.Log("Distance Remaining (Rad): " + distanceRemaining);
-                Debug.Log("Distance To Decelerate (Rad): " + distanceToDecelerateFromCurrentSpeed);
-            }
+            /*Debug.Log("Distance Remaining (Deg): " + distanceRemaining * Mathf.Rad2Deg);
+            Debug.Log("Distance To Decelerate (Deg): " + distanceToDecelerateFromCurrentSpeed * Mathf.Rad2Deg);*/
+            Debug.Log("Distance Remaining (Rad): " + distanceRemaining);
+            Debug.Log("Distance To Decelerate (Rad): " + distanceToDecelerateFromCurrentSpeed);
         }
         #endregion
 

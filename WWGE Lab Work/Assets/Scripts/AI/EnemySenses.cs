@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class EnemySenses : MonoBehaviour
 {
+    [SerializeField] private EntityFaction _factionScript;
+
+    [Space(5)]
+    
     [SerializeField] private LayerMask _targetLayers;
     [SerializeField] private LayerMask _sightMask;
     [SerializeField] private float _maxDetectionRange;
@@ -27,14 +31,20 @@ public class EnemySenses : MonoBehaviour
         // Get all colliders within the maxDetectionRadius (That are in a targetLayer).
         foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers))
         {            
-            // Is the target within the sight radius (Dot Product)?
+            // Is the target within the sight radius (Dot Product)? If so, discount it.
             float currentTargetDot = Vector3.Dot(transform.forward, (potentialTarget.transform.position - transform.position).normalized);
             if (!(currentTargetDot > _viewAngle))
                 continue;
 
-            // Is the collider obstructed?
+            // Is the collider obstructed? If so, discount it
             if (Physics.Linecast(transform.position, potentialTarget.transform.position, _sightMask))
                 continue;
+
+            // Is this collider a part of the same faction? If so, discount it
+            if (potentialTarget.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
+                if (_factionScript.IsOpposingFaction(entityFaction.Faction) == false)
+                    continue;
+
 
             // This collider is a valid collider (Within view angle and not obstructed).
             // Is this collider the closest to the turret's forward?

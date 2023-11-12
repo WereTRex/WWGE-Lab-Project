@@ -18,7 +18,7 @@ MonoBehaviour:
   BulletLaunchForce: 1000
   HitMask:
     serializedVersion: 2
-    m_Bits: 73
+    m_Bits: 329
   FireDelay: 0.15
   BulletsPerShot: 1
   MaxBulletAngle: 0
