@@ -31,7 +31,6 @@ public abstract class TurretRotationState : IState
 
         //FacingTargetDirection = Mathf.Abs(_rotationTarget.rotation - Quaternion.LookRotation(newDirection)) < 15f;
         FacingTargetDirection = Vector3.Angle(_targetDir, _rotationTarget.forward) < 5f;
-        Debug.Log(this.GetType() + ": " + FacingTargetDirection);
     }
 
     public virtual void OnEnter()
