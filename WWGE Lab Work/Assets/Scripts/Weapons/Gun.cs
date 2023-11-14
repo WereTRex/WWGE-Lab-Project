@@ -450,6 +450,8 @@ public class Gun : MonoBehaviour
     #region Alternate Fire
     public void AttemptAlternateFire()
     {
+        if (_alternateFireSO == null)
+            return;
         if (Time.time <= _alternateFireSO.CooldownTime + _lastAlternateFireTime)
             return;
 

@@ -35,7 +35,7 @@ public class EnemyTurret : MonoBehaviour
     [SerializeField] private bool _pauseWhileShooting;
 
     [Header("Deactivated State Variables")]
-    [SerializeField] private float _deactivationDuration = 2f;
+    [SerializeField] private Repairable _repairableComponent;
 
 
     [Header("Debug")]
@@ -56,7 +56,7 @@ public class EnemyTurret : MonoBehaviour
         var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
         var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _minimumAlertDuration, _alertPS);
         var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _turretGun, _pauseWhileShooting);
-        var deactivated = new TurretDeactivated(_healthComponent, _deactivationDuration);
+        var deactivated = new TurretDeactivated(_repairableComponent);
 
         #region Transitions
         // Any.
@@ -87,7 +87,7 @@ public class EnemyTurret : MonoBehaviour
         Func<bool> TargetWithinFireCone() => () => Target != null && _withinShootingAngle;
         Func<bool> TargetOutwithinFireCone() => () => Target == null || !_withinShootingAngle;
         Func<bool> OutOfHealth() => () => _healthComponent.CurrentHealthProperty <= 0;
-        Func<bool> ReactivationTimeElapsed() => () => deactivated.DeactivationTimeElapsed == true;
+        Func<bool> ReactivationTimeElapsed() => () => _healthComponent.HasHealth;
         #endregion
     }
 

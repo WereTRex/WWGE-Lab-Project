@@ -23,6 +23,9 @@ public class HealthComponent : MonoBehaviour
         }
     }
 
+    public bool HasHealth { get => _currentHealth > 0; }
+
+
     [Header("UI")]
     [SerializeField] private ProgressBar _healthBar;
 

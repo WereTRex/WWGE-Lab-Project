@@ -4,30 +4,24 @@ using UnityEngine;
 
 public class TurretDeactivated : IState
 {
-    private readonly HealthComponent _healthComponent;
-    private readonly float _deactivationDuration;
-    private float _deactivationDurationRemaining;
+    private readonly Repairable _repairableComponent;
 
-    public bool DeactivationTimeElapsed { get => _deactivationDurationRemaining <= 0; }
     
-    public TurretDeactivated(HealthComponent healthComponent, float deactivationDuration)
+    public TurretDeactivated(Repairable repairableComponent)
     {
-        this._healthComponent = healthComponent;
-        this._deactivationDuration = deactivationDuration;
+        this._repairableComponent = repairableComponent;
+        repairableComponent.enabled = false;
     }
 
 
-    public void Tick()
-    {
-        _deactivationDurationRemaining -= Time.deltaTime;
-    }
+    public void Tick() { }
 
     public void OnEnter()
     {
-        _deactivationDurationRemaining = _deactivationDuration;
+        _repairableComponent.enabled = true;
     }
     public void OnExit()
     {
-        _healthComponent.ResetHealth();
+        _repairableComponent.enabled = false;
     }
 }
