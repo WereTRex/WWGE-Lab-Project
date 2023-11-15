@@ -14,6 +14,7 @@ public class EnemyTurret : MonoBehaviour
 
     [Space(5)]
     public float DetectionCheckDelay = 0.2f;
+    private Coroutine _detectionCoroutine;
 
     [Header("Rotation Variables")]
     [SerializeField] private Transform _rotationTarget;
@@ -101,6 +102,24 @@ public class EnemyTurret : MonoBehaviour
     public void TryGetTarget()
     {
         Target = _senses.TryGetTarget(out _withinShootingAngle);
+    }
+    public void StartDetection()
+    {
+        if (_detectionCoroutine == null)
+            _detectionCoroutine = StartCoroutine(TryDetection());
+    }
+    public void StopDetection()
+    {
+        if (_detectionCoroutine != null)
+            StopCoroutine(_detectionCoroutine);
+    }
+    private IEnumerator TryDetection()
+    {
+        while (true)
+        {
+            Target = _senses.TryGetTarget(out _withinShootingAngle);
+            yield return new WaitForSeconds(DetectionCheckDelay);
+        }
     }
 
 

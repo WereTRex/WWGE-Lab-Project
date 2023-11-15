@@ -98,13 +98,15 @@ public class TurretIdle : IState
 
     public void OnEnter()
     {
-        _brain.InvokeRepeating(nameof(_brain.TryGetTarget), 0, _brain.DetectionCheckDelay);
+        //_brain.InvokeRepeating(nameof(_brain.TryGetTarget), 0, _brain.DetectionCheckDelay);
+        _brain.StartDetection();
 
         _rotationIndex = 0;
         _rotationPauseRemaining = 0;
     }
     public void OnExit()
     {
-        _brain.CancelInvoke();
+        //_brain.CancelInvoke();
+        _brain.StopDetection();
     }
 }

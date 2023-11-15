@@ -45,6 +45,8 @@ public class EnemySenses : MonoBehaviour
                 if (_factionScript.IsOpposingFaction(entityFaction.Faction) == false)
                     continue;
 
+            Debug.Log("Valid Target: " + potentialTarget);
+
 
             // This collider is a valid collider (Within view angle and not obstructed).
             // Is this collider the closest to the turret's forward?

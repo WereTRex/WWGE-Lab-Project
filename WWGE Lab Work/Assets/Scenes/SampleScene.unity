@@ -1630,7 +1630,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dffe4f84a4c7e44e885fb76bc4f3b96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Faction>k__BackingField: 2
+  <Faction>k__BackingField: 4
 --- !u!114 &247492959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6978,7 +6978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dffe4f84a4c7e44e885fb76bc4f3b96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Faction>k__BackingField: 2
+  <Faction>k__BackingField: 4
 --- !u!114 &296032387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16123,7 +16123,7 @@ GameObject:
   - component: {fileID: 1449055553}
   - component: {fileID: 1449055555}
   - component: {fileID: 1449055554}
-  m_Layer: 3
+  m_Layer: 2
   m_Name: PlayerInteraction
   m_TagString: Untagged
   m_Icon: {fileID: 0}

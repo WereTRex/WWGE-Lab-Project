@@ -35,8 +35,12 @@ public abstract class TurretRotationState : IState
 
     public virtual void OnEnter()
     {
-        _brain.InvokeRepeating(nameof(_brain.TryGetTarget), 0, _brain.DetectionCheckDelay);
+        //_brain.InvokeRepeating(nameof(_brain.TryGetTarget), 0, _brain.DetectionCheckDelay);
+        _brain.StartDetection();
         _targetDir = _rotationTarget.transform.forward;
     }
-    public virtual void OnExit() { }
+    public virtual void OnExit()
+    {
+        _brain.StopDetection();
+    }
 }

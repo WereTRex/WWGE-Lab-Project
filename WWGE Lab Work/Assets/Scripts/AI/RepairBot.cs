@@ -67,8 +67,6 @@ public class RepairBot : MonoBehaviour
                     if (repairable.GetInteractionAvailability() == false)
                         continue;
 
-                    Debug.Log(repairable.GetInteractionAvailability());
-
                     _target = repairable;
                     break;
                 }
@@ -85,10 +83,13 @@ public class RepairBot : MonoBehaviour
         {
             if (_target != null)
             {
+                Debug.Log("Has Target");
+                
                 // If the target cannot be interacted with for whatever reason (E.g. It has already been repaired), remove the target.
                 if (_target.GetInteractionAvailability() == false)
                 {
                     _target = null;
+                    yield return new WaitForSeconds(_aiUpdateDelay);
                     continue;
                 }
 
@@ -113,7 +114,7 @@ public class RepairBot : MonoBehaviour
                     }
                 }
             } else {
-                _agent.SetDestination(transform.position);
+                _agent.SetDestination(_defaultPosition);
             }
 
 
