@@ -29,7 +29,7 @@ public class EnemySenses : MonoBehaviour
         float closestDot = _viewAngle;
 
         // Get all colliders within the maxDetectionRadius (That are in a targetLayer).
-        foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers))
+        foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers, QueryTriggerInteraction.Ignore))
         {            
             // Is the target within the sight radius (Dot Product)? If so, discount it.
             float currentTargetDot = Vector3.Dot(transform.forward, (potentialTarget.transform.position - transform.position).normalized);
