@@ -107,9 +107,9 @@ public class MenuManager : MonoBehaviour
         options.Clear();
         _crosshairColourDropdown.ClearOptions();
         _crosshairBorderColourDropdown.ClearOptions();
-        for (int i = 0; i < System.Enum.GetValues(typeof(CrosshairColours)).Length; i++)
+        for (int i = 0; i < CrosshairColours.Colours.Length; i++)
         {
-            options.Add(((CrosshairColours)i).ToString());
+            options.Add(CrosshairColours.Colours[i].Key);
         }
         _crosshairColourDropdown.AddOptions(options);
         _crosshairBorderColourDropdown.AddOptions(options);
@@ -203,9 +203,9 @@ public class MenuManager : MonoBehaviour
 
         _fullscreenToggle.isOn = Screen.fullScreen;
 
-        _crosshairColourDropdown.value = GetIndexFromColour(PlayerManager.Instance.CrosshairColour);
+        _crosshairColourDropdown.value = CrosshairColours.FindIndexOfColour(PlayerManager.Instance.CrosshairColour);
         _crosshairBorderThicknessSlider.value = PlayerManager.Instance.CrosshairBorderThickness;
-        _crosshairBorderColourDropdown.value = GetIndexFromColour(PlayerManager.Instance.CrosshairBorderColour);
+        _crosshairBorderColourDropdown.value = CrosshairColours.FindIndexOfColour(PlayerManager.Instance.CrosshairBorderColour);
 
 
         // Controls.
@@ -253,42 +253,8 @@ public class MenuManager : MonoBehaviour
     #endregion
 
     #region Video
-    private Color GetCrosshairColour(int index)
-    {
-        switch((CrosshairColours)index)
-        {
-            case CrosshairColours.White:
-                return Color.white;
-            case CrosshairColours.Black:
-                return Color.black;
-            case CrosshairColours.Yellow:
-                return Color.yellow;
-            case CrosshairColours.Blue:
-                return Color.blue;
-            case CrosshairColours.Pink:
-                return new Color(r: 252, g: 21, b: 132);
-            default:
-                return Color.white;
-        }
-    }
-    private int GetIndexFromColour(Color color)
-    {
-        if (color == Color.white)
-            return (int)CrosshairColours.White;
-        else if (color == Color.black)
-            return (int)CrosshairColours.Black;
-        else if (color == Color.yellow)
-            return (int)CrosshairColours.Yellow;
-        else if (color == Color.blue)
-            return (int)CrosshairColours.Blue;
-        else if (color == new Color(r: 252, g: 21, b: 132))
-            return (int)CrosshairColours.Pink;
-        else
-            return 0;
-    }
-    public void CrosshairColourChanged(int index) => _crosshairColourImage.color = GetCrosshairColour(index);
-    
-    public void CrosshairBorderColourChanged(int index) => _crosshairBorderColourImage.color = GetCrosshairColour(index);
+    public void CrosshairColourChanged(int index) => _crosshairColourImage.color = CrosshairColours.Colours[index].Value;
+    public void CrosshairBorderColourChanged(int index) => _crosshairBorderColourImage.color = CrosshairColours.Colours[index].Value;
 
 
     #region Apply/Reset
@@ -318,9 +284,9 @@ public class MenuManager : MonoBehaviour
 
 
         // Crosshair.
-        PlayerManager.Instance.CrosshairColour = GetCrosshairColour(_crosshairColourDropdown.value);
+        PlayerManager.Instance.CrosshairColour = CrosshairColours.Colours[_crosshairColourDropdown.value].Value;
         PlayerManager.Instance.CrosshairBorderThickness = _crosshairBorderThicknessSlider.value;
-        PlayerManager.Instance.CrosshairBorderColour = GetCrosshairColour(_crosshairBorderColourDropdown.value);
+        PlayerManager.Instance.CrosshairBorderColour = CrosshairColours.Colours[_crosshairBorderColourDropdown.value].Value;
 
 
         // Request Confirmation.
@@ -395,13 +361,4 @@ public class MenuManager : MonoBehaviour
 
     #endregion
     #endregion
-}
-
-enum CrosshairColours
-{
-    White,
-    Black,
-    Yellow,
-    Blue,
-    Pink,
 }
