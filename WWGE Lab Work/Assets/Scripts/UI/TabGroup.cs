@@ -1,33 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 
 public class TabGroup : MonoBehaviour
 {
-    private List<TabGroupButton> _tabButtons;
-    private TabGroupButton _selectedTab;
+    [SerializeField] private List<TabGroupButton> _tabButtons = new List<TabGroupButton>();
+    private int _selectedTabIndex = -1;
 
-    [SerializeField] private List<GameObject> _tabContainers;
+    [System.Serializable]
+    private struct ContainerInfo
+    {
+        public GameObject Container;
+        public GameObject FirstSelectedObject;
+    }
+    [SerializeField] private List<ContainerInfo> _tabContainers = new List<ContainerInfo>();
 
     // Colour (Color Fields cannot be Serialzed, apparently).
     [SerializeField] private Color idleColour = Color.white;
     [SerializeField] private Color hoverColour = Color.white;
     [SerializeField] private Color selectedColour = Color.white;
 
-    public void Subscribe(TabGroupButton button)
-    {
-        if (_tabButtons == null)
-            _tabButtons = new List<TabGroupButton>();
-
-        _tabButtons.Add(button);
-    }
-
     private void OnEnable()
     {
-        if (_tabButtons != null && _tabButtons.Count > 0)
-            OnTabSelected(_tabButtons[0].transform.parent.GetChild(0).GetComponent<TabGroupButton>());
+        if (_tabButtons.Count > 0)
+            OnTabSelected(_tabButtons[0]);
+    }
+
+
+    public void OnSelectNextTabPressed(InputAction.CallbackContext context)
+    {
+        // Only switch tab if the button was just pressed and we are currently active.
+        if (context.performed && gameObject.activeInHierarchy)
+            OnTabSelected(_tabButtons[_selectedTabIndex + 1]);
+    }
+    public void OnSelectPreviousTabPressed(InputAction.CallbackContext context)
+    {
+        // Only switch tab if the button was just pressed and we are currently active.
+        if (context.performed && gameObject.activeInHierarchy)
+            OnTabSelected(_tabButtons[_selectedTabIndex - 1]);
     }
 
 
@@ -35,29 +48,38 @@ public class TabGroup : MonoBehaviour
     {
         ResetTabs();
 
-        if (_selectedTab == null || button != _selectedTab)
+        // If this button is not the selected button, change its colour to the hover colour.
+        if (_tabButtons.IndexOf(button) != _selectedTabIndex)
             button.SetBackgroundColour(hoverColour);
     }
     public void OnTabExit(TabGroupButton button) => ResetTabs();
     public void OnTabSelected(TabGroupButton button)
     {
-        // Deselect the old tab.
-        if (_selectedTab != null)
-            _selectedTab.Deselect();
+        // Deselect the old tab (If there was one).
+        if (_selectedTabIndex != -1 && _tabButtons[_selectedTabIndex] != null)
+            _tabButtons[_selectedTabIndex].Deselect();
 
         // Select the new tab.
-        _selectedTab = button;
-        _selectedTab.Select();
+        _selectedTabIndex = _tabButtons.IndexOf(button);
+        _tabButtons[_selectedTabIndex].Select();
 
-        // Apperance.
+        // Set Apperance.
         ResetTabs();
         button.SetBackgroundColour(selectedColour);
 
+
         // Activate the corresponding container GameObject.
-        int buttonIndex = button.transform.GetSiblingIndex();
         for (int i = 0; i < _tabContainers.Count; i++)
         {
-            _tabContainers[i].SetActive(i == buttonIndex);
+            if (i == _selectedTabIndex)
+            {
+                _tabContainers[i].Container.SetActive(true);
+                
+                // Select the first gameobject (Allows for controller navigation).
+                EventSystem.current.SetSelectedGameObject(_tabContainers[i].FirstSelectedObject);
+            } else {
+                _tabContainers[i].Container.SetActive(false);
+            }
         }
     }
 
@@ -66,9 +88,11 @@ public class TabGroup : MonoBehaviour
     {
         for (int i = 0; i < _tabButtons.Count; i++)
         {
-            if (_selectedTab != null && _tabButtons[i] == _selectedTab)
+            // If this tab is the currently selected tab, then continue.
+            if (_selectedTabIndex != -1 && i == _selectedTabIndex)
                 continue;
 
+            // Otherwise set to idle colour.
             _tabButtons[i].SetBackgroundColour(idleColour);
         }
     }

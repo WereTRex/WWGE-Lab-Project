@@ -15,11 +15,8 @@ public class TabGroupButton : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public UnityEvent OnTabDeselected;
 
 
-    private void Awake()
-    {
-        _background = GetComponent<Image>();
-        _tabGroup.Subscribe(this);
-    }
+    private void Awake() => _background = GetComponent<Image>();
+    
 
 
     public void OnPointerClick(PointerEventData eventData) => _tabGroup.OnTabSelected(this);

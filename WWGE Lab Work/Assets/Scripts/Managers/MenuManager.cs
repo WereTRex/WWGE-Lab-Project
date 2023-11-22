@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class MenuManager : MonoBehaviour
 {
@@ -12,6 +13,12 @@ public class MenuManager : MonoBehaviour
     [Header("Pause Menu Variables")]
     [SerializeField] private GameObject _pauseMenuRoot;
     [SerializeField] private GameObject _mainPauseRoot;
+    [SerializeField] private GameObject _settingsMenuRoot;
+
+
+    [Header("First Selected Options")]
+    [SerializeField] private GameObject _mainPauseFirst;
+    [SerializeField] private GameObject _settingsMenuFirst;
 
 
     [Header("Confirmation Variables")]
@@ -170,6 +177,10 @@ public class MenuManager : MonoBehaviour
 
         // Open the pause menu.
         _pauseMenuRoot.SetActive(true);
+
+        // Set the first button (Likely Resume) as the currently selected button to allow for Controller Navigation.
+        EventSystem.current.SetSelectedGameObject(_mainPauseFirst);
+        Debug.Log(EventSystem.current.currentSelectedGameObject.name);
     }
     public void ClosePauseMenu()
     {
@@ -193,7 +204,7 @@ public class MenuManager : MonoBehaviour
 
 
         // Video.
-        _fovSlider.value = PlayerPrefs.GetFloat("fieldOfView");
+        _fovSlider.value = PlayerManager.Instance.FieldOfView;
 
         for (int i = 0; i < _resolutions.Length; i++)
         {
@@ -225,6 +236,18 @@ public class MenuManager : MonoBehaviour
 
 
     #region Settings Menu
+    public void OpenSettingsMenu()
+    {
+        // Ensure that only the settings menu is open.
+        foreach (Transform menu in _pauseMenuRoot.transform)
+        {
+            menu.gameObject.SetActive(false);
+        }
+        _settingsMenuRoot.SetActive(true);
+
+        // Allow for controller navigation.
+        EventSystem.current.SetSelectedGameObject(_settingsMenuFirst);
+    }
     public void BackToMain()
     {
         // Ensure that only the main pause menu opens.
@@ -233,6 +256,9 @@ public class MenuManager : MonoBehaviour
             menu.gameObject.SetActive(false);
         }
         _mainPauseRoot.SetActive(true);
+
+        // Set the first button (Likely Resume) as the currently selected button to allow for Controller Navigation.
+        EventSystem.current.SetSelectedGameObject(_mainPauseFirst);
     }
 
     
