@@ -42,7 +42,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Shoot",
+                    "name": "Primary Fire",
                     "type": "Button",
                     "id": "d5c55442-660f-4f30-aa3a-2defbd9732c5",
                     "expectedControlType": "Button",
@@ -214,7 +214,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "MnK",
-                    "action": "Shoot",
+                    "action": "Primary Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -225,7 +225,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Shoot",
+                    "action": "Primary Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -265,7 +265,7 @@
                 {
                     "name": "",
                     "id": "33ef2262-ae9a-4264-8343-0422df30996a",
-                    "path": "<Gamepad>/buttonWest",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
@@ -276,7 +276,7 @@
                 {
                     "name": "",
                     "id": "635eba75-a267-4d7c-a5b5-b87d2d080fed",
-                    "path": "<Keyboard>/f",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "MnK",
@@ -375,7 +375,7 @@
                 {
                     "name": "",
                     "id": "95d8b87a-d9af-47b3-9f0d-75ca13c2be15",
-                    "path": "<Mouse>/middleButton",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "MnK",
@@ -386,7 +386,7 @@
                 {
                     "name": "",
                     "id": "3c81d685-4112-4a48-8207-a6ad7ec23c85",
-                    "path": "<Gamepad>/buttonEast",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",

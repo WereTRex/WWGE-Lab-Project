@@ -24,8 +24,16 @@ public class TabGroupButton : MonoBehaviour, IPointerClickHandler, IPointerEnter
     public void OnPointerExit(PointerEventData eventData) => _tabGroup.OnTabExit(this);
 
 
-    public void SetBackground(Sprite newSprite) => _background.sprite = newSprite;
-    public void SetBackgroundColour(Color newColour) => _background.color = newColour;
+    public void SetBackground(Sprite newSprite)
+    {
+        if (_background != null)
+            _background.sprite = newSprite;
+    }
+    public void SetBackgroundColour(Color newColour)
+    {
+        if (_background != null)
+            _background.color = newColour;
+    }
 
 
     public void Select() => OnTabSelected?.Invoke();
