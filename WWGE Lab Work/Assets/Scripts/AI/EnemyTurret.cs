@@ -57,7 +57,7 @@ public class EnemyTurret : MonoBehaviour
         var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
         var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _minimumAlertDuration, _alertPS);
         var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _turretGun, _pauseWhileShooting);
-        var deactivated = new TurretDeactivated(_repairableComponent);
+        var deactivated = new TurretDeactivated(this, _repairableComponent);
 
         #region Transitions
         // Any.
@@ -105,8 +105,8 @@ public class EnemyTurret : MonoBehaviour
     }
     public void StartDetection()
     {
-        if (_detectionCoroutine == null)
-            _detectionCoroutine = StartCoroutine(TryDetection());
+        StopDetection();
+        _detectionCoroutine = StartCoroutine(TryDetection());
     }
     public void StopDetection()
     {
@@ -117,7 +117,8 @@ public class EnemyTurret : MonoBehaviour
     {
         while (true)
         {
-            Target = _senses.TryGetTarget(out _withinShootingAngle);
+            Transform newTarget = _senses.TryGetTarget(out _withinShootingAngle);
+            Target = newTarget;
             yield return new WaitForSeconds(DetectionCheckDelay);
         }
     }

@@ -5,10 +5,12 @@ using UnityEngine;
 
 public class HealthComponent : MonoBehaviour
 {
-    public static event Action OnDead;
+    public event Action OnDead;
+    public event Action<float> OnHealthChanged;
     
 
     [SerializeField] private float _maxHealth;
+    public float MaxHealthProperty { get => _maxHealth; private set => _maxHealth = value; }
 
     private float _currentHealth;
     public float CurrentHealthProperty
@@ -16,7 +18,8 @@ public class HealthComponent : MonoBehaviour
         get => _currentHealth;
         private set
         {
-            _currentHealth = value;
+            _currentHealth = Mathf.Clamp(value, 0, MaxHealthProperty);
+            OnHealthChanged?.Invoke(_currentHealth);
 
             if (_healthBar != null)
                 _healthBar.UpdateProgressBar(maximum: _maxHealth, current: _currentHealth);
@@ -24,6 +27,7 @@ public class HealthComponent : MonoBehaviour
     }
 
     public bool HasHealth { get => _currentHealth > 0; }
+    public bool HasFullHealth { get => _currentHealth >= _maxHealth; }
 
 
     [Header("UI")]
@@ -45,5 +49,5 @@ public class HealthComponent : MonoBehaviour
     }
     public void ReceiveHealing(float healing) => CurrentHealthProperty += healing;
     
-    public void ResetHealth() => CurrentHealthProperty = _maxHealth;
+    public void ResetHealth() => CurrentHealthProperty = MaxHealthProperty;
 }

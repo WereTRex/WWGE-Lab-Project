@@ -37,41 +37,24 @@ public class ShootingConfigSO : ScriptableObject
 
     [Space(5)]
 
-    public BulletSpreadType SpreadType = BulletSpreadType.Simple;
     [Header("Simple Spread")]
     // With how it is currently set, using a Vector3 would change the value based on the rotation of the player.
-    public float MaxSpread = 0.1f;
-
-    [Header("Texture-Based Spread")]
-    [Range(0.001f, 5f)]
-    public float SpreadMultiplier = 0.1f;
-    public Texture2D SpreadTexture;
+    public float MaxSpreadAngle = 0.1f;
 
 
     public Vector3 GetSpread(float shootTime = 0)
     {
-        Vector3 spread = Vector3.zero;
+        float spreadRadius = Mathf.Tan((MaxSpreadAngle / 2f) * Mathf.Deg2Rad);
+        Vector3 spreadDirection = Vector3.Lerp(
+            a: Vector3.zero,
+            b: Random.insideUnitCircle * spreadRadius,
+            t: Mathf.Clamp(shootTime / MaxSpreadTime, MinSpreadPercent, 1f));
 
-        if (SpreadType == BulletSpreadType.Simple)
-        {
-            spread = Vector3.Lerp(
-                Vector3.zero,
-                new Vector3(
-                    x: Random.Range(-MaxSpread, MaxSpread),
-                    y: Random.Range(-MaxSpread, MaxSpread),
-                    z: Random.Range(-MaxSpread, MaxSpread)),
-                Mathf.Clamp(shootTime / MaxSpreadTime, MinSpreadPercent, 1f));
-        }
-        else if (SpreadType == BulletSpreadType.TextureBased)
-        {
-            spread = GetTextureDirection(shootTime) * SpreadMultiplier;
-        }
-
-        return spread;
+        return spreadDirection;
     }
 
     // Get the spread direction from a Texture2D.
-    private Vector3 GetTextureDirection(float shootTime)
+    /*private Vector3 GetTextureDirection(float shootTime)
     {
         Vector2 halfSize = new Vector2(SpreadTexture.width / 2f, SpreadTexture.height / 2f);
         
@@ -123,5 +106,5 @@ public class ShootingConfigSO : ScriptableObject
 
 
         return direction;
-    }
+    }*/
 }

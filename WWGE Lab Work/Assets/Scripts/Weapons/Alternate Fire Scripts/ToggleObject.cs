@@ -13,16 +13,27 @@ public class ToggleObject : AlternateFireSO
     public override void AlternateAttack(GameObject triggeringGameObject, Transform raycastOrigin, Transform bulletOrigin)
     {
         // Find the Toggleable Object in the child of the triggering.
-        GameObject toggleObject = null;
-        foreach (Transform child in triggeringGameObject.transform)
+        List<GameObject> toggleObjects = FindChildrenWithTag(triggeringGameObject.transform, ToggleTag);
+
+        for (int i = 0; i < toggleObjects.Count; i++)
         {
-            if (child.CompareTag(ToggleTag))
-            {
-                toggleObject = child.gameObject;
-                break;
-            }
+            toggleObjects[i].SetActive(!toggleObjects[i].activeSelf);
+        }
+    }
+
+    private List<GameObject> FindChildrenWithTag(Transform parent, string tag)
+    {
+        List<GameObject> childrenWithTag = new List<GameObject>();
+
+        foreach (Transform child in parent)
+        {
+            if (child.CompareTag(tag))
+                childrenWithTag.Add(child.gameObject);
+
+            if (child.childCount > 0)
+                childrenWithTag.AddRange(FindChildrenWithTag(child, tag));
         }
 
-        toggleObject.SetActive(!toggleObject.activeSelf);
+        return childrenWithTag;
     }
 }

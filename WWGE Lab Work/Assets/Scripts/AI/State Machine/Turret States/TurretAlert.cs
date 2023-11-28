@@ -31,10 +31,10 @@ public class TurretAlert : TurretRotationState
         _alertPS.Play();
         _brain.StartCoroutine(WaitForMinimumDuration());
     }
-    /*public override void OnExit()
+    public override void OnExit()
     {
         base.OnExit();
-    }*/
+    }
 
 
     private IEnumerator WaitForMinimumDuration()

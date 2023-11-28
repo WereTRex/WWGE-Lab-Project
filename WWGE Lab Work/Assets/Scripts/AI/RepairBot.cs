@@ -83,8 +83,6 @@ public class RepairBot : MonoBehaviour
         {
             if (_target != null)
             {
-                Debug.Log("Has Target");
-                
                 // If the target cannot be interacted with for whatever reason (E.g. It has already been repaired), remove the target.
                 if (_target.GetInteractionAvailability() == false)
                 {

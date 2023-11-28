@@ -17,9 +17,7 @@ public class TurretShooting : TurretRotationState
     }
 
     private void StartedReloading() => _canRotate = true;
-    
     private void WeaponAmmoChanged(int arg1, int arg2) => _canRotate = false;
-    
 
 
     public override void Tick()

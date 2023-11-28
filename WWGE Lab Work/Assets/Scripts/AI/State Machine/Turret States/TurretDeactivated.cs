@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class TurretDeactivated : IState
 {
+    private readonly EnemyTurret _brain;
     private readonly Repairable _repairableComponent;
 
     
-    public TurretDeactivated(Repairable repairableComponent)
+    public TurretDeactivated(EnemyTurret brain, Repairable repairableComponent)
     {
+        this._brain = brain;
         this._repairableComponent = repairableComponent;
         repairableComponent.enabled = false;
     }
@@ -18,6 +20,7 @@ public class TurretDeactivated : IState
 
     public void OnEnter()
     {
+        _brain.Target = null;
         _repairableComponent.enabled = true;
     }
     public void OnExit()

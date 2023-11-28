@@ -50,7 +50,4 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SpreadType: 1
-  MaxSpread: 0.05
-  SpreadMultiplier: 0.1
-  SpreadTexture: {fileID: 0}
+  MaxSpreadAngle: 12.5

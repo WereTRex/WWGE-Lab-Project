@@ -240,18 +240,12 @@ public class Gun : MonoBehaviour
 
         // Calculate Fire Direction.
         Vector3 spreadAmount = _shootConfigs[_currentFiringIndex].GetSpread(_spreadTime);
-        Vector3 fireDirection;
-        // If we have a reference to a model, apply the rotation to that.
+        Vector3 fireDirection = (_raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(spreadAmount.x, spreadAmount.y)).normalized;
+        
+        // Rotate the model to face the fire direction.
         if (_model != null)
-        {
-            Debug.LogError("Applying recoil with this method has no constraints. We need to find a solution");
-            _model.transform.forward += _model.transform.TransformDirection(spreadAmount);
-            fireDirection = _model.transform.forward;
-        }
-        // Otherwise, simply alter the fireDirection.
-        else
-            fireDirection = (_raycastOrigin.forward + spreadAmount).normalized;
-
+            _model.transform.rotation = Quaternion.LookRotation(fireDirection, _raycastOrigin.up);
+        
 
         // Fire the bullets.
         for (int i = 0; i < _shootConfigs[_currentFiringIndex].BulletsPerShot; i++)
@@ -363,8 +357,9 @@ public class Gun : MonoBehaviour
 
     private void HandleShotHit(float distanceTravelled, Vector3 hitLocation, Vector3 hitNormal, Collider hitCollider)
     {
-        // (Effect) Ready Impact Effects.
+        // (Effect) Spawn & Parent Impact Effects.
         GameObject bulletHole = Instantiate(_bulletHolePrefabs[UnityEngine.Random.Range(0, _bulletHolePrefabs.Length)], hitLocation, Quaternion.LookRotation(hitNormal));
+        bulletHole.transform.parent = hitCollider.transform;
 
 
         // (Logic) Apply Damage.
@@ -377,10 +372,6 @@ public class Gun : MonoBehaviour
         {
             Vector3 direction = (hitCollider.transform.position - transform.position).normalized;
             rigidbody.AddForceAtPosition(direction * _damageConfig.HitForce, hitLocation);
-
-            // (Effect) Attach impact effects to physics object.
-            bulletHole.transform.parent = hitCollider.transform;
-
 
             OnHitPhysicsObject?.Invoke();
         }
@@ -475,8 +466,8 @@ public class Gun : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            // Get direction within a cone.
-            float radius = Mathf.Tan((_shootConfigs[_currentFiringIndex].MaxBulletAngle / 2f) * Mathf.Deg2Rad);
+            // Display the spread radius.
+            float radius = Mathf.Tan((_shootConfigs[_currentFiringIndex].MaxSpreadAngle / 2f) * Mathf.Deg2Rad);
             Vector2 verticalCircle = Vector3.up * radius;
             Vector3 upDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, verticalCircle.y);
             Vector3 downDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, -verticalCircle.y);
