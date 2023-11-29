@@ -23,6 +23,8 @@ MonoBehaviour:
   BulletsPerShot: 1
   MaxBulletAngle: 0
   UseWeightedSpread: 0
+  RecoilStrength: 1
+  MaxRecoil: 5
   RecoilRecoverySpeed: 2
   MaxSpreadTime: 0.5
   MinSpreadPercent: 0.1

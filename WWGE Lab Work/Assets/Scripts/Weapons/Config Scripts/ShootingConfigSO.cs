@@ -18,7 +18,7 @@ public class ShootingConfigSO : ScriptableObject
     public float FireDelay = 0.25f;
 
 
-    [Header("Spread")]
+    [Header("Bullet Spread")]
     [Min(1)] public int BulletsPerShot = 1;
     [Range(0f, 180f)]
     public float MaxBulletAngle = 0f;
@@ -26,6 +26,9 @@ public class ShootingConfigSO : ScriptableObject
 
 
     [Header("Recoil")]
+    public float RecoilStrength = 5f;
+    public float MaxRecoil = 15f;
+
     public float RecoilRecoverySpeed = 1.5f;
     public float MaxSpreadTime = 1f;
     [Range(0, 1)]public float MinSpreadPercent = 0.1f;
@@ -37,9 +40,8 @@ public class ShootingConfigSO : ScriptableObject
 
     [Space(5)]
 
-    [Header("Simple Spread")]
-    // With how it is currently set, using a Vector3 would change the value based on the rotation of the player.
-    public float MaxSpreadAngle = 0.1f;
+    [Header("Fire Spread")]
+    public float MaxSpreadAngle = 10f;
 
 
     public Vector3 GetSpread(float shootTime = 0)

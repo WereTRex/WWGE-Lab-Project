@@ -243,9 +243,12 @@ public class Gun : MonoBehaviour
         Vector3 fireDirection = (_raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(spreadAmount.x, spreadAmount.y)).normalized;
         
         // Rotate the model to face the fire direction.
-        if (_model != null)
-            _model.transform.rotation = Quaternion.LookRotation(fireDirection, _raycastOrigin.up);
-        
+        //if (_model != null)
+        //    _model.transform.rotation = Quaternion.LookRotation(fireDirection, _raycastOrigin.up);
+
+        // (Effect) Recoil.
+        ApplyRecoil();
+
 
         // Fire the bullets.
         for (int i = 0; i < _shootConfigs[_currentFiringIndex].BulletsPerShot; i++)
@@ -452,7 +455,17 @@ public class Gun : MonoBehaviour
     #endregion
 
     #region Effects
-    
+    /// <summary> Apply recoil to the gun's model</summary>
+    private void ApplyRecoil()
+    {
+        if (_model == null)
+            return;
+
+        _model.transform.localRotation = Quaternion.Euler(
+            Mathf.Clamp(-(_model.transform.localRotation.eulerAngles.x + _shootConfigs[_currentFiringIndex].RecoilStrength), -_shootConfigs[_currentFiringIndex].MaxRecoil, 0f),
+                _model.transform.localRotation.eulerAngles.y,
+                _model.transform.localRotation.eulerAngles.z);
+    }
     #endregion
 
     #region Gizmos

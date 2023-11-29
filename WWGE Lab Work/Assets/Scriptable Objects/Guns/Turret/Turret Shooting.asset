@@ -23,6 +23,8 @@ MonoBehaviour:
   BulletsPerShot: 1
   MaxBulletAngle: 0
   UseWeightedSpread: 0
+  RecoilStrength: 0
+  MaxRecoil: 0
   RecoilRecoverySpeed: 1.5
   MaxSpreadTime: 1
   MinSpreadPercent: 0.1
@@ -32,7 +34,4 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SpreadType: 1
-  MaxSpread: 0.1
-  SpreadMultiplier: 0.1
-  SpreadTexture: {fileID: 0}
+  MaxSpreadAngle: 10
