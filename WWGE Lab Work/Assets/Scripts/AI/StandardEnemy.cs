@@ -20,8 +20,9 @@ public class StandardEnemy : MonoBehaviour
 
     [Header("Chasing Variables")]
     [SerializeField] private NavMeshAgent _agent;
-    
+
     [Header("Attacking Variables")]
+    [SerializeField] private HurtboxAttack[] _attacks;
 
     
     private StateMachine _stateMachine;
@@ -32,9 +33,9 @@ public class StandardEnemy : MonoBehaviour
         // States.
         var tauntingState = new EnemyTaunting();
         var chasingState = new EnemyChasing(this, _agent);
-        var attackingState = new EnemyAttacking();
+        var attackingState = new EnemyAttacking(this, _attacks);
         var staggerState = new EnemyStagger();
-        var deathState = new EnemyDead();
+        var deathState = new EnemyDead(this.gameObject);
 
         // Transitions.
         _stateMachine.AddAnyTransition(deathState, EnemyDead());
@@ -64,8 +65,8 @@ public class StandardEnemy : MonoBehaviour
         Func<bool> InsideStaggerCompleted() => () => staggerState.StaggerDurationElapsed >= _baseStaggerDuration;
         Func<bool> Staggered() => () => false;
 
-        Func<bool> WithinAttackRange() => () => false;
-        Func<bool> OutOfAttackRange() => () => false;
+        Func<bool> WithinAttackRange() => () => Vector3.Distance(transform.position, _target.position) < attackingState.MaxAttackRange;
+        Func<bool> OutOfAttackRange() => () => (Vector3.Distance(transform.position, _target.position) > attackingState.MaxAttackRange) && attackingState.IsAttacking == false;
 
         Func<bool> EnemyDead() => () => _healthComponent.HasHealth == false;
     }

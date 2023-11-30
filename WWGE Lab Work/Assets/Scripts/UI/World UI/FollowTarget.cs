@@ -7,6 +7,10 @@ public class FollowTarget : MonoBehaviour
     [SerializeField] private Transform _target;
     [SerializeField] private Vector3 _offset;
 
+    [Space(5)]
+
+    [SerializeField] private bool _destroyOnNull = true;
+
     private void Start() => transform.SetParent(WorldCanvasConnector.Instance.WorldCanvas);
     public void SetTarget(Transform target) => this._target = target;
 
@@ -15,5 +19,7 @@ public class FollowTarget : MonoBehaviour
     {
         if (_target != null)
             transform.position = _target.position + _offset;
+        else if (_destroyOnNull)
+            Destroy(this.gameObject);
     }
 }

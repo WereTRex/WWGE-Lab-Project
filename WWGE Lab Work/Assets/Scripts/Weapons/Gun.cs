@@ -28,8 +28,8 @@ public class Gun : MonoBehaviour
 
     [Header("Ammo and Reloading")]
     [SerializeField] private AmmoConfigSO _ammoConfig;
-    private int _totalAmmoRemaining;
-    private int _clipAmmoRemaining;
+    [ReadOnly] private int _totalAmmoRemaining;
+    [ReadOnly] private int _clipAmmoRemaining;
     private int _clipAmmoRemainingProperty
     {
         get => _clipAmmoRemaining;
@@ -40,7 +40,7 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private bool _isReloading = false;
+    [ReadOnly] private bool _isReloading = false;
 
 
     [Header("Alternate Fire")]
@@ -164,7 +164,7 @@ public class Gun : MonoBehaviour
             return;
 
         // Check that we have ammo remaining.
-        if (_clipAmmoRemainingProperty <= 0)
+        if (_clipAmmoRemainingProperty <= 0 && _clipAmmoRemaining != -1)
         {
             if (_ammoConfig.AutoReloadWhenAttacking && (_totalAmmoRemaining > 0 || _ammoConfig.MaxAmmo == -1))
                 StartReload();
@@ -227,9 +227,12 @@ public class Gun : MonoBehaviour
     // Make an attack with the weapon, passing off required values to the appropriate methods depending on whether we are using Hitscan or Projectile shooting.
     private void MakeAttack()
     {
-        // Fire Rate & Reduce Ammo.
+        // Fire Rate.
         _lastShotTime = Time.time;
-        _clipAmmoRemainingProperty--;
+
+        // Reduce Ammo if not -1 (-1 is what we use for infinite clips).
+        if (_clipAmmoRemaining != -1)
+            _clipAmmoRemainingProperty--;
 
 
         // Muzzle Flash & Audio.

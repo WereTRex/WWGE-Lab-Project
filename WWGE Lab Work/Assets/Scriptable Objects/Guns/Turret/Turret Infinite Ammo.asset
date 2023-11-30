@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 307262195ab708140bc088b14e5d442b, type: 3}
-  m_Name: Turret Ammo
+  m_Name: Turret Infinite Ammo
   m_EditorClassIdentifier: 
   MaxAmmo: -1
-  MaxClipAmmo: 3
+  MaxClipAmmo: -1
   ReloadTime: 1.7
   AutoReloadWhenAttacking: 1
   IndividualReloading: 0

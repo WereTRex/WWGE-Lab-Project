@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class EnemyDead : IState
 {
-    public EnemyDead()
+    private readonly GameObject _enemy;
+    
+    public EnemyDead(GameObject enemy)
     {
-
+        this._enemy = enemy;
     }
 
 
@@ -18,6 +20,7 @@ public class EnemyDead : IState
     public void OnEnter()
     {
         Debug.Log("Dead");
+        GameObject.Destroy(this._enemy, 0.5f);
     }
     public void OnExit() { }
 }
