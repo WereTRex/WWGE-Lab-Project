@@ -32,28 +32,19 @@ public class EnemySenses : MonoBehaviour
         // Get all colliders within the maxDetectionRadius (That are in a targetLayer).
         foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers, QueryTriggerInteraction.Ignore))
         {
-            Debug.Log("Potential Target: " + potentialTarget);
-            Debug.Log("Dot Product: " + Vector3.Dot(transform.forward, (potentialTarget.transform.position - transform.position).normalized));
-            
             // Is the target within the sight radius (Dot Product)? If so, discount it.
             float currentTargetDot = Vector3.Dot(transform.forward, (potentialTarget.transform.position - transform.position).normalized);
             if (!(currentTargetDot > _viewAngle))
                 continue;
 
-            Debug.Log("Within View Angle");
-
             // Is the collider obstructed? If so, discount it
             if (Physics.Linecast(transform.position, potentialTarget.transform.position, _obstructionMask, QueryTriggerInteraction.Ignore))
                 continue;
-
-            Debug.Log("Unobstructed");
 
             // Is this collider a part of the same faction? If so, discount it
             if (potentialTarget.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
                 if (_factionScript.IsOpposingFaction(entityFaction.Faction) == false)
                     continue;
-
-            Debug.Log("Valid Target: " + potentialTarget);
 
 
             // This collider is a valid collider (Within view angle and not obstructed).
@@ -65,7 +56,6 @@ public class EnemySenses : MonoBehaviour
                 target = potentialTarget.transform;
             }
         }
-        Debug.Log(target);
 
         // Set for if we were within the secondary view angle (Used for some things like Turret's Shooting).
         withinSecondaryRadius = (closestDot > _secondaryViewAngle);
