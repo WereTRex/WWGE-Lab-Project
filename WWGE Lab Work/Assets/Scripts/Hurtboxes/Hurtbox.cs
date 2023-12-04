@@ -21,25 +21,26 @@ public class Hurtbox : MonoBehaviour
     private void OnTriggerExit(Collider other) => OnColliderExited?.Invoke(other);
 
 
-    public void SetupHurtbox(float depth, float width = 0f, float height = 0f)
+    public void SetupHurtbox(Vector3 scale) => SetupHurtbox(scale.x, scale.y, scale.z);
+    public void SetupHurtbox(float x, float y = 0f, float z = 0f)
     {
-        width = width == 0 ? depth : width;
-        height = height == 0 ? depth : height;
+        y = y == 0 ? x : y;
+        z = z == 0 ? x : z;
 
         
         if (_collider.GetType() == typeof(BoxCollider))
         {
-            (_collider as BoxCollider).size = new Vector3(depth, height, width);
-            (_collider as BoxCollider).center = new Vector3(depth / 2, 0, 0);
+            (_collider as BoxCollider).size = new Vector3(x, y, z);
+            (_collider as BoxCollider).center = new Vector3(x / 2, 0, 0);
         }
         else if (_collider.GetType() == typeof(CapsuleCollider))
         {
-            (_collider as CapsuleCollider).radius = depth;
-            (_collider as CapsuleCollider).height = height;
+            (_collider as CapsuleCollider).radius = x;
+            (_collider as CapsuleCollider).height = y;
         } 
         else if (_collider.GetType() == typeof(SphereCollider))
         {
-            (_collider as SphereCollider).radius = depth;
+            (_collider as SphereCollider).radius = x;
         }
     }
 }

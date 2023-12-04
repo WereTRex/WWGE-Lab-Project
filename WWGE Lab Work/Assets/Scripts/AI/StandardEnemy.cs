@@ -4,13 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class StandardEnemy : MonoBehaviour
+public class StandardEnemy : Enemy
 {
-    [SerializeField] private Transform _target;
-    public Transform GetTarget() => _target;
-    
-    [SerializeField] private HealthComponent _healthComponent;
+    [ReadOnly] public int ID;
 
+
+    [Header("Outside Variables")]
+    [SerializeField] private float _stateTransitionDistance;
+
+    [Header("Barrier Destruction Variables")]
+    [SerializeField] private float _attackDamage;
+    [SerializeField] private float _attackCooldown;
 
     [Header("Taunting Variables")]
     [SerializeField] private float _tauntDuration;
@@ -29,8 +33,11 @@ public class StandardEnemy : MonoBehaviour
     private void Awake()
     {
         _stateMachine = new StateMachine();
+        ID = _stateMachine.ID;
 
         // States.
+        var outsideState = new EnemyOutside(this, _agent);
+        var attackingBarrierState = new EnemyAttackingBarrier(this, _attackDamage, _attackCooldown);
         var tauntingState = new EnemyTaunting();
         var chasingState = new EnemyChasing(this, _agent);
         var attackingState = new EnemyAttacking(this, _attacks);
@@ -39,6 +46,10 @@ public class StandardEnemy : MonoBehaviour
 
         // Transitions.
         _stateMachine.AddAnyTransition(deathState, EnemyDead());
+
+        At(outsideState, attackingBarrierState, ReachedBarrier());
+
+        At(attackingBarrierState, tauntingState, DestroyedBarrier());
 
         At(tauntingState, chasingState, TauntCompleted());
         At(tauntingState, staggerState, Staggered());
@@ -56,9 +67,13 @@ public class StandardEnemy : MonoBehaviour
         void At(IState from, IState to, Func<bool> condition) => _stateMachine.AddTransition(from, to, condition);
 
         // Set the initial state.
-        _stateMachine.SetState(tauntingState);
+        _stateMachine.SetState(outsideState);
+
 
         // Transition Conditions.
+        Func<bool> ReachedBarrier() => () => InitialTarget != null && Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(InitialTarget.position.x, 0, InitialTarget.position.z)) < _stateTransitionDistance;
+        Func<bool> DestroyedBarrier() => () => InitialTargetHealth != null && InitialTargetHealth.HasHealth == false;
+        
         Func<bool> TauntCompleted() => () => tauntingState.TauntDurationElapsed >= _tauntDuration;
 
         Func<bool> OutsideStaggerCompleted() => () => staggerState.StaggerDurationElapsed >= _baseStaggerDuration;

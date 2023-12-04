@@ -11,6 +11,10 @@ public class StateMachine
     private List<Transition> _anyTransitions = new List<Transition>();
     private static List<Transition> EmptyTransitions = new List<Transition>(capacity: 0);
 
+    public int ID;
+
+    public StateMachine() => ID = UnityEngine.Random.Range(0, 10000);
+
 
     public void Tick()
     {
@@ -29,7 +33,7 @@ public class StateMachine
         if (_currentState == state)
             return;
 
-        Debug.Log("New State: " + state);
+        Debug.Log(ID + " - New State: " + state);
 
         // Exit the current state.
         _currentState?.OnExit();

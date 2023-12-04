@@ -4,24 +4,20 @@ using UnityEngine;
 
 public class EnemyTaunting : IState
 {
-    private float _tauntDurationElapsed;
-    public float TauntDurationElapsed { get => _tauntDurationElapsed; }
-    
-    public EnemyTaunting()
-    {
-        
-    }
+    public float TauntDurationElapsed { get; private set; }
+
+    public EnemyTaunting() { }
 
 
     public void Tick()
     {
-        _tauntDurationElapsed += Time.deltaTime;
+        TauntDurationElapsed += Time.deltaTime;
     }
 
     public void OnEnter()
     {
         Debug.Log("Taunt Started");
-        _tauntDurationElapsed = 0;
+        TauntDurationElapsed = 0;
     }
     public void OnExit() { Debug.Log("Taunt Elapsed"); }
 }

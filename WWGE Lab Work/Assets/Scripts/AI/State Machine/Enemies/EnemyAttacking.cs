@@ -13,8 +13,8 @@ public class EnemyAttacking : IState
     private Coroutine _attackCoroutine;
     private Coroutine _currentAttack;
 
-    // Temp.
-    private const float GLOBAL_COOLDOWN = 0.3f;
+
+    private const float GLOBAL_COOLDOWN = 0.2f;
     private float _globalCooldownRemaining;
 
 
@@ -41,10 +41,13 @@ public class EnemyAttacking : IState
     {
         if (_currentAttack != null)
             return;
-        if (_globalCooldownRemaining > 0f) {
+
+        if (_globalCooldownRemaining > 0)
+        {
             _globalCooldownRemaining -= Time.deltaTime;
             return;
         }
+
 
         float distanceToTarget = Vector3.Distance(_brain.transform.position, _brain.GetTarget().position);
         if (distanceToTarget < _maxAttackRange)
@@ -64,12 +67,15 @@ public class EnemyAttacking : IState
         if (_currentAttack != null)
             _brain.StopCoroutine(_currentAttack);
 
-        _globalCooldownRemaining = 0f;
+        _globalCooldownRemaining = 0;
     }
 
     private IEnumerator Attack(float distanceToTarget)
     {
         EnemyAttack attack = GetAttack(distanceToTarget);
+
+        if (attack == null)
+            yield break;
 
         yield return (_currentAttack = _brain.StartCoroutine(attack.MakeAttack()));
 
@@ -78,6 +84,10 @@ public class EnemyAttacking : IState
     }
     private EnemyAttack GetAttack(float distanceToTarget)
     {
-        return _attacks.Where(attack => distanceToTarget <= _maxAttackRange).FirstOrDefault();
+        List<EnemyAttack> attackList = _attacks.Where(attack => distanceToTarget <= _maxAttackRange && !attack.IsInCooldown).ToList();
+        if (attackList.Count > 0)
+            return attackList[Random.Range(0, attackList.Count)];
+        else
+            return null;
     }
 }
