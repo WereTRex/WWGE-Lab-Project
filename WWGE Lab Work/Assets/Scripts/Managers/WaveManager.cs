@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WaveManager : MonoBehaviour
@@ -21,10 +22,36 @@ public class WaveManager : MonoBehaviour
     [ReadOnly] private int _currentWave = 0;
 
 
+    [Header("UI")]
+
+    [SerializeField] private WaveCounterUI _waveUI;
+
+
     // (Temp)
     private void Start()
     {
+        // Start the waves.
+        _currentWave = 0;
+        StartCoroutine(WaveCountdown(_currentWave));
+    }
+
+    private IEnumerator WaveCountdown(int wave)
+    {
+        _waveUI.SetWaveText(_currentWave + 1, _waves.Length);
+        
+        float waveTimeRemaining = _waves[wave].WaveTimer;
+        while (waveTimeRemaining > 0)
+        {
+            _waveUI.SetTimer(waveTimeRemaining);
+            
+            waveTimeRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        _waveUI.HideTimer();
         StartCoroutine(HandleWave());
+        //_currentWave++;
+        //_waveUI.SetWaveText(_currentWave + 1, _waves.Length);
     }
 
 
@@ -34,12 +61,16 @@ public class WaveManager : MonoBehaviour
         
         List<GameObject> currentEnemies = new List<GameObject>();
         int spawns = 0;
-        // Loop until the wave has completed (All enemies have been spawned and killed).
+
+        // Loop until all enemies have been spawned.
         do
         {
             // Loop for each enemy we should spawn.
             for (int i = 0; i < wave.SpawnCount; i++)
             {
+                if (spawns >= wave.TotalSpawns)
+                    break;
+                
                 // Get a random enemy from the current wave's available enemies.
                 int enemyIndex = Random.Range(0, wave.WaveContents.Length);
 
@@ -51,26 +82,37 @@ public class WaveManager : MonoBehaviour
                 spawns++;
             }
 
-            // If we have spawned all enemies:
-            if (spawns >= wave.TotalSpawns)
+            
+            // Wait until time elapsed OR enemies are all dead.
+            float pauseTimeRemaining = wave.TimeBetweenSpawns;
+            yield return new WaitUntil(() =>
             {
-                // Wait until time elapsed OR enemies are all dead.
-                float pauseTimeRemaining = wave.TimeBetweenSpawns;
-                yield return new WaitUntil(() =>
-                {
-                    pauseTimeRemaining -= Time.deltaTime;
-                    currentEnemies.RemoveAll(enemy => enemy == null);
-                    return currentEnemies.Count <= 0 || pauseTimeRemaining <= 0;
-                });
-            }
-            // If we haven't spawned all enemies, instead wait until we should spawn more.
-            else
-                yield return new WaitForSeconds(wave.TimeBetweenSpawns);
+                pauseTimeRemaining -= Time.deltaTime;
+                currentEnemies.RemoveAll(enemy => enemy == null);
+                Debug.Log(string.Format("Time Remaining: {0}. Enemies Remaining: {1}", pauseTimeRemaining, currentEnemies.Count));
+                return currentEnemies.Count <= 0 || pauseTimeRemaining <= 0;
+            });
         }
-        while (currentEnemies.Count > 0 && spawns < wave.TotalSpawns);
+        while (spawns < wave.TotalSpawns);
+
+        // Wait until all enemies are dead before ending the wave.
+        yield return new WaitUntil(() =>
+        {
+            currentEnemies.RemoveAll(enemy => enemy == null);
+            return currentEnemies.Count <= 0;
+        });
+
+
 
         // The wave has ended.
         Debug.Log("Wave " + _currentWave + " has ended");
+
+        // Start the next wave.
+        _currentWave++;
+        if (_currentWave < _waves.Length)
+        {
+            StartCoroutine(WaveCountdown(_currentWave));
+        }
     }
 
     // Instantiate an enemy at a random spawn position & set their first target.
@@ -109,6 +151,10 @@ public class WaveManager : MonoBehaviour
     [System.Serializable]
     struct Wave
     {
+        public float WaveTimer;
+
+        [Space(5)]
+
         public WaveContent[] WaveContents;
         public int TotalSpawns
         {
