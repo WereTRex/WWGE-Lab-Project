@@ -1,0 +1,50 @@
+WWGE To-Do
+----------
+--On 'StandardEnemy'--
+Wave Counter UI - (Done)
+Merge the 'StandardEnemy' branch - (Done)
+
+
+--On 'Main'--
+Bugfix: Gun Projectiles blocked by Trigger Colliders - (Done)
+Enemy Health, Speed, & Attack Balancing
+Weapon Balancing
+Code Comments
+Change the EnemySenses target comparison to a weighted comparison between the target's distance to the turret and their Dot product.
+
+
+--New Branch ('Player Movement Rework')--
+Physics Based Movement Change
+Player Hierarchial State Machine
+	Grounded
+		Idle
+		Walking
+		Running
+		Crouching
+	Jumping
+		Idle
+		Walking
+		Running
+	Staggered
+		Knockback
+Ensure no Bugs
+Merge the 'Player Movement Rework' branch
+
+
+--New Branch ('Boss Enemy')--
+Boss Attacks
+	Claw
+	Tail Swipe
+	Tail Spike (New Attack Type)
+	Leap (New Attack Type)
+Boss Spawning
+Boss Stages
+
+
+
+Standard Enemy HP: X
+
+Weapon Type: 	Damage | Shots to Kill
+Pistol: 		1 | 0
+Assault Rifle: 	1 | 0
+Shotgun 		8x1 | 0
