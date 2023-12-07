@@ -4453,9 +4453,9 @@ MonoBehaviour:
   _rotationTarget: {fileID: 415182504}
   _rotationSpeed: 5
   _idleLookTargets:
-  - {x: 0, y: 1.75, z: 7}
-  - {x: -5, y: 1.75, z: 7}
-  - {x: -5, y: 1.75, z: 2}
+  - {x: 0.5, y: 0.75, z: 2}
+  - {x: -1.5, y: 0.75, z: 1.5}
+  - {x: -2, y: 0.75, z: -0.5}
   _idleRotationSpeed: 2
   _idleRotationAcceleration: 1
   _idleRotationDeceleration: 1
@@ -9967,7 +9967,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!208 &296032381
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -10154,9 +10154,10 @@ MonoBehaviour:
   _rotationTarget: {fileID: 1694741727}
   _rotationSpeed: 5
   _idleLookTargets:
-  - {x: 6, y: 1.75, z: 3}
-  - {x: 9, y: 1.75, z: 0}
-  - {x: 6, y: 1.75, z: -3}
+  - {x: 0, y: 0.75, z: 2}
+  - {x: 2, y: 0.75, z: 0}
+  - {x: 0, y: 0.75, z: -2}
+  - {x: 2, y: 0.75, z: 0}
   _idleRotationSpeed: 2
   _idleRotationAcceleration: 1
   _idleRotationDeceleration: 1
