@@ -244,10 +244,6 @@ public class Gun : MonoBehaviour
         // Calculate Fire Direction.
         Vector3 spreadAmount = _shootConfigs[_currentFiringIndex].GetSpread(_spreadTime);
         Vector3 fireDirection = (_raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(spreadAmount.x, spreadAmount.y)).normalized;
-        
-        // Rotate the model to face the fire direction.
-        //if (_model != null)
-        //    _model.transform.rotation = Quaternion.LookRotation(fireDirection, _raycastOrigin.up);
 
         // (Effect) Recoil.
         ApplyRecoil();
@@ -297,11 +293,9 @@ public class Gun : MonoBehaviour
     // Logic for shooting with Hitscan weapons.
     private void HitscanShoot(Vector3 fireDirection)
     {
-        // Raycast to find if we hit something.
+        // Raycast to check if we hit something.
         if (Physics.Raycast(_raycastOrigin.position, fireDirection, out RaycastHit hit, float.MaxValue, _shootConfigs[_currentFiringIndex].HitMask))
         {
-            // We hit something!
-
             // (Effect) Bullet Tracers.
             _bulletTrailManager.SpawnTrail(_bulletOrigin.position, hit.point, _trailConfig);
 
@@ -311,7 +305,7 @@ public class Gun : MonoBehaviour
         // We missed!
         else
         {
-            // (Effect) Bullet trails.
+            // (Effect) Bullet Tracers.
             _bulletTrailManager.SpawnTrail(_bulletOrigin.position, _raycastOrigin.position + (fireDirection * _trailConfig.MissDistance), _trailConfig);
         }
     }
