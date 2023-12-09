@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 307262195ab708140bc088b14e5d442b, type: 3}
   m_Name: Shotgun Ammo
   m_EditorClassIdentifier: 
-  MaxAmmo: 18
-  MaxClipAmmo: 6
+  MaxAmmo: 21
+  MaxClipAmmo: 7
   ReloadTime: 0.35
   AutoReloadWhenAttacking: 1
   IndividualReloading: 1

@@ -21,7 +21,7 @@ MonoBehaviour:
     m_Bits: 449
   FireDelay: 0.25
   BulletsPerShot: 8
-  MaxBulletAngle: 15
+  MaxBulletAngle: 17.5
   UseWeightedSpread: 1
   RecoilStrength: 6
   MaxRecoil: 9

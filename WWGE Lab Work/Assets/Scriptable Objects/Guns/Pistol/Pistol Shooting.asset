@@ -19,7 +19,7 @@ MonoBehaviour:
   HitMask:
     serializedVersion: 2
     m_Bits: 321
-  FireDelay: 0.15
+  FireDelay: 0.2
   BulletsPerShot: 1
   MaxBulletAngle: 0
   UseWeightedSpread: 0

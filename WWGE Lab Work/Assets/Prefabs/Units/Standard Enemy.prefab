@@ -488,7 +488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9f1581452d10a347b58c0d271a8d8a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 25
+  _maxHealth: 100
   _healthBar: {fileID: 8279386403656454357}
 --- !u!114 &8433933073995609024
 MonoBehaviour:
@@ -515,8 +515,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eff1db4fbbc2024499c53d058989ca6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _target: {fileID: 0}
-  _healthComponent: {fileID: 426016344195685669}
+  Target: {fileID: 0}
+  HealthComponent: {fileID: 426016344195685669}
   ID: 0
   _stateTransitionDistance: 2
   _attackDamage: 1
@@ -526,24 +526,24 @@ MonoBehaviour:
   _agent: {fileID: 1115588530261443010}
   _attacks:
   - name: Claw
-    _attackDamage: 2
-    _onlyHitOnce: 1
-    _maxAttackRange: 1
-    _attackDuration: 0.3
-    _attackRecovery: 0.3
-    _attackCooldown: 1.5
+    AttackDamage: 0
+    onlyHitOnce: 0
+    maxAttackRange: 0
+    AttackDuration: 0
+    AttackRecovery: 0
+    AttackCooldown: 0
     _hurtbox: {fileID: 4884879759304335356}
     _startPos: {x: 0, y: 0, z: 0}
     _startRot: {x: 0, y: 80, z: 0}
     _endPos: {x: 0, y: 0, z: 0}
     _endRot: {x: 0, y: -80, z: 0}
   - name: Tail
-    _attackDamage: 2
-    _onlyHitOnce: 1
-    _maxAttackRange: 2.5
-    _attackDuration: 0.1
-    _attackRecovery: 0.3
-    _attackCooldown: 2
+    AttackDamage: 0
+    onlyHitOnce: 0
+    maxAttackRange: 0
+    AttackDuration: 0
+    AttackRecovery: 0
+    AttackCooldown: 0
     _hurtbox: {fileID: 1185011763812071189}
     _startPos: {x: 0, y: 0.3, z: 0}
     _startRot: {x: 0, y: 0, z: 0}

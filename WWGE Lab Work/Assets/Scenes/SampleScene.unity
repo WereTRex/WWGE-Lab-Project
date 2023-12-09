@@ -1524,7 +1524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9f1581452d10a347b58c0d271a8d8a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 10
+  _maxHealth: 100
   _healthBar: {fileID: 678526170}
 --- !u!82 &70386894
 AudioSource:
@@ -4479,7 +4479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9f1581452d10a347b58c0d271a8d8a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 10
+  _maxHealth: 200
   _healthBar: {fileID: 931014052}
 --- !u!82 &247492956
 AudioSource:
@@ -4615,9 +4615,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c28ce9e33fde9964b9d58c6b7b32eb6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 247492955}
-  _entityFaction: {fileID: 247492958}
-  _repairTime: 0.5
+  HealthComponent: {fileID: 0}
+  EntityFaction: {fileID: 0}
+  RepairTime: 0
 --- !u!208 &247492960
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -10105,9 +10105,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c28ce9e33fde9964b9d58c6b7b32eb6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 296032385}
-  _entityFaction: {fileID: 296032386}
-  _repairTime: 0.5
+  HealthComponent: {fileID: 0}
+  EntityFaction: {fileID: 0}
+  RepairTime: 0
 --- !u!114 &296032385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10120,7 +10120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9f1581452d10a347b58c0d271a8d8a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 10
+  _maxHealth: 200
   _healthBar: {fileID: 1063959885}
 --- !u!114 &296032386
 MonoBehaviour:
@@ -16371,9 +16371,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 169b002335eaabb4e9be4aa4aecc1c2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 780230485}
-  _entityFaction: {fileID: 780230484}
-  _repairTime: 3
+  HealthComponent: {fileID: 780230485}
+  EntityFaction: {fileID: 780230484}
+  RepairTime: 0
   _repairStages: 2
   _animator: {fileID: 780230486}
 --- !u!114 &780230484
@@ -52470,9 +52470,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 169b002335eaabb4e9be4aa4aecc1c2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 2077631908}
-  _entityFaction: {fileID: 2077631907}
-  _repairTime: 3
+  HealthComponent: {fileID: 2077631908}
+  EntityFaction: {fileID: 2077631907}
+  RepairTime: 0
   _repairStages: 2
   _animator: {fileID: 2077631909}
 --- !u!114 &2077631907
