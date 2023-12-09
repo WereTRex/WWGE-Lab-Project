@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary> A script that allows the representation of an entity's faction.</summary>
 [DisallowMultipleComponent]
 public class EntityFaction : MonoBehaviour
 {
@@ -13,12 +14,8 @@ public class EntityFaction : MonoBehaviour
         this.Faction = newFaction;
     }
 
-    /// <summary>
-    /// A function to check whether this entity is part of an inputted faction.
-    /// Returns true if the factions are opposing.
-    /// </summary>
-    /// <param name="factionToCheck"></param>
-    /// <returns></returns>
+    /// <summary> A function to check whether this entity is part of an inputted faction. </summary>
+    /// <returns> True if the factions don't contain an ally, false if they do.</returns>
     public bool IsOpposingFaction(Faction factionToCheck)
     {
         // Check if either faction is unaligned (Will never team with another entity).

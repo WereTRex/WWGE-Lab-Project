@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary> A Singleton Manager that handles the pausing of the game.</summary>
 public class PauseManager : MonoBehaviour
 {
     public static PauseManager Instance;
@@ -12,9 +13,11 @@ public class PauseManager : MonoBehaviour
 
     private void Awake()
     {
+        // Set the singleton instance.
         if (Instance == null)
             Instance = this;
 
+        // Ensure the game starts unpaused.
         IsPaused = false;
     }
 

@@ -113,11 +113,13 @@ public class EnemyTurret : MonoBehaviour
     }
     public void StopDetection()
     {
+        // Stop the currently running detection coroutine (If there is one).
         if (_detectionCoroutine != null)
             StopCoroutine(_detectionCoroutine);
     }
     private IEnumerator TryDetection()
     {
+        // Loop until externally stopped.
         while (true)
         {
             // Note: Done in 2 lines as instantly setting the target seemed to cause an error occasionally.

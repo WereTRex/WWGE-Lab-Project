@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
+/// <summary> A Manager Script for the Pause Menu</summary>
 public class MenuManager : MonoBehaviour
 {
     #region Variables
@@ -263,6 +264,7 @@ public class MenuManager : MonoBehaviour
 
     
     #region Confirmation Box
+    // Display a confirmation box for confirmationDelay seconds.
     private IEnumerator DisplayConfirmationBox()
     {
         _confirmationPrompt.SetActive(true);
@@ -284,52 +286,36 @@ public class MenuManager : MonoBehaviour
 
 
     #region Apply/Reset
-    /*public void ApplyVideoChanges()
-    {
-        // FoV.
-        PlayerPrefs.SetFloat("fieldOfView", _fovSlider.value);
-
-        // Resolution & Fullscreen.
-        PlayerPrefs.SetInt("resolutionWidth", _resolutions[_resolutionDropdown.value].width);
-        PlayerPrefs.SetInt("resolutionHeight", _resolutions[_resolutionDropdown.value].height);
-        PlayerPrefs.SetInt("isFullscreen", _fullscreenToggle.isOn ? 1 : 0);
-
-        Screen.SetResolution(_resolutions[_resolutionDropdown.value].width, _resolutions[_resolutionDropdown.value].height, Screen.fullScreen);
-
-
-        // Request Confirmation.
-        StartCoroutine(DisplayConfirmationBox());
-    }*/
     public void ApplyVideoChanges()
     {
-        // FoV.
+        // Set FoV.
         PlayerManager.Instance.FieldOfView = _fovSlider.value;
 
-        // Resolution & Fullscreen.
+        // Set Resolution & Fullscreen.
         Screen.SetResolution(_resolutions[_resolutionDropdown.value].width, _resolutions[_resolutionDropdown.value].height, Screen.fullScreen);
 
 
-        // Crosshair.
+        // Set Crosshair Values.
         PlayerManager.Instance.CrosshairColour = CrosshairColours.Colours[_crosshairColourDropdown.value].Value;
         PlayerManager.Instance.CrosshairBorderThickness = _crosshairBorderThicknessSlider.value;
         PlayerManager.Instance.CrosshairBorderColour = CrosshairColours.Colours[_crosshairBorderColourDropdown.value].Value;
 
 
-        // Request Confirmation.
+        // Request Confirmation (Currently only confirmation box).
         StartCoroutine(DisplayConfirmationBox());
     }
     public void ResetVideoChanges()
     {
-        // FOV.
+        // Reset FOV.
         _fovSlider.value = _defaultFOV;
 
-        // Resolution.
+        // Reset Resolution.
         _resolutionDropdown.value = _defaultResolutionIndex;
 
-        // Fullscreen.
+        // Reset Fullscreen.
         _fullscreenToggle.isOn = true;
 
-        // Apply.
+        // Apply Resets.
         ApplyVideoChanges();
     }
     #endregion
@@ -337,54 +323,37 @@ public class MenuManager : MonoBehaviour
 
     #region Controls
     #region Apply/Reset
-    /*public void ApplyControlsChanges()
-    {
-        // Mouse.
-        PlayerPrefs.SetFloat("mouseHorizontalSensitivity", _mouseSensitivityHorizontalSlider.value);
-        PlayerPrefs.SetFloat("mouseVerticalSensitivity", _mouseSensitivityVerticalSlider.value);
-        PlayerPrefs.SetInt("invertMouseY", _invertMouseYToggle.isOn ? 1 : 0);
-
-        // Gamepad.
-        PlayerPrefs.SetFloat("gamepadHorizontalSensitivity", _gamepadSensitivityHorizontalSlider.value);
-        PlayerPrefs.SetFloat("gamepadVerticalSensitivity", _gamepadSensitivityVerticalSlider.value);
-        PlayerPrefs.SetInt("invertGamepadY", _invertGamepadYToggle.isOn ? 1 : 0);
-
-        // Request Confirmation.
-        StartCoroutine(DisplayConfirmationBox());
-    }*/
     public void ApplyControlsChanges()
     {
-        // Mouse.
+        // Set Mouse Values.
         PlayerManager.Instance.MouseSensitivity = new Vector2(_mouseSensitivityHorizontalSlider.value, _mouseSensitivityVerticalSlider.value);
         PlayerManager.Instance.InvertMouseY = _invertMouseYToggle.isOn;
 
-        // Gamepad.
+        // Set Gamepad Values.
         PlayerManager.Instance.GamepadSensitivity = new Vector2(_gamepadSensitivityHorizontalSlider.value, _gamepadSensitivityVerticalSlider.value);
         PlayerManager.Instance.InvertGamepadY = _invertGamepadYToggle.isOn;
 
-        // Request Confirmation.
+        // Request Confirmation (Currently only confirmation box).
         StartCoroutine(DisplayConfirmationBox());
     }
     public void ResetControls()
     {
-        // Reset Mouse.
+        // Reset Mouse Values.
         _mouseSensitivityHorizontalSlider.value = _defaultMouseSensitivity.x;
         _mouseSensitivityVerticalSlider.value = _defaultMouseSensitivity.y;
         _invertMouseYToggle.isOn = false;
 
-        // Reset Gamepad.
+        // Reset Gamepad Values.
         _gamepadSensitivityHorizontalSlider.value = _defaultGamepadSensitivity.x;
         _gamepadSensitivityVerticalSlider.value = _defaultGamepadSensitivity.y;
         _invertGamepadYToggle.isOn = false;
 
-        // Apply.
+        // Apply Resets.
         ApplyControlsChanges();
     }
     #endregion
     #endregion
 
-    #region Keybindings
-
-    #endregion
+    // Note: Keybindings are handled elsewhere.
     #endregion
 }

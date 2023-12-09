@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary> A class to represent an Entity's Health</summary>
 public class HealthComponent : MonoBehaviour
 {
+    // Events.
     public event Action OnDead;
     public event Action<float> OnHealthChanged;
     
@@ -28,6 +30,8 @@ public class HealthComponent : MonoBehaviour
         }
     }
 
+
+    // Useful booleans to have access to.
     public bool HasHealth { get => _currentHealth > 0; }
     public bool HasFullHealth { get => _currentHealth >= _maxHealth; }
 

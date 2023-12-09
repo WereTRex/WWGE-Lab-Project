@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary> A class representing the brain of a Standard Enemy.</summary>
 public class StandardEnemy : Enemy
 {
     [ReadOnly] public int ID;
@@ -32,6 +33,7 @@ public class StandardEnemy : Enemy
     private StateMachine _stateMachine;
     private void Awake()
     {
+        #region State Machine Setup
         _stateMachine = new StateMachine();
         ID = _stateMachine.ID;
 
@@ -84,7 +86,9 @@ public class StandardEnemy : Enemy
         Func<bool> OutOfAttackRange() => () => (Vector3.Distance(transform.position, Target.position) > attackingState.MaxAttackRange) && attackingState.IsAttacking == false;
 
         Func<bool> EnemyDead() => () => HealthComponent.HasHealth == false;
+        #endregion
     }
 
+    // Trigger the state machine's tick.
     private void Update() => _stateMachine.Tick();
 }

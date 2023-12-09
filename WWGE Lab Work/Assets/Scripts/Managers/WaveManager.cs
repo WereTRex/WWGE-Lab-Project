@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary> A Singleton Manager script that handles waves and the spawning of enemies.</summary>
 public class WaveManager : MonoBehaviour
 {
     public static WaveManager Instance;
 
     private void Awake()
     {
+        // Set the Singleton instance.
         if (Instance == null)
             Instance = this;
     }
@@ -37,26 +37,31 @@ public class WaveManager : MonoBehaviour
 
     private IEnumerator WaveCountdown(int wave)
     {
+        // Update the current wave text.
         _waveUI.SetWaveText(_currentWave + 1, _waves.Length);
         
+        // Wait until between wave time has elapsed.
         float waveTimeRemaining = _waves[wave].WaveTimer;
         while (waveTimeRemaining > 0)
         {
+            // Update the between wave timer.
             _waveUI.SetTimer(waveTimeRemaining);
             
             waveTimeRemaining -= Time.deltaTime;
             yield return null;
         }
 
+        // Hide the between wave timer.
         _waveUI.HideTimer();
+
+        // Start the wave.
         StartCoroutine(HandleWave());
-        //_currentWave++;
-        //_waveUI.SetWaveText(_currentWave + 1, _waves.Length);
     }
 
 
     private IEnumerator HandleWave()
     {
+        // Get the current wave.
         Wave wave = _waves[_currentWave];
         
         List<GameObject> currentEnemies = new List<GameObject>();
@@ -103,7 +108,6 @@ public class WaveManager : MonoBehaviour
         });
 
 
-
         // The wave has ended.
         Debug.Log("Wave " + _currentWave + " has ended");
 
@@ -134,6 +138,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        // Draw Gizmos where the Spawn Position of each Spawn Point is.
         Gizmos.color = Color.green;
         for (int i = 0; i < _spawnPoints.Length; i++)
         {
@@ -142,12 +147,14 @@ public class WaveManager : MonoBehaviour
     }
 
 
+    /// <summary> A struct representing a Spawn Position available to spawned enemies.</summary>
     [System.Serializable]
     struct SpawnPosition
     {
         public Vector3 SpawnPos;
         public Transform InitialTarget;
     }
+    /// <summary> A struct representing a Wave of Enemies.</summary>
     [System.Serializable]
     struct Wave
     {
@@ -177,6 +184,7 @@ public class WaveManager : MonoBehaviour
         public float TimeBetweenSpawns;
 
 
+        /// <summary> A struct containing the information on how many of a certain type of enemy should be spawned in a wave.</summary>
         [System.Serializable]
         public struct WaveContent
         {

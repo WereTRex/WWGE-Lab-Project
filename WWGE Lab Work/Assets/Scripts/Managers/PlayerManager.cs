@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// A Manager script used to keep track of player related settings information.
-/// </summary>
+/// <summary> A Manager script used to keep track of player related setting information. </summary>
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance;
 
     private void Awake()
     {
+        // Set the singleton instance.
         if (Instance == null)
             Instance = this;
     }

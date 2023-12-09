@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary> A script that respawns the player at its position when they enter an attached trigger.</summary>
 public class KillBox : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)

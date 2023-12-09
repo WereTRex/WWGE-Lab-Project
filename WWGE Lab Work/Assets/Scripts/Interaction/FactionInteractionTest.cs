@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary> (Test Script) A script only allowing interaction between entities of the same faction.</summary>
 public class FactionInteractionTest : MonoBehaviour, IInteractable
 {
     [SerializeField] private EntityFaction _factionScript;
