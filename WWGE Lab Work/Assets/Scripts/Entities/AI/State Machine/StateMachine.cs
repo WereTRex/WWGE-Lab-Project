@@ -12,7 +12,9 @@ public class StateMachine
     private List<Transition> _anyTransitions = new List<Transition>();
     private static List<Transition> EmptyTransitions = new List<Transition>(capacity: 0);
 
-    public int ID; // An ID to represent this StateMachine (Used for Debugging).
+    public int ID { get; private set; } // An ID to represent this StateMachine (Used for Debugging).
+    public string GetCurrentStateName() => _currentState != null ? _currentState.GetType().ToString() : "Null";
+
 
     public StateMachine() => ID = UnityEngine.Random.Range(0, 10000);
 

@@ -26,7 +26,9 @@ public class EnemySenses : MonoBehaviour
     public Transform TryGetTarget(out bool withinSecondaryRadius)
     {
         Transform target = null;
-        float closestDot = _viewAngle;
+        float greatestWeight = 0;
+        withinSecondaryRadius = false;
+
 
         // Get all colliders within the maxDetectionRadius (That are in a targetLayer).
         foreach (Collider potentialTarget in Physics.OverlapSphere(transform.position, _maxDetectionRange, _targetLayers, QueryTriggerInteraction.Ignore))
@@ -47,17 +49,25 @@ public class EnemySenses : MonoBehaviour
 
 
             // This collider is a valid collider (Within view angle and not obstructed).
-            // Is this collider the closest to the turret's forward?
-            if (currentTargetDot > closestDot)
+
+            // Does this collider have a better weighted value than the current target?
+            float percentageDistance = 1f - Vector3.Distance(transform.position, potentialTarget.transform.position) / _maxDetectionRange;
+            float percentageDot = 1 - (currentTargetDot / _viewAngle);
+            float currentWeight = (percentageDistance * 3f) + percentageDot;
+            if (currentWeight > greatestWeight)
             {
                 // This collider is the most valid collider (Closest to camera forwards) (ToDo: Change to a weighted comparison between distance and dot)
-                closestDot = currentTargetDot;
+                greatestWeight = currentWeight;
                 target = potentialTarget.transform;
+
+                // Set for if we were within the secondary view angle (Used for some things like Turret's Shooting).
+                if (currentTargetDot > _secondaryViewAngle)
+                    withinSecondaryRadius = true;
+                else
+                    withinSecondaryRadius = false;
             }
         }
 
-        // Set for if we were within the secondary view angle (Used for some things like Turret's Shooting).
-        withinSecondaryRadius = (closestDot > _secondaryViewAngle);
 
         // Return the found target (Which will be null if none were found).
         return target;

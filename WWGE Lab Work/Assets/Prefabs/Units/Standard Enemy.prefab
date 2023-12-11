@@ -518,6 +518,7 @@ MonoBehaviour:
   Target: {fileID: 0}
   HealthComponent: {fileID: 426016344195685669}
   ID: 0
+  CurrentStateName: 
   _stateTransitionDistance: 2
   _attackDamage: 1
   _attackCooldown: 1
@@ -526,24 +527,24 @@ MonoBehaviour:
   _agent: {fileID: 1115588530261443010}
   _attacks:
   - name: Claw
-    AttackDamage: 0
-    onlyHitOnce: 0
-    maxAttackRange: 0
-    AttackDuration: 0
-    AttackRecovery: 0
-    AttackCooldown: 0
+    AttackDamage: 25
+    onlyHitOnce: 1
+    maxAttackRange: 2
+    AttackDuration: 0.25
+    AttackRecovery: 0.75
+    AttackCooldown: 3
     _hurtbox: {fileID: 4884879759304335356}
     _startPos: {x: 0, y: 0, z: 0}
     _startRot: {x: 0, y: 80, z: 0}
     _endPos: {x: 0, y: 0, z: 0}
     _endRot: {x: 0, y: -80, z: 0}
   - name: Tail
-    AttackDamage: 0
-    onlyHitOnce: 0
-    maxAttackRange: 0
-    AttackDuration: 0
-    AttackRecovery: 0
-    AttackCooldown: 0
+    AttackDamage: 25
+    onlyHitOnce: 1
+    maxAttackRange: 2
+    AttackDuration: 0.2
+    AttackRecovery: 0.5
+    AttackCooldown: 5
     _hurtbox: {fileID: 1185011763812071189}
     _startPos: {x: 0, y: 0.3, z: 0}
     _startRot: {x: 0, y: 0, z: 0}

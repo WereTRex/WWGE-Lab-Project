@@ -5,12 +5,18 @@ using UnityEngine;
 
 public class EnemyTurret : MonoBehaviour
 {
+    // Debug Variables.
     [ReadOnly] public Transform Target;
-    private bool _withinShootingAngle;
+    [ReadOnly] public int ID;
+    [ReadOnly] public string CurrentStateName;
+
+
+    [Space(15)]
 
 
     [SerializeField] private HealthComponent _healthComponent;
     [SerializeField] private EnemySenses _senses;
+    private bool _withinShootingAngle;
 
     [Space(5)]
     public float DetectionCheckDelay = 0.2f;
@@ -54,6 +60,7 @@ public class EnemyTurret : MonoBehaviour
         
         #region State Machine Setup
         _stateMachine = new StateMachine();
+        ID = _stateMachine.ID;
 
         var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
         var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _minimumAlertDuration, _alertPS);
@@ -95,7 +102,14 @@ public class EnemyTurret : MonoBehaviour
     }
 
 
-    private void Update() => _stateMachine.Tick();
+    private void Update()
+    {
+        // Call the State Machine's tick method.
+        _stateMachine.Tick();
+
+        // Update the CurrentStateName debug variable.
+        CurrentStateName = _stateMachine.GetCurrentStateName();
+    }
     
 
 

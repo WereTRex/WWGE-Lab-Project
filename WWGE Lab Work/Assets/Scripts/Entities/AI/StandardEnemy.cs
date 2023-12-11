@@ -8,6 +8,7 @@ using UnityEngine.AI;
 public class StandardEnemy : Enemy
 {
     [ReadOnly] public int ID;
+    [ReadOnly] public string CurrentStateName;
 
 
     [Header("Outside Variables")]
@@ -89,6 +90,13 @@ public class StandardEnemy : Enemy
         #endregion
     }
 
-    // Trigger the state machine's tick.
-    private void Update() => _stateMachine.Tick();
+    
+    private void Update()
+    {
+        // Trigger the state machine's tick.
+        _stateMachine.Tick();
+
+        // Update the CurrentStateName debug variable.
+        CurrentStateName = _stateMachine.GetCurrentStateName();
+    }
 }
