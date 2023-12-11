@@ -7,10 +7,6 @@ using UnityEngine.AI;
 /// <summary> A class representing the brain of a Standard Enemy.</summary>
 public class StandardEnemy : Enemy
 {
-    [ReadOnly] public int ID;
-    [ReadOnly] public string CurrentStateName;
-
-
     [Header("Outside Variables")]
     [SerializeField] private float _stateTransitionDistance;
 
@@ -31,13 +27,11 @@ public class StandardEnemy : Enemy
     [SerializeField] private HurtboxAttack[] _attacks;
 
     
-    private StateMachine _stateMachine;
-    private void Awake()
+    private new void Awake()
     {
+        base.Awake();
+        
         #region State Machine Setup
-        _stateMachine = new StateMachine();
-        ID = _stateMachine.ID;
-
         // States.
         var outsideState = new EnemyOutside(this, _agent);
         var attackingBarrierState = new EnemyAttackingBarrier(this, _attackDamage, _attackCooldown);
@@ -48,7 +42,7 @@ public class StandardEnemy : Enemy
         var deathState = new EnemyDead(this.gameObject);
 
         // Transitions.
-        _stateMachine.AddAnyTransition(deathState, EnemyDead());
+        StateMachine.AddAnyTransition(deathState, EnemyDead());
 
         At(outsideState, attackingBarrierState, ReachedBarrier());
 
@@ -67,10 +61,10 @@ public class StandardEnemy : Enemy
         At(staggerState, chasingState, InsideStaggerCompleted());
 
 
-        void At(IState from, IState to, Func<bool> condition) => _stateMachine.AddTransition(from, to, condition);
+        void At(IState from, IState to, Func<bool> condition) => StateMachine.AddTransition(from, to, condition);
 
         // Set the initial state.
-        _stateMachine.SetState(outsideState);
+        StateMachine.SetState(outsideState);
 
 
         // Transition Conditions.
@@ -88,15 +82,5 @@ public class StandardEnemy : Enemy
 
         Func<bool> EnemyDead() => () => HealthComponent.HasHealth == false;
         #endregion
-    }
-
-    
-    private void Update()
-    {
-        // Trigger the state machine's tick.
-        _stateMachine.Tick();
-
-        // Update the CurrentStateName debug variable.
-        CurrentStateName = _stateMachine.GetCurrentStateName();
     }
 }

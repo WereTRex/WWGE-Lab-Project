@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.CullingGroup;
 
 /// <summary> A class to handle the transition between states.</summary>
 public class StateMachine
@@ -13,7 +14,7 @@ public class StateMachine
     private static List<Transition> EmptyTransitions = new List<Transition>(capacity: 0);
 
     public int ID { get; private set; } // An ID to represent this StateMachine (Used for Debugging).
-    public string GetCurrentStateName() => _currentState != null ? _currentState.GetType().ToString() : "Null";
+    public Action<IState> OnStateChanged;
 
 
     public StateMachine() => ID = UnityEngine.Random.Range(0, 10000);
@@ -41,6 +42,10 @@ public class StateMachine
 
         // (Debug) Display the new state's name.
         Debug.Log(ID + " - New State: " + state);
+        
+        // Invoke the OnStateChanged event.
+        OnStateChanged?.Invoke(state);
+
 
         // Exit the current state.
         _currentState?.OnExit();

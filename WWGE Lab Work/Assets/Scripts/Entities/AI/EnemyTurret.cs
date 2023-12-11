@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyTurret : MonoBehaviour
+public class EnemyTurret : StateBasedEntity
 {
     // Debug Variables.
     [ReadOnly] public Transform Target;
-    [ReadOnly] public int ID;
-    [ReadOnly] public string CurrentStateName;
 
 
     [Space(15)]
@@ -51,17 +49,14 @@ public class EnemyTurret : MonoBehaviour
     [field:SerializeField] public bool UseDebugLogs { get; private set; }
 
 
-    private StateMachine _stateMachine;
-    private void Awake()
+    private new void Awake()
     {
         if (_senses == null)
             _senses = GetComponent<EnemySenses>();
 
+        base.Awake();
         
         #region State Machine Setup
-        _stateMachine = new StateMachine();
-        ID = _stateMachine.ID;
-
         var idle = new TurretIdle(this, _rotationTarget, _idleLookTargets, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
         var alert = new TurretAlert(this, _rotationTarget, _rotationSpeed, _minimumAlertDuration, _alertPS);
         var shooting = new TurretShooting(this, _rotationTarget, _rotationSpeed, _turretGun, _pauseWhileShooting);
@@ -69,7 +64,7 @@ public class EnemyTurret : MonoBehaviour
 
         #region Transitions
         // Any.
-        _stateMachine.AddAnyTransition(deactivated, OutOfHealth());
+        StateMachine.AddAnyTransition(deactivated, OutOfHealth());
 
         // Idle.
         At(idle, alert, HasTarget());
@@ -86,9 +81,9 @@ public class EnemyTurret : MonoBehaviour
         #endregion
 
 
-        void At(IState from, IState to, Func<bool> condition) => _stateMachine.AddTransition(from, to, condition);
-        
-        _stateMachine.SetState(idle);
+        void At(IState from, IState to, Func<bool> condition) => StateMachine.AddTransition(from, to, condition);
+
+        StateMachine.SetState(idle);
         
         #region Transition Conditions
         Func<bool> HasTarget() => () => Target != null;
@@ -99,16 +94,6 @@ public class EnemyTurret : MonoBehaviour
         Func<bool> ReactivationTimeElapsed() => () => _healthComponent.HasHealth;
         #endregion
         #endregion
-    }
-
-
-    private void Update()
-    {
-        // Call the State Machine's tick method.
-        _stateMachine.Tick();
-
-        // Update the CurrentStateName debug variable.
-        CurrentStateName = _stateMachine.GetCurrentStateName();
     }
     
 
