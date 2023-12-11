@@ -1,6 +1,7 @@
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
+/// <summary> Configuration Information for a Weapon's Damage</summary>
 [CreateAssetMenu(fileName = "Damage Config", menuName = "Weapons/Guns/Damage Config", order = 1)]
 public class DamageConfigSO : ScriptableObject
 {

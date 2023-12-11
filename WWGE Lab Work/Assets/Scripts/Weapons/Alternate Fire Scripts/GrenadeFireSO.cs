@@ -11,6 +11,7 @@ public class GrenadeFireSO : AlternateFireSO
     
     public override void AlternateAttack(GameObject triggeringGameObject, Transform raycastOrigin, Transform bulletOrigin)
     {
+        // Instantiate a grenade and add a force to it.
         GameObject grenadeInstance = Instantiate(GrenadePrefab, bulletOrigin.position, bulletOrigin.rotation);
         grenadeInstance.GetComponent<Rigidbody>().AddForce(raycastOrigin.forward * LaunchForce, ForceMode.Impulse);
     }

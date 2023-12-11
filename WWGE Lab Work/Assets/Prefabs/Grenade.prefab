@@ -241,7 +241,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 10
+      value: 125
       inSlope: -13.043684
       outSlope: -13.043684
       tangentMode: 0
@@ -250,7 +250,7 @@ MonoBehaviour:
       outWeight: 0.05791789
     - serializedVersion: 3
       time: 1
-      value: 5
+      value: 60
       inSlope: -0.44279993
       outSlope: -0.44279993
       tangentMode: 0
@@ -260,9 +260,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _explosionRadius: 3
+  _explosionRadius: 3.5
   _explosionForce: 500
   _fuseTime: 2
+  _maxCollisions: 0
   _explosionPrefab: {fileID: 8779840912387216700, guid: db57bcac240559e45b78399fb1d7c6d6, type: 3}
   _explosionLifetime: 5
 --- !u!54 &6651287832380373786

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/// <summary> Configuration Information for the projectile trail of a Weapon.</summary>
 [CreateAssetMenu(fileName = "Trail Config", menuName = "Weapons/Guns/Trail Config", order = 4)]
 public class TrailConfigSO : ScriptableObject
 {

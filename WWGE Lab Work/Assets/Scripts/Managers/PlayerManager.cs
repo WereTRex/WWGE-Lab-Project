@@ -13,6 +13,11 @@ public class PlayerManager : MonoBehaviour
         if (Instance == null)
             Instance = this;
     }
+    private void OnEnable()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
 
 
     // Camera Related Stuff.

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/// <summary> Configuration Information for a weapon's ammunition.</summary>
 [CreateAssetMenu(fileName = "Ammo Config", menuName = "Weapons/Guns/Ammo Config", order = 3)]
 public class AmmoConfigSO : ScriptableObject
 {

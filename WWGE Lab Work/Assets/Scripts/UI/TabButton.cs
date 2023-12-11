@@ -11,24 +11,26 @@ public class TabGroupButton : MonoBehaviour, IPointerClickHandler, IPointerEnter
     [SerializeField] private TabGroup _tabGroup;
     private Image _background;
 
-    public UnityEvent OnTabSelected;
-    public UnityEvent OnTabDeselected;
+    public UnityEvent OnTabSelected; // An event for when this tab has been selected.
+    public UnityEvent OnTabDeselected; // An event for when this tab has been deselected.
 
 
     private void Awake() => _background = GetComponent<Image>();
     
 
 
-    public void OnPointerClick(PointerEventData eventData) => _tabGroup.OnTabSelected(this);
-    public void OnPointerEnter(PointerEventData eventData) => _tabGroup.OnTabEnter(this);
-    public void OnPointerExit(PointerEventData eventData) => _tabGroup.OnTabExit(this);
+    public void OnPointerClick(PointerEventData eventData) => _tabGroup.OnTabSelected(this); // If this tab is clicked, notify the connected TabGroup.
+    public void OnPointerEnter(PointerEventData eventData) => _tabGroup.OnTabEnter(this); // If the mouse enters this tab, notify the connected TabGroup.
+    public void OnPointerExit(PointerEventData eventData) => _tabGroup.OnTabExit(this); // If the mouse leaves this tab, notify the connected TabGroup.
 
 
+    // Set the background sprite of this TabButton.
     public void SetBackground(Sprite newSprite)
     {
         if (_background != null)
             _background.sprite = newSprite;
     }
+    // Set the background colour of this TabButton.
     public void SetBackgroundColour(Color newColour)
     {
         if (_background != null)
@@ -36,6 +38,6 @@ public class TabGroupButton : MonoBehaviour, IPointerClickHandler, IPointerEnter
     }
 
 
-    public void Select() => OnTabSelected?.Invoke();
-    public void Deselect() => OnTabDeselected?.Invoke();
+    public void Select() => OnTabSelected?.Invoke(); // When selected, invoke the OnTabSelected event.
+    public void Deselect() => OnTabDeselected?.Invoke(); // When deselected, invoke the OnTabDeselected event.
 }

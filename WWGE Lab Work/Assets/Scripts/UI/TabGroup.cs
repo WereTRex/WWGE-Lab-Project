@@ -25,6 +25,7 @@ public class TabGroup : MonoBehaviour
 
     private void OnEnable()
     {
+        // If we have more than 1 tab button, select the first tab button.
         if (_tabButtons.Count > 0)
             OnTabSelected(_tabButtons[0]);
     }
@@ -46,13 +47,14 @@ public class TabGroup : MonoBehaviour
 
     public void OnTabEnter(TabGroupButton button)
     {
+        // Reset the background of all non-selected tabs.
         ResetTabs();
 
         // If this button is not the selected button, change its colour to the hover colour.
         if (_tabButtons.IndexOf(button) != _selectedTabIndex)
             button.SetBackgroundColour(hoverColour);
     }
-    public void OnTabExit(TabGroupButton button) => ResetTabs();
+    public void OnTabExit(TabGroupButton button) => ResetTabs(); // Reset the background of all non-selected tabs.
     public void OnTabSelected(TabGroupButton button)
     {
         // Deselect the old tab (If there was one).
@@ -84,6 +86,7 @@ public class TabGroup : MonoBehaviour
     }
 
 
+    // Reset the background of all non-selected tabs.
     private void ResetTabs()
     {
         for (int i = 0; i < _tabButtons.Count; i++)

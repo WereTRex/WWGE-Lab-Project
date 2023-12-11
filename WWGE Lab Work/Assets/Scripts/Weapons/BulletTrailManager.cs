@@ -11,10 +11,8 @@ public class BulletTrailManager : MonoBehaviour
     private Dictionary<TrailConfigSO, TrailPool> _trailPool;
 
 
-    private void Awake()
-    {
-        _trailPool = new Dictionary<TrailConfigSO, TrailPool>();
-    }
+    private void Awake() => _trailPool = new Dictionary<TrailConfigSO, TrailPool>();
+    
 
 
     public void SpawnTrail(Vector3 startPoint, Vector3 endPoint, TrailConfigSO trailConfig)
@@ -76,9 +74,11 @@ public class BulletTrailManager : MonoBehaviour
             _trailPool.Add(trailConfig, pool);
         }
 
+        // Get a trail from the object pool.
         TrailRenderer trail = _trailPool[trailConfig].Pool.Get();
         if (trail != null)
         {
+            // Set Trail Information.
             trail.transform.SetParent(bullet.transform, false);
             trail.transform.localPosition = Vector3.zero;
             trail.emitting = true;
@@ -88,6 +88,7 @@ public class BulletTrailManager : MonoBehaviour
 
     public void ReleaseTrail(TrailConfigSO trailConfig, TrailRenderer trail)
     {
+        // Release a trail back into the ObjectPull.
         if (_trailPool.ContainsKey(trailConfig))
         {
             trail.transform.SetParent(null, true);
@@ -106,6 +107,7 @@ public class BulletTrailManager : MonoBehaviour
     }
 
 
+    /// <summary> A class representing an ObjectPool of TrailRenderers created from a TrailConfigSO.</summary>
     private class TrailPool
     {
         public ObjectPool<TrailRenderer> Pool;
@@ -117,6 +119,7 @@ public class BulletTrailManager : MonoBehaviour
             this.Pool = new ObjectPool<TrailRenderer>(CreateTrail);
         }
 
+        // Create a new trail from the TrailConfigSO.
         public TrailRenderer CreateTrail()
         {
             GameObject instance = new GameObject("Bullet Trail");

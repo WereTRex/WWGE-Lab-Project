@@ -650,6 +650,8 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _drawGizmos: 1
+  TopPos: {x: 0, y: 8.748866, z: 100}
+  TestTransform: {fileID: 0}
 --- !u!4 &46135677
 Transform:
   m_ObjectHideFlags: 0
@@ -2367,7 +2369,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: L1
+      value: LB
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -3992,7 +3994,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: R1
+      value: RB
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -11237,7 +11239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: Triangle
+      value: Y
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -13091,6 +13093,8 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _drawGizmos: 1
+  TopPos: {x: 0, y: 0, z: 0}
+  TestTransform: {fileID: 0}
 --- !u!1 &556404076
 GameObject:
   m_ObjectHideFlags: 0
@@ -13532,7 +13536,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: Circle
+      value: B
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -14216,6 +14220,8 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _drawGizmos: 0
+  TopPos: {x: 0, y: 0, z: 0}
+  TestTransform: {fileID: 0}
 --- !u!1 &638369151
 GameObject:
   m_ObjectHideFlags: 0
@@ -29548,7 +29554,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: Cross
+      value: A
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -29951,6 +29957,8 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _drawGizmos: 1
+  TopPos: {x: 0, y: 0, z: 0}
+  TestTransform: {fileID: 0}
 --- !u!1 &1054179922
 GameObject:
   m_ObjectHideFlags: 0
@@ -35875,6 +35883,8 @@ MonoBehaviour:
   - {fileID: 4119405231565031684, guid: 7b654de56244119449fc53365cd679e0, type: 3}
   - {fileID: 4119405231565031684, guid: abd37500babe8da488b86465da508c3f, type: 3}
   _drawGizmos: 1
+  TopPos: {x: 0, y: 0.9801844, z: 8.95}
+  TestTransform: {fileID: 0}
 --- !u!1 &1557269103
 GameObject:
   m_ObjectHideFlags: 0
@@ -37789,7 +37799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: R2
+      value: RT
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -38756,7 +38766,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: Square
+      value: X
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action
@@ -44637,7 +44647,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4857625331721630313, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_text
-      value: L2
+      value: LT
       objectReference: {fileID: 0}
     - target: {fileID: 5487179027665257475, guid: dab6cbc5f7d14d4449d0f55a9f969510, type: 3}
       propertyPath: m_Action

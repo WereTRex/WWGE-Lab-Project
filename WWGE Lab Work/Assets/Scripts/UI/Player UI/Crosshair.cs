@@ -3,45 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Crosshair : MonoBehaviour
+public class StaticCrosshair : MonoBehaviour
 {
     private RectTransform _reticle;
-    private List<CrosshairReticlePiece> _childPieces;
+    private CrosshairReticlePiece[] _childPieces;
 
-
-    [Header("Testing")]
-    [Range(50, 250)]
-    [SerializeField] private float _size = 100f;
+    [Header("Size Values")]
+    [Tooltip("The size of the crosshair"), Range(50, 250)]
+        [SerializeField] private float _size = 100f;
     
-    [Range(1, 5)]
+    [Tooltip("The thickness of the crosshair segments"), Range(1, 5)]
     [SerializeField] private float _thickness = 2f;
+
 
     private void Start()
     {
+        // Get the reticle transform.
         _reticle = GetComponent<RectTransform>();
 
-        _childPieces = new List<CrosshairReticlePiece>();
-        foreach (RectTransform child in _reticle)
-        {
-            if (child.TryGetComponent<CrosshairReticlePiece>(out CrosshairReticlePiece reticlePiece))
-                _childPieces.Add(reticlePiece);
-        }
+        // Get all crosshair reticle pieces in the children of the reticle.
+        _childPieces = _reticle.GetComponentsInChildren<CrosshairReticlePiece>();
+
+        // Set the reticle size & thickness to the initial.
+        UpdateReticleValues();
     }
 
 
-    private void Update()
+    // Update the Reticle Size & Thickness to the current values.
+    [ContextMenu("Update Reticle")]
+    private void UpdateReticleValues()
     {
         SetReticleSize(_size);
         SetReticleThickness(_thickness);
     }
 
-    public void SetReticleSize(float newSize)
-    {
-        _reticle.sizeDelta = new Vector2(newSize, newSize);
-    }
+    
+    // Set the size of the reticle.
+    public void SetReticleSize(float newSize) => _reticle.sizeDelta = new Vector2(newSize, newSize);
+    
+    // Set the thickness of the child pieces.
     public void SetReticleThickness(float newThickness)
     {
-        for (int i = 0; i < _childPieces.Count; i++)
+        for (int i = 0; i < _childPieces.Length; i++)
         {
             _childPieces[i].SetPieceThickness(newThickness);
         }

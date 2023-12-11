@@ -7,8 +7,8 @@ Merge the 'StandardEnemy' branch - (Done)
 
 --On 'Main'--
 Bugfix: Gun Projectiles blocked by Trigger Colliders - (Done)
-Enemy Health, Speed, & Attack Balancing
-Weapon Balancing
+Enemy Health, Speed, & Attack Balancing - Started
+Weapon Balancing - Started
 Code Comments
 Change the EnemySenses target comparison to a weighted comparison between the target's distance to the turret and their Dot product.
 

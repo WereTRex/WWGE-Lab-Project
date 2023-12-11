@@ -19,16 +19,22 @@ public class ProgressBar : MonoBehaviour
     private Coroutine drainHealthBarCoroutine;
 
 
+    // Update the progress bar.
     public void UpdateProgressBar(float maximum, float current)
     {
+        // Set our current fill target.
         _fillTarget = Mathf.Clamp01(current / maximum);
 
+        // Stop any current drain coroutines.
         if (drainHealthBarCoroutine != null)
             StopCoroutine(drainHealthBarCoroutine);
-        drainHealthBarCoroutine = StartCoroutine(DrainHealthBar());
+
+        // Start draining the progress bar.
+        drainHealthBarCoroutine = StartCoroutine(DrainProgressBar());
     }
 
-    private IEnumerator DrainHealthBar()
+    // Drain/Fill the Progress Bar over time.
+    private IEnumerator DrainProgressBar()
     {
         float initialFillAmount = _mask.fillAmount;
         

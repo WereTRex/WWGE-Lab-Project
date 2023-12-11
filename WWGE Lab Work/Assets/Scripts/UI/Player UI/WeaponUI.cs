@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+/// <summary> The Player's Weapon UI</summary>
 public class WeaponUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text _ammoText;
@@ -14,6 +15,7 @@ public class WeaponUI : MonoBehaviour
 
     private void OnEnable()
     {
+        // Subscribe to WeaponManager events.
         WeaponManager.OnPlayerStartedReloading += OnWeaponReloading;
         WeaponManager.OnPlayerAmmoChanged += OnAmmoValuesChanged;
 
@@ -23,6 +25,7 @@ public class WeaponUI : MonoBehaviour
     }
     private void OnDisable()
     {
+        // Unsubscribe to WeaponManager events.
         WeaponManager.OnPlayerStartedReloading -= OnWeaponReloading;
         WeaponManager.OnPlayerAmmoChanged -= OnAmmoValuesChanged;
 
@@ -32,10 +35,10 @@ public class WeaponUI : MonoBehaviour
     }
 
 
-    private void OnWeaponReloading() => _ammoText.text = "...";
-    private void OnAmmoValuesChanged(int newCurrentAmmo, int newAmmoRemaining) => _ammoText.text = newCurrentAmmo + "/" + newAmmoRemaining;
+    private void OnWeaponReloading() => _ammoText.text = "..."; // Display the default reloading text.
+    private void OnAmmoValuesChanged(int newCurrentAmmo, int newAmmoRemaining) => _ammoText.text = newCurrentAmmo + "/" + newAmmoRemaining; // Display the current ammo in the form "CurrentAmmo/MaxClipAmmo".
     
-    private void WeaponChanged(string newName) => _weaponNameText.text = newName;
+    private void WeaponChanged(string newName) => _weaponNameText.text = newName; // Display the weapon's name.
     
-    private void FiringTypeChanged(FiringType newFiringType) => _currentFiringTypeText.text = newFiringType.ToString();
+    private void FiringTypeChanged(FiringType newFiringType) => _currentFiringTypeText.text = newFiringType.ToString(); // Display the Firing Type.
 }
