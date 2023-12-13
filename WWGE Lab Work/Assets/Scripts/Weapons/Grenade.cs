@@ -65,6 +65,9 @@ public class Grenade : MonoBehaviour
             // Add explosion force.
             if (hitObject.TryGetComponent<Rigidbody>(out Rigidbody rb))
                 rb.AddExplosionForce(_explosionForce, transform.position, _explosionRadius, 0.1f);
+            else if (hitObject.TryGetComponent<ImpactReciever>(out ImpactReciever impactReciever))
+                impactReciever.AddExplosionForce(_explosionForce, transform.position, _explosionRadius, 0.1f);
+
 
             // Deal damage scaled by distance.
             if (hitObject.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))

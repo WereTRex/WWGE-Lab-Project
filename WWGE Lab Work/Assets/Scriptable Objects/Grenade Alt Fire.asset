@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82f2daaa7350a3540b494d5a86863359, type: 3}
   m_Name: Grenade Alt Fire
   m_EditorClassIdentifier: 
-  CooldownTime: 8
-  GrenadePrefab: {fileID: 6928705110215313758, guid: c488327c7bb24e44789aac86f87ca14f, type: 3}
+  CooldownTime: 1
+  GrenadePrefab: {fileID: 6928705110215313758, guid: da3894b442431d84fb30652645dd8f22, type: 3}
   LaunchForce: 10
