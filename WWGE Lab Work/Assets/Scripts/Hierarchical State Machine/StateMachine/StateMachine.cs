@@ -423,10 +423,29 @@ namespace UnityHFSM
         }
 
 
+        /// <summary> Gets the StateBundle belonging to the <c>name</c> state "slot" if it exists.
+        ///     Otherwise, it will create a new StateBundle, that will be added to the Dictionary,
+        ///     and return the newly created instance.</summary>
+        private StateBundle GetOrCreateStateBundle(TStateID name)
+        {
+            StateBundle bundle;
+
+            // If there is no state bundle containing this state, create one.
+            if (!_stateBundlesByName.TryGetValue(name, out bundle))
+            {
+                bundle = new StateBundle();
+                _stateBundlesByName.Add(name, bundle);
+            }
+
+            // Return the found/created bundle.
+            return bundle;
+        }
+
+
         /// <summary> Adds a new node/state to the State Machine.</summary>
         /// <param name="name"> The name/identifier of the new state.</param>
         /// <param name="state"> The new state instance (E.g. State, StateMachine, etc).</param>
-        private void AddState(TStateID name, StateBase<TStateID> state)
+        public void AddState(TStateID name, StateBase<TStateID> state)
         {
             state.FSM = this;
             state.Name = name;
@@ -451,6 +470,7 @@ namespace UnityHFSM
         }
 
 
+        #region Adding Transitions.
         /// <summary> Adds a new transition between two states.</summary>
         /// <param name="transition"> The transition instance.</param>
         public void AddTransition(TransitionBase<TStateID> transition)
@@ -483,7 +503,7 @@ namespace UnityHFSM
             InitTransition(transition);
 
             // Bundles this transition with the associated state as a trigger transition.
-            StateBundle bundle = GetOrCreateStateBunel(transition.From);
+            StateBundle bundle = GetOrCreateStateBundle(transition.From);
             bundle.AddTriggerTransition(trigger, transition);
         }
 
@@ -512,7 +532,7 @@ namespace UnityHFSM
         /// <summary> Adds two transitions:
         ///     If the condition of the transition instance is true, it transitions from the "From" state to the "To" state.
         ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
-        /// <remarks> Internally the same transition instance will be used for both transitions by wrapping it in a ReverseTransition.
+        /// <remarks> Internally the same transition instance will be used for both transitions by wrapping it in a 'ReverseTransition'.
 		///     For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards. 
         ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.
 		/// </remarks>
@@ -527,5 +547,236 @@ namespace UnityHFSM
             InitTransition(reverse);
             AddTransition(reverse);
         }
+
+        /// <summary> Adds two transitions that are only checked when a specified trigger is activated:
+        ///     If the condition of the transition instance is true, it transitions from the "From" state to the "To" state.
+        ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
+        /// <remarks> Internally the same transition instance will be used for both transitions by wrapping it in a 'ReverseTransition'.
+		///     For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards. 
+        ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.
+		/// </remarks>
+        public void AddTwoWayTriggerTransition(TEvent trigger, TransitionBase<TStateID> transition)
+        {
+            // Initialise and add the forward transition.
+            InitTransition(transition);
+            AddTriggerTransition(trigger, transition);
+
+            // Initialise and add the reverse transition.
+            ReverseTransition<TStateID> reverse = new ReverseTransition<TStateID>(transition, false);
+            InitTransition(reverse);
+            AddTriggerTransition(trigger, reverse);
+        }
+
+
+        /// <summary> Adds a new exit transition from a state.
+        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
+        ///     It is only checked if the parent FSM has a pending transition.</summary>
+        /// <param name="transition"> The transition instance. The "To" field can be left empty, as it has no meaning in this context.</param>
+        public void AddExitTransition(TransitionBase<TStateID> transition)
+        {
+            transition.IsExitTransition = true;
+            AddTransition(transition);
+        }
+
+        /// <summary> Adds a new exit transition that can happen from any possible state.
+        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
+        ///     It is only checked if the parent FSM has a pending transition.</summary>
+        /// <param name="transition"> The transition instance. The "From" and "To" fields can be left empty, as they have no meaning in this context.</param>
+        public void AddExitTransitionFromAny(TransitionBase<TStateID> transition)
+        {
+            transition.IsExitTransition = true;
+            AddTransitionFromAny(transition);
+        }
+
+        /// <summary> Adds a new exit transition from a state that is only checked when the specified trigger is activated.
+        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
+        ///     It is only checked if the parent FSM has a pending transition.</summary>
+        /// <param name="transition"> The transition instance. The "To" field can be left empty, as it has no meaning in this context.</param>
+        public void AddExitTriggerTransition(TEvent trigger, TransitionBase<TStateID> transition)
+        {
+            transition.IsExitTransition = true;
+            AddTriggerTransition(trigger, transition);
+        }
+
+        /// <summary> Adds a new exit transition that can happen from any possible state and is only checked when the specified trigger is activated.
+        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
+        ///     It is only checked if the parent FSM has a pending transition.</summary>
+        /// <param name="transition"> The transition instance. The "From" and "To" fields can be left empty, as they have no meaning in this context.</param>
+        public void AddExitTriggerTransitionFromAny(TEvent trigger, TransitionBase<TStateID> transition)
+        {
+            transition.IsExitTransition = true;
+            AddTriggerTransitionFromAny(trigger, transition);
+        }
+#endregion
+
+
+
+        /// <summary> Activates the specified trigger, checking all targeted trigger transitions to see whether a transition should occur.</summary>
+        /// <param name="trigger"> The name/identifier of the trigger.</param>
+        /// <returns> True when a transition occured, otherwise false.</returns>
+        private bool TryTrigger(TEvent trigger)
+        {
+            // Ensure that the StateMachine is initialised.
+            EnsureIsInitialisedFor("Checking for all trigger transitions of the active state");
+
+            List<TransitionBase<TStateID>> triggerTransitions;
+
+            // Attempt global trigger transitions.
+            if (_triggerTransitionsFromAny.TryGetValue(trigger, out triggerTransitions))
+            {
+                for (int i = 0; i < triggerTransitions.Count; i++)
+                {
+                    TransitionBase<TStateID> transition = triggerTransitions[i];
+
+                    // Ensure that we don't transition to the state we are currently in.
+                    if (EqualityComparer<TStateID>.Default.Equals(transition.To, _activeState.Name))
+                        continue;
+
+                    // Attempt the transition.
+                    if (TryTransition(transition))
+                        return true;
+                }
+            }
+
+            // Attempt local trigger transitions.
+            if (_activeTriggerTransitions.TryGetValue(trigger, out triggerTransitions))
+            {
+                for (int i = 0; i < triggerTransitions.Count; i++)
+                {
+                    TransitionBase<TStateID> transition = triggerTransitions[i];
+
+                    // Attempt the transition.
+                    if (TryTransition(transition))
+                        return true;
+                }
+            }
+
+            // We didn't successfully transition.
+            return false;
+        }
+
+        /// <summary> Activates the specified trigger in all active states of the hierarchy, checking all trigger transitions to see whether a transition should occur.</summary>
+        /// <param name="trigger"> The name/identifier of the trigger.</param>
+        public void Trigger(TEvent trigger)
+        {
+            // If a transition occurs, then the trigger should not be activated in the new/active state that the State Machine just switched to.
+            if (TryTrigger(trigger))
+                return;
+
+            // Activate the trigger on the current state (If the state is triggerable).
+            (_activeState as ITriggerable<TEvent>)?.Trigger(trigger);
+        }
+
+        /// <summary> Only activates the specified trigger locally in this State Machine.</summary>
+        /// <param name="trigger"> The name/identifier of the trigger.</param>
+        public void TriggerLocally(TEvent trigger)
+        {
+            TryTrigger(trigger);
+        }
+
+
+        /// <summary> Runs an action on the currently active state.</summary>
+        /// <param name="trigger"> The name of the action.</param>
+        public virtual void OnAction(TEvent trigger)
+        {
+            // Ensure that the StateMachine has been initialised.
+            EnsureIsInitialisedFor("Running OnAction of the active state");
+
+            // Call OnAction on the active state (If it is IActionable).
+            (_activeState as IActionable<TEvent>)?.OnAction(trigger);
+        }
+
+        /// <summary> Runs an action on the currently active state and lets you pass one data parameter.</summary>
+        /// <param name="trigger"> The name of the action.</param>
+        /// <param name="data"> Any custom data for the parameter.</param>
+        /// <typeparam name="TData"> Type of the data parameter. Should match the data type of the action that was added via AddAction<T>(...).</typeparam>
+        public virtual void OnAction<TData>(TEvent trigger, TData data)
+        {
+            // Ensure that the StateMachine has been initialised.
+            EnsureIsInitialisedFor("Running OnAction of the active state");
+
+            // Call OnAction on the active state (If it is IActionable).
+            (_activeState as IActionable<TEvent>)?.OnAction<TData>(trigger, data);
+        }
+
+
+        public StateBase<TStateID> GetState(TStateID name)
+        {
+            StateBundle bundle;
+
+            // If there is no State Bundle associated with this name, or that bundle has no associated state, throw an exception.
+            if (!_stateBundlesByName.TryGetValue(name, out bundle) || bundle.State == null)
+            {
+                throw UnityHFSM.Exceptions.Common.StateNotFound(name.ToString(), context: "Getting a State");
+            }
+
+            // Otherwise, return the associated state of the found bundle.
+            return bundle.State;
+        }
+
+        // An indexer used for getting a nested State Machine.
+        public StateMachine<string, string, string> this[TStateID name]
+        {
+            get
+            {
+                StateBase<TStateID> state = GetState(name);
+                StateMachine<string, string, string> subFSM = state as StateMachine<string, string, string>;
+
+                if (subFSM == null)
+                {
+                    throw UnityHFSM.Exceptions.Common.QuickIndexerMisusedForGettingState(name.ToString());
+                }
+
+                return subFSM;
+            }
+        }
+
+        public override string GetActiveHierarchyPath()
+        {
+            if (_activeState == null)
+            {
+                // When the state machine is not active, then the active hierarchy path is empty.
+                return "";
+            }
+
+            return $"{Name}/{_activeState.GetActiveHierarchyPath()}";
+        }
     }
+
+
+    #region Overloaded Classes
+    // Overloaded classes to allow for an easier useage of the StateMachine for common cases.
+    // (E.g. "new StateMachine()" instead of "new StateMachine<string, string, string>()").
+    
+    
+    /// <inheritdoc/>
+    public class StateMachine<TStateID, TEvent> : StateMachine<TStateID, TStateID, TEvent>
+    {
+        /// <inheritdoc/>
+        public StateMachine(bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
+        {
+
+        }
+    }
+
+    /// <inheritdoc/>
+    public class StateMachine<TStateID> : StateMachine<TStateID, TStateID, string>
+    {
+        /// <inheritdoc/>
+        public StateMachine(bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
+        {
+
+        }
+    }
+
+    /// <inheritdoc/>
+    public class StateMachine : StateMachine<string, string, string>
+    {
+        /// <inheritdoc/>
+        public StateMachine(bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
+        {
+
+        }
+    }
+    #endregion
 }
