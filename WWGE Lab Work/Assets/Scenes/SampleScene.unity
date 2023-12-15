@@ -4448,6 +4448,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6086930fce20c74f84caddd8c8b3019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ID: 0
+  CurrentStateName: 
   Target: {fileID: 0}
   _healthComponent: {fileID: 247492955}
   _senses: {fileID: 415182505}
@@ -10149,6 +10151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6086930fce20c74f84caddd8c8b3019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ID: 0
+  CurrentStateName: 
   Target: {fileID: 0}
   _healthComponent: {fileID: 296032385}
   _senses: {fileID: 1694741728}
@@ -50657,7 +50661,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1964924426
 Transform:
   m_ObjectHideFlags: 0
@@ -51497,6 +51501,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019555371}
   m_CullTransparentMesh: 1
+--- !u!1 &2020820740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2020820741}
+  - component: {fileID: 2020820742}
+  m_Layer: 0
+  m_Name: Test Turret
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2020820741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020820740}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2020820742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020820740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb678cc80339aaf45b0e6355b3302b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentStatePath: 
+  Target: {fileID: 0}
+  _currentHealth: 5
+  _withinShootingRadius: 0
 --- !u!1 &2023491662
 GameObject:
   m_ObjectHideFlags: 0
@@ -53928,3 +53980,4 @@ SceneRoots:
   - {fileID: 878282432}
   - {fileID: 301549684}
   - {fileID: 439607345}
+  - {fileID: 2020820741}

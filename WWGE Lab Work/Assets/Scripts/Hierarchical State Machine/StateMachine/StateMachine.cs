@@ -184,7 +184,7 @@ namespace UnityHFSM
             // If we are trying to transition to a state that does not exist, throw an exception.
             if (!_stateBundlesByName.TryGetValue(name, out bundle) || bundle.State == null)
             {
-                //throw UnityHFSM.Exceptions.Common.StateNotFound(name.ToString(), context: "Switching States");
+                throw UnityHFSM.Exceptions.Common.StateNotFound(name.ToString(), context: "Switching States");
             }
 
 
