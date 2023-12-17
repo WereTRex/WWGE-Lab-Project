@@ -10,66 +10,24 @@ namespace UnityHFSM
      */
     public static class StateMachineShortcuts
     {
-        /// <summary> A shortcut method for adding a regular state.</summary>
-        /// <remarks> It creates a new State() instance under the hood (See State for more information).
-        ///     For empty states with no logic it creates a new StateBase for optimal performance.</remarks>
-        /// <inheritdoc cref="State{TStateID, TEvent}(
-        ///     Action{State{TStateID, TEvent}},
-        ///     Action{State{TStateID, TEvent}},
-        ///     Action{State{TStateID, TEvent}},
-        ///     Func{State{TStateID, TEvent}, bool},
-        ///     bool,
-        ///     bool
-        /// )"/>
-        public static void AddState<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            TStateID name,
-            Action<State<TStateID, TEvent>> onEnter = null,
-            Action<State<TStateID, TEvent>> onLogic = null,
-            Action<State<TStateID, TEvent>> onExit = null,
-            Func<State<TStateID, TEvent>, bool> canExit = null,
-            bool needsExitTime = false,
-            bool isGhostState = false)
-        {
-            // Optimise for empty states.
-            if (onEnter == null && onLogic == null && onExit == null && canExit == null)
-            {
-                fsm.AddState(name, new StateBase<TStateID>(needsExitTime, isGhostState));
-                return;
-            }
-
-            fsm.AddState(
-                name,
-                new State<TStateID, TEvent>(
-                    onEnter,
-                    onLogic,
-                    onExit,
-                    canExit,
-                    needsExitTime: needsExitTime,
-                    isGhostState: isGhostState
-                    )
-                );
-        }
-
-
         /// <summary> Creates the most efficient transition type possible for the given parameters.
         ///     It creates a Transition instance when a condition or transition callbacks are specified,
         ///     otherwise it returns a TransitionBase.</summary>
-        private static TransitionBase<TStateID> CreateOptimisedTransition<TStateID>(
-            TStateID from,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        private static TransitionBase CreateOptimisedTransition(
+            IState from,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             // Optimise for empty transitions.
             if (condition == null && onTransition == null && afterTransition == null)
             {
-                return new TransitionBase<TStateID>(from, to, forceInstantly);
+                return new TransitionBase(from, to, forceInstantly);
             }
 
-            return new Transition<TStateID>(
+            return new Transition(
                 from,
                 to,
                 condition,
@@ -85,21 +43,21 @@ namespace UnityHFSM
         ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            TStateID from,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        public static void AddTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
+            IState from,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddTransition(CreateOptimisedTransition(
@@ -116,20 +74,20 @@ namespace UnityHFSM
         ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-        ///     Action{Transition{TStateID}},
-        ///     Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+        ///     Action{Transition},
+        ///     Action{Transition},
         ///     bool
         /// )"/>
-        public static void AddTransitionFromAny<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        public static void AddTransitionFromAny<TEvent>(
+            this StateMachine<TEvent> fsm,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddTransitionFromAny(CreateOptimisedTransition(
@@ -147,22 +105,22 @@ namespace UnityHFSM
         ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddTriggerTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
+        public static void AddTriggerTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
             TEvent trigger,
-            TStateID from,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+            IState from,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddTriggerTransition(trigger, CreateOptimisedTransition(
@@ -180,21 +138,21 @@ namespace UnityHFSM
         ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddTriggerTransitionFromAny<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
+        public static void AddTriggerTransitionFromAny<TEvent>(
+            this StateMachine<TEvent> fsm,
             TEvent trigger,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddTriggerTransitionFromAny(trigger, CreateOptimisedTransition(
@@ -213,24 +171,24 @@ namespace UnityHFSM
         ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
         /// <remarks> For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards.
         ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddTwoWayTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            TStateID from,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        public static void AddTwoWayTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
+            IState from,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
-            fsm.AddTwoWayTransition(new Transition<TStateID>(
+            fsm.AddTwoWayTransition(new Transition(
                 from,
                 to,
                 condition,
@@ -245,25 +203,25 @@ namespace UnityHFSM
         ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
         /// <remarks> For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards.
         ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddTwoWayTriggerTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
+        public static void AddTwoWayTriggerTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
             TEvent trigger,
-            TStateID from,
-            TStateID to,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+            IState from,
+            IState to,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
-            fsm.AddTwoWayTriggerTransition(trigger, new Transition<TStateID>(
+            fsm.AddTwoWayTriggerTransition(trigger, new Transition(
                 from,
                 to,
                 condition,
@@ -281,20 +239,20 @@ namespace UnityHFSM
         ///     It is only checked if the parent FSM has a pending transition.</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-        /// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+        /// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            TStateID from,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        public static void AddExitTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
+            IState from,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddExitTransition(CreateOptimisedTransition(
@@ -312,19 +270,19 @@ namespace UnityHFSM
         ///     It is only checked if the parent FSM has a pending transition.</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTransitionFromAny<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+        public static void AddExitTransitionFromAny<TEvent>(
+            this StateMachine<TEvent> fsm,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddExitTransitionFromAny(CreateOptimisedTransition(
@@ -342,21 +300,21 @@ namespace UnityHFSM
         ///     It is only checked if the parent FSM has a pending transition.</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTriggerTransition<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
+        public static void AddExitTriggerTransition<TEvent>(
+            this StateMachine<TEvent> fsm,
             TEvent trigger,
-            TStateID from,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+            IState from,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddExitTriggerTransition(trigger, CreateOptimisedTransition(
@@ -374,20 +332,20 @@ namespace UnityHFSM
         ///     It is only checked if the parent FSM has a pending transition.</summary>
         /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
         ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition{TStateID}(
-        ///     TStateID,
-        ///     TStateID,
-        ///     Func{Transition{TStateID}, bool},
-		/// 	Action{Transition{TStateID}},
-        /// 	Action{Transition{TStateID}},
+        /// <inheritdoc cref="Transition(
+        ///     IState,
+        ///     IState,
+        ///     Func{Transition, bool},
+		/// 	Action{Transition},
+        /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTriggerTransitionFromAny<TOwnID, TStateID, TEvent>(
-            this StateMachine<TOwnID, TStateID, TEvent> fsm,
+        public static void AddExitTriggerTransitionFromAny<TEvent>(
+            this StateMachine<TEvent> fsm,
             TEvent trigger,
-            Func<Transition<TStateID>, bool> condition = null,
-            Action<Transition<TStateID>> onTransition = null,
-            Action<Transition<TStateID>> afterTransition = null,
+            Func<Transition, bool> condition = null,
+            Action<Transition> onTransition = null,
+            Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
             fsm.AddExitTriggerTransitionFromAny(trigger, CreateOptimisedTransition(

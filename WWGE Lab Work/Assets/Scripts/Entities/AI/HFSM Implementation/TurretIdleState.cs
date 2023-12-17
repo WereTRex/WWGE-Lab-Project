@@ -1,6 +1,9 @@
 using UnityHFSM;
 
-public class TurretIdleState : State
+namespace WwGEProject.AI.Turret
 {
-    
+    public class TurretIdleState : State
+    {
+        public override string Name { get => "Idle"; }
+    }
 }

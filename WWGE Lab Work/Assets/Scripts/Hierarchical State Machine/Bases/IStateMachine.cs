@@ -1,6 +1,5 @@
 namespace UnityHFSM
 {
-    // Note: This is useful as it allows the parent FSM to be independent from the sub-states, reducing complexity.
     /// <summary> A subset of features that every parent state machine must provide.</summary>
     public interface IStateMachine
     {
@@ -8,6 +7,5 @@ namespace UnityHFSM
         void StateCanExit();
 
         bool HasPendingTransition { get; }
-        IStateMachine ParentFSM { get; }
     }
 }

@@ -3,13 +3,13 @@ namespace UnityHFSM
     /// <summary> A ReverseTransition wraps another transition, but reverses it.
     ///     The "From" and "To" states are swapped. Only when the condition of the wrapped transition is false does it transition.
     ///     The BeforeTransition and AfterTransition callbacks of the wrapped function are also swapped.</summary>
-    public class ReverseTransition<TStateID> : TransitionBase<TStateID>
+    public class ReverseTransition : TransitionBase
     {
-        private TransitionBase<TStateID> _wrappedTransition;
+        private TransitionBase _wrappedTransition;
         private bool _shouldInitialiseWrappedTransition;
 
         public ReverseTransition(
-            TransitionBase<TStateID> wrappedTransition,
+            TransitionBase wrappedTransition,
             bool shouldInitialiseWrappedTransition = true
             ) : base(
                 from:wrappedTransition.To,
@@ -34,22 +34,4 @@ namespace UnityHFSM
         public override void BeforeTransition() => _wrappedTransition.AfterTransition();
         public override void AfterTransition() => _wrappedTransition.BeforeTransition();
     }
-
-
-    #region Overloaded Implementations
-    // Overloaded Classes allow for an easier useage of the class for common cases.
-
-    /// <inheritdoc/>
-    public class ReverseTransition : ReverseTransition<string>
-    {
-        /// <inheritdoc/>
-        public ReverseTransition(
-            TransitionBase<string> wrappedTransition,
-            bool shouldInitialiseWrappedTransition
-            ) : base(wrappedTransition, shouldInitialiseWrappedTransition)
-        {
-
-        }
-    }
-    #endregion
 }

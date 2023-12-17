@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityHFSM;
+using WwGEProject.AI.Turret;
 
 public class TurretController : MonoBehaviour
 {
     // Declare the FSM.
-    private StateMachine<string, TurretStates, Events> _rootFSM;
+    private StateMachine<Events> _rootFSM;
 
     // Parameters.
     [ReadOnly] public string CurrentStatePath;
@@ -30,31 +31,34 @@ public class TurretController : MonoBehaviour
     private void Start()
     {
         #region State Machine Setup
-        _rootFSM = new StateMachine<string, TurretStates, Events>();
-        var awareFSM = new StateMachine<TurretStates, AwareStates, Events>();
-        var idleState = new State<TurretStates, Events>();
-        var deactivatedState = new State<TurretStates, Events>();
+        _rootFSM = new StateMachine<Events>();
+        var awareFSM = new TurretAwareState<Events>();
+        var idleState = new TurretIdleState();
+        var deactivatedState = new TurretDeactivatedState();
+
+        var alertState = new TurretAlertState();
+        var shootingState = new TurretShootingState();
+
 
         // Setup root FSM.
-        _rootFSM.AddState(TurretStates.Idle, idleState);
-        _rootFSM.AddState(TurretStates.Aware, awareFSM);
-        _rootFSM.AddState(TurretStates.Deactivated, deactivatedState);
+        _rootFSM.AddState(idleState);
+        _rootFSM.AddState(awareFSM);
+        _rootFSM.AddState(deactivatedState);
 
-        _rootFSM.AddTransition(from: TurretStates.Idle, to: TurretStates.Aware, condition: transition => Target != null, onTransition: transition => PlayAlertEffects());
-        _rootFSM.AddTransition(from: TurretStates.Aware, to: TurretStates.Idle, condition: t => Target == null);
-        _rootFSM.AddTransitionFromAny(to: TurretStates.Deactivated, condition: transition => _currentHealth <= 0);
+        _rootFSM.AddTransition(from: idleState, to: awareFSM, condition: transition => Target != null, onTransition: transition => PlayAlertEffects());
+        _rootFSM.AddTransition(from: awareFSM, to: idleState, condition: t => Target == null);
+        _rootFSM.AddTransitionFromAny(to: deactivatedState, condition: transition => _currentHealth <= 0);
 
 
-        // Setup Aware FSM.
-        awareFSM.AddState(AwareStates.Alert);
-        awareFSM.AddState(AwareStates.Shooting);
-        //awareFSM.AddTransition(from: AwareStates.Alert, to: AwareStates.Shooting, condition: PlayerWithinShootingAngle());
-        awareFSM.AddTwoWayTransition(from: AwareStates.Alert, to: AwareStates.Shooting, condition: transition => _withinShootingRadius); // Transition from Alert to Shooting when player is within shooting radius.
+        // Setup Aware Sub-FSM.
+        awareFSM.AddState(alertState);
+        awareFSM.AddState(shootingState);
+        awareFSM.AddTwoWayTransition(from: alertState, to: shootingState, condition: transition => _withinShootingRadius); // Transition from Alert to Shooting when player is within shooting radius.
 
 
         // Initialise the FSM.
-        _rootFSM.SetStartState(TurretStates.Idle);
-        awareFSM.SetStartState(AwareStates.Alert);
+        _rootFSM.SetStartState(idleState);
+        awareFSM.SetStartState(alertState);
 
         _rootFSM.Init();
         #endregion
@@ -63,8 +67,8 @@ public class TurretController : MonoBehaviour
 
     private void Update()
     {
-        _rootFSM.OnLogic();
-        CurrentState = _rootFSM.ActiveStateName.ToString();
+        _rootFSM.OnTick();
+        CurrentState = _rootFSM.ActiveStateName;
         CurrentStatePath = _rootFSM.GetActiveHierarchyPath();
     }
 

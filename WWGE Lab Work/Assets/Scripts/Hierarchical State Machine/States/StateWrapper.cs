@@ -4,34 +4,45 @@ namespace UnityHFSM
 {
     /// <summary> A class that allows you to run additional functions (Companion Code) before and after the wrapped state's code.
     ///     It does not interfere with the wrapped state's timing/needsExitTime/etc behaviour.</summary>
-    public class StateWrapper<TStateID, TEvent>
+    public class StateWrapper<TEvent>
     {
-        public class WrappedState : StateBase<TStateID>, ITriggerable<TEvent>, IActionable<TEvent>
+        public class WrappedState : IState, ITriggerable<TEvent>, IActionable<TEvent>
         {
             // Companion Code Functions.
-            private Action<StateBase<TStateID>>
+            private Action<IState>
                 _beforeOnEnter, _afterOnEnter,
                 _beforeOnLogic, _afterOnLogic,
                 _beforeOnExit, _afterOnExit;
 
             // The wrapped state.
-            private StateBase<TStateID> _state;
+            private IState _state;
+
+            public string Name { get; }
+            public bool NeedsExitTime { get; }
+            public bool IsGhostState { get; }
+
+            public IStateMachine FSM { get; set; }
 
 
 
             public WrappedState(
-                StateBase<TStateID> state,
+                IState state,
                 
-                Action<StateBase<TStateID>> beforeOnEnter = null,
-                Action<StateBase<TStateID>> afterOnEnter = null,
+                Action<IState> beforeOnEnter = null,
+                Action<IState> afterOnEnter = null,
                 
-                Action<StateBase<TStateID>> beforeOnLogic = null,
-                Action<StateBase<TStateID>> afterOnLogic = null,
+                Action<IState> beforeOnLogic = null,
+                Action<IState> afterOnLogic = null,
 
-                Action<StateBase<TStateID>> beforeOnExit = null,
-                Action<StateBase<TStateID>> afterOnExit = null) : base(state.NeedsExitTime, state.IsGhostState)
+                Action<IState> beforeOnExit = null,
+                Action<IState> afterOnExit = null)
             {
                 this._state = state;
+
+                this.Name = state.Name;
+                this.NeedsExitTime = state.NeedsExitTime;
+                this.IsGhostState = state.IsGhostState;
+                this.FSM = state.FSM;
 
 
                 this._beforeOnEnter = beforeOnEnter;
@@ -45,36 +56,36 @@ namespace UnityHFSM
             }
 
 
-            public override void Init()
+            public void Init()
             {
                 // Override the wrapped state's default values.
-                _state.Name = Name;
+                //_state.Name = Name;
                 _state.FSM = FSM;
 
                 // Initialise the wrapped state.
                 _state.Init();
             }
 
-            public override void OnEnter()
+            public void OnEnter()
             {
                 _beforeOnEnter?.Invoke(this);
                 _state.OnEnter();
                 _afterOnEnter?.Invoke(this);
             }
-            public override void OnLogic()
+            public void OnLogic()
             {
                 _beforeOnLogic?.Invoke(this);
                 _state.OnLogic();
                 _afterOnLogic?.Invoke(this);
             }
-            public override void OnExit()
+            public void OnExit()
             {
                 _beforeOnExit?.Invoke(this);
                 _state.OnExit();
                 _afterOnExit?.Invoke(this);
             }
 
-            public override void OnExitRequest() => _state.OnExitRequest();
+            public void OnExitRequest() => _state.OnExitRequest();
             
 
 
@@ -84,7 +95,7 @@ namespace UnityHFSM
         }
 
         // Companion Code Functions.
-        private Action<StateBase<TStateID>>
+        private Action<IState>
             _beforeOnEnter, _afterOnEnter,
             _beforeOnLogic, _afterOnLogic,
             _beforeOnExit, _afterOnExit;
@@ -92,14 +103,14 @@ namespace UnityHFSM
 
         /// <summary> Initialises a new instance of the StateWrapper class.</summary>
         public StateWrapper(
-            Action<StateBase<TStateID>> beforeOnEnter = null,
-            Action<StateBase<TStateID>> afterOnEnter = null,
+            Action<IState> beforeOnEnter = null,
+            Action<IState> afterOnEnter = null,
 
-            Action<StateBase<TStateID>> beforeOnLogic = null,
-            Action<StateBase<TStateID>> afterOnLogic = null,
+            Action<IState> beforeOnLogic = null,
+            Action<IState> afterOnLogic = null,
 
-            Action<StateBase<TStateID>> beforeOnExit = null,
-            Action<StateBase<TStateID>> afterOnExit = null)
+            Action<IState> beforeOnExit = null,
+            Action<IState> afterOnExit = null)
         {
             this._beforeOnEnter = beforeOnEnter;
             this._afterOnEnter = afterOnEnter;
@@ -112,7 +123,7 @@ namespace UnityHFSM
         }
 
 
-        public WrappedState Wrap(StateBase<TStateID> state) => new WrappedState(state, _beforeOnEnter, _afterOnEnter, _beforeOnLogic, _afterOnLogic, _beforeOnExit, _afterOnExit);
+        public WrappedState Wrap(IState state) => new WrappedState(state, _beforeOnEnter, _afterOnEnter, _beforeOnLogic, _afterOnLogic, _beforeOnExit, _afterOnExit);
     }
 
 
@@ -120,17 +131,17 @@ namespace UnityHFSM
     // Overloaded Classes allow for an easier useage of the class for common cases.
 
     /// <inheritdoc/>
-    public class StateWrapper : StateWrapper<string, string>
+    public class StateWrapper : StateWrapper<string>
     {
         public StateWrapper(
-            Action<StateBase<string>> beforeOnEnter = null,
-            Action<StateBase<string>> afterOnEnter = null,
+            Action<IState> beforeOnEnter = null,
+            Action<IState> afterOnEnter = null,
 
-            Action<StateBase<string>> beforeOnLogic = null,
-            Action<StateBase<string>> afterOnLogic = null,
+            Action<IState> beforeOnLogic = null,
+            Action<IState> afterOnLogic = null,
 
-            Action<StateBase<string>> beforeOnExit = null,
-            Action<StateBase<string>> afterOnExit = null
+            Action<IState> beforeOnExit = null,
+            Action<IState> afterOnExit = null
             ) : base (beforeOnEnter, afterOnEnter, beforeOnLogic, afterOnLogic, beforeOnExit, afterOnExit)
         {
 

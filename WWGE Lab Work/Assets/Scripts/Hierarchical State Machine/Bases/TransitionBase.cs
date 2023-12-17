@@ -1,9 +1,9 @@
 namespace UnityHFSM
 {
-    public class TransitionBase<TStateID> : ITransitionListener
+    public class TransitionBase : ITransitionListener
     {
-        public TStateID From;
-        public TStateID To;
+        public IState From;
+        public IState To;
 
         public bool ForceInstantly;
         public bool IsExitTransition;
@@ -15,7 +15,7 @@ namespace UnityHFSM
         /// <param name="from"> The name/identifier of the active state.</param>
         /// <param name="to"> The name/identifier of the next state.</param>
         /// <param name="forceInstantly"> Determines if we should ignore the NeedsExitTime of the active state to force an instant transition.</param>
-        public TransitionBase(TStateID from, TStateID to, bool forceInstantly = false)
+        public TransitionBase(IState from, IState to, bool forceInstantly = false)
         {
             this.From = from;
             this.To = to;

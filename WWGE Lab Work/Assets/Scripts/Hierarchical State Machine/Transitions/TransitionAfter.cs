@@ -3,25 +3,25 @@ using System;
 namespace UnityHFSM
 {
     /// <summary> A class used to determine whether the State Machine should transition to another state, depending on a delay and an optional condition.</summary>
-    public class TransitionAfter<TStateID> : TransitionBase<TStateID>
+    public class TransitionAfter : TransitionBase
     {
         private float _delay;
         private ITimer _timer;
 
-        private Func<TransitionAfter<TStateID>, bool> _condition;
+        private Func<TransitionAfter, bool> _condition;
 
-        private Action<TransitionAfter<TStateID>> _beforeTransition;
-        private Action<TransitionAfter<TStateID>> _afterTransition;
+        private Action<TransitionAfter> _beforeTransition;
+        private Action<TransitionAfter> _afterTransition;
 
 
 
         public TransitionAfter(
-            TStateID from,
-            TStateID to,
+            IState from,
+            IState to,
             float delay,
-            Func<TransitionAfter<TStateID>, bool> condition = null,
-            Action<TransitionAfter<TStateID>> onTransition = null,
-            Action<TransitionAfter<TStateID>> afterTransition = null,
+            Func<TransitionAfter, bool> condition = null,
+            Action<TransitionAfter> onTransition = null,
+            Action<TransitionAfter> afterTransition = null,
             bool forceInstantly = false) : base(from, to, forceInstantly)
         {
             this._delay = delay;
@@ -52,25 +52,4 @@ namespace UnityHFSM
         public override void BeforeTransition() => _beforeTransition?.Invoke(this);
         public override void AfterTransition() => _afterTransition?.Invoke(this);
     }
-
-    #region Overloaded Implementations
-    // Overloaded Classes allow for an easier useage of the class for common cases.
-
-    /// <inheritdoc/>
-    public class TransitionAfter : TransitionAfter<string>
-    {
-        /// <inheritdoc/>
-        public TransitionAfter(
-            string from,
-            string to,
-            float delay,
-            Func<TransitionAfter<string>, bool> condition = null,
-            Action<TransitionAfter<string>> onTransition = null,
-            Action<TransitionAfter<string>> afterTransition = null,
-            bool forceInstantly = false) : base(from, to, delay, condition, onTransition: onTransition, afterTransition: afterTransition, forceInstantly: forceInstantly)
-        {
-
-        }
-    }
-    #endregion
 }

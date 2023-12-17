@@ -5,14 +5,29 @@ namespace UnityHFSM
 {
     /// <summary> Base class of states that import custom actions.</summary>
     /// <inheritdoc/>
-    public class ActionState<TStateID, TEvent> : StateBase<TStateID>, IActionable<TEvent>
+    public abstract class ActionState<TEvent> : IState, IActionable<TEvent>
     {
+        public abstract string Name { get; }
+        
+        public bool NeedsExitTime { get; }
+        public bool IsGhostState { get; }
+
+        public IStateMachine FSM { get; set; }
+
+        
         // Lazy initilisation.
         private ActionStorage<TEvent> _actionStorage;
 
-        public ActionState(bool needsExitTime, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
 
+        /// <summary> Initialises a new instance of the ActionState class.</summary>
+        /// <param name="needsExitTime">Determines if the state is allowed to instantly exit on a transition (False), or if the
+        ///     FSM should wait until the state is ready to change (True).</param>
+        /// <param name="isGhostState">If true, this state becomes a Ghost State, which the FSM doesn't want to stay in,
+        ///     and will test all outgoing transitions instantly, as opposed to waiting for the next OnLogic call.</param>
+        public ActionState(bool needsExitTime, bool isGhostState = false)
+        {
+            this.NeedsExitTime = needsExitTime;
+            this.IsGhostState = isGhostState;
         }
 
 
@@ -21,7 +36,7 @@ namespace UnityHFSM
         /// <param name="trigger"> The name of the action.</param>
         /// <param name="action"> The function that should be called when the action is run.</param>
         /// <returns> Itself to allow for a fluent interface.</returns>
-        public ActionState<TStateID, TEvent> AddAction(TEvent trigger, Action action)
+        public ActionState<TEvent> AddAction(TEvent trigger, Action action)
         {
             // If we have not initialised _actionStorage, initialise it.
             _actionStorage = _actionStorage ?? new ActionStorage<TEvent>();
@@ -40,7 +55,7 @@ namespace UnityHFSM
         /// <param name="action"> The function that should be called when the action is run.</param>
         /// <typeparam name="TData"> The data type of the parameter of the function.</typeparam>
         /// <returns> Itself to allow for a fluent interface.</returns>
-        public ActionState<TStateID, TEvent> AddAction<TData>(TEvent trigger, Action<TData> action)
+        public ActionState<TEvent> AddAction<TData>(TEvent trigger, Action<TData> action)
         {
             // If we have not initialised _actionStorage, initialise it.
             _actionStorage = _actionStorage ?? new ActionStorage<TEvent>();
@@ -51,6 +66,14 @@ namespace UnityHFSM
 
             return this;
         }
+
+
+        public virtual void Init() { }
+        public virtual void OnEnter() { }
+        public virtual void OnLogic() { }
+        public virtual void OnExit() { }
+        public virtual void OnExitRequest() { }
+
 
 
         /// <summary> Runs an action with the given name.
@@ -69,25 +92,15 @@ namespace UnityHFSM
 
     #region Overloaded Classes
     // Overloaded Classes allow for an easier useage of the class for common cases.
-    
-    /// <inheritdoc/>
-    public class ActionState<TStateID> : ActionState<TStateID, string>
-    {
-        /// <inheritdoc/>
-        public ActionState(bool needsExitTime, bool isGhostState = false) : base (needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
-
-        }
-    }
 
     /// <inheritdoc/>
-    public class ActionState : ActionState<string, string>
-    {
-        /// <inheritdoc/>
-        public ActionState(bool needsExitTime, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
+    //public class ActionState : ActionState<string>
+    //{
+    //    /// <inheritdoc/>
+    //    public ActionState(bool needsExitTime, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
+    //    {
 
-        }
-    }
+    //    }
+    //}
     #endregion
 }

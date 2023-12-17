@@ -9,9 +9,9 @@ namespace UnityHFSM
     ///     duplicate code.
     /// The HybridStateMachine can also be seen as a StateWrapper around a normal StateMachine.
     /// </summary>
-    public class HybridStateMachine<TOwnID, TStateID, TEvent> : StateMachine<TOwnID, TStateID, TEvent>
+    public abstract class HybridStateMachine<TEvent> : SubStateMachine<TEvent>
     {
-        private Action<HybridStateMachine<TOwnID, TStateID, TEvent>>
+        private Action<HybridStateMachine<TEvent>>
             _beforeOnEnter, _afterOnEnter,
             _beforeOnLogic, _afterOnLogic,
             _beforeOnExit, _afterOnExit;
@@ -35,14 +35,14 @@ namespace UnityHFSM
         ///     exit on a transition (False), or if it should wait until an explicit exit transition occurs (True).</param>
         /// <inheritdoc cref="StateBase{T}(bool, bool)"/>
         public HybridStateMachine(
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> beforeOnEnter,
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> afterOnEnter,
+            Action<HybridStateMachine<TEvent>> beforeOnEnter,
+            Action<HybridStateMachine<TEvent>> afterOnEnter,
 
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> beforeOnLogic,
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> afterOnLogic,
+            Action<HybridStateMachine<TEvent>> beforeOnLogic,
+            Action<HybridStateMachine<TEvent>> afterOnLogic,
 
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> beforeOnExit,
-            Action<HybridStateMachine<TOwnID, TStateID, TEvent>> afterOnExit,
+            Action<HybridStateMachine<TEvent>> beforeOnExit,
+            Action<HybridStateMachine<TEvent>> afterOnExit,
             
             bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime, isGhostState)
         {
@@ -99,7 +99,7 @@ namespace UnityHFSM
         /// <param name="trigger"> The name of the action.</param>
         /// <param name="action"> The function that should be called when the action is run.</param>
         /// <returns> Itself.</returns>
-        public HybridStateMachine<TOwnID, TStateID, TEvent> AddAction(TEvent trigger, Action action)
+        public HybridStateMachine<TEvent> AddAction(TEvent trigger, Action action)
         {
             // If we have no action storage, create one.
             _actionStorage = _actionStorage ?? new ActionStorage<TEvent>();
@@ -119,7 +119,7 @@ namespace UnityHFSM
         /// <param name="action"> The function that should be called when the action is run.</param>
         /// <typeparam name="TData"> Data type of the parameter of the function.</typeparam>
         /// <returns> Itself.</returns>
-        public HybridStateMachine<TOwnID, TStateID, TEvent> AddAction<TData>(TEvent trigger, Action<TData> action)
+        public HybridStateMachine<TEvent> AddAction<TData>(TEvent trigger, Action<TData> action)
         {
             // If we have no action storage, create one.
             _actionStorage = _actionStorage ?? new ActionStorage<TEvent>();
@@ -139,66 +139,18 @@ namespace UnityHFSM
     // (E.g. "new HybridStateMachine()" instead of "new HybridStateMachine<string, string, string>()").
     
     /// <inheritdoc/>
-    public class HybridStateMachine<TStateId, TEvent> : HybridStateMachine<TStateId, TStateId, TEvent>
+    public abstract class HybridStateMachine : HybridStateMachine<string>
     {
         /// <inheritdoc/>
         public HybridStateMachine(
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> beforeOnEnter = null,
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> afterOnEnter = null,
+            Action<HybridStateMachine<string>> beforeOnEnter = null,
+            Action<HybridStateMachine<string>> afterOnEnter = null,
 
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> beforeOnLogic = null,
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> afterOnLogic = null,
+            Action<HybridStateMachine<string>> beforeOnLogic = null,
+            Action<HybridStateMachine<string>> afterOnLogic = null,
 
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> beforeOnExit = null,
-            Action<HybridStateMachine<TStateId, TStateId, TEvent>> afterOnExit = null,
-
-            bool needsExitTime = false, bool isGhostState = false) : base(
-                beforeOnEnter, afterOnEnter,
-                beforeOnLogic, afterOnLogic,
-                beforeOnExit, afterOnExit,
-                needsExitTime, isGhostState)
-        {
-        
-        }
-    }
-
-    /// <inheritdoc/>
-    public class HybridStateMachine<TStateId> : HybridStateMachine<TStateId, TStateId, string>
-    {
-        /// <inheritdoc/>
-        public HybridStateMachine(
-            Action<HybridStateMachine<TStateId, TStateId, string>> beforeOnEnter = null,
-            Action<HybridStateMachine<TStateId, TStateId, string>> afterOnEnter = null,
-
-            Action<HybridStateMachine<TStateId, TStateId, string>> beforeOnLogic = null,
-            Action<HybridStateMachine<TStateId, TStateId, string>> afterOnLogic = null,
-
-            Action<HybridStateMachine<TStateId, TStateId, string>> beforeOnExit = null,
-            Action<HybridStateMachine<TStateId, TStateId, string>> afterOnExit = null,
-
-            bool needsExitTime = false, bool isGhostState = false) : base(
-                beforeOnEnter, afterOnEnter,
-                beforeOnLogic, afterOnLogic,
-                beforeOnExit, afterOnExit,
-                needsExitTime, isGhostState)
-        {
-
-        }
-    }
-
-    /// <inheritdoc/>
-    public class HybridStateMachine : HybridStateMachine<string, string, string>
-    {
-        /// <inheritdoc/>
-        public HybridStateMachine(
-            Action<HybridStateMachine<string, string, string>> beforeOnEnter = null,
-            Action<HybridStateMachine<string, string, string>> afterOnEnter = null,
-
-            Action<HybridStateMachine<string, string, string>> beforeOnLogic = null,
-            Action<HybridStateMachine<string, string, string>> afterOnLogic = null,
-
-            Action<HybridStateMachine<string, string, string>> beforeOnExit = null,
-            Action<HybridStateMachine<string, string, string>> afterOnExit = null,
+            Action<HybridStateMachine<string>> beforeOnExit = null,
+            Action<HybridStateMachine<string>> afterOnExit = null,
 
             bool needsExitTime = false, bool isGhostState = false) : base(
                 beforeOnEnter, afterOnEnter,

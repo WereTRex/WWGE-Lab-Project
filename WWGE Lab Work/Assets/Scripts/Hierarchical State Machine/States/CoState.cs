@@ -5,14 +5,14 @@ using UnityEngine;
 namespace UnityHFSM
 {
     /// <summary> A state that can run a UnityCoroutine as its OnLogic method.</summary>
-    public class CoState<TStateID, TEvent> : ActionState<TStateID, TEvent>
+    public abstract class CoState<TEvent> : ActionState<TEvent>
     {
         private MonoBehaviour _mono;
 
         private Func<IEnumerator> _coroutineCreator;
-        private Action<CoState<TStateID, TEvent>> _onEnter;
-        private Action<CoState<TStateID, TEvent>> _onExit;
-        private Func<CoState<TStateID, TEvent>, bool> _canExit;
+        private Action<CoState<TEvent>> _onEnter;
+        private Action<CoState<TEvent>> _onExit;
+        private Func<CoState<TEvent>, bool> _canExit;
 
         private bool _shouldLoopCoroutine;
 
@@ -41,10 +41,10 @@ namespace UnityHFSM
         /// <inheritdoc cref="StateBase{T}(bool, bool)"/>
         public CoState(
             MonoBehaviour mono,
-            Func<CoState<TStateID, TEvent>, IEnumerator> coroutine,
-            Action<CoState<TStateID, TEvent>> onEnter = null,
-            Action<CoState<TStateID, TEvent>> onExit = null,
-            Func<CoState<TStateID, TEvent>, bool> canExit = null,
+            Func<CoState<TEvent>, IEnumerator> coroutine,
+            Action<CoState<TEvent>> onEnter = null,
+            Action<CoState<TEvent>> onExit = null,
+            Func<CoState<TEvent>, bool> canExit = null,
             bool loop = true, bool needsExitTime = false, bool isGhostState = false) : base (needsExitTime, isGhostState)
         {
             this._mono = mono;
@@ -71,9 +71,9 @@ namespace UnityHFSM
         public CoState(
             MonoBehaviour mono,
             Func<IEnumerator> coroutine,
-            Action<CoState<TStateID, TEvent>> onEnter = null,
-            Action<CoState<TStateID, TEvent>> onExit = null,
-            Func<CoState<TStateID, TEvent>, bool> canExit = null,
+            Action<CoState<TEvent>> onEnter = null,
+            Action<CoState<TEvent>> onExit = null,
+            Func<CoState<TEvent>, bool> canExit = null,
             bool loop = true, bool needsExitTime = false, bool isGhostState = false) : base (needsExitTime, isGhostState)
         {
             this._mono = mono;
@@ -154,46 +154,15 @@ namespace UnityHFSM
     // Overloaded Classes allow for an easier useage of the class for common cases.
 
     /// <inheritdoc/>
-    public class CoState<TStateID> : CoState<TStateID, string>
+    public abstract class CoState : CoState<string>
     {
         /// <inheritdoc/>
         public CoState(
             MonoBehaviour mono,
-            Func<CoState<TStateID, string>, IEnumerator> coroutine,
-            Action<CoState<TStateID, string>> onEnter = null,
-            Action<CoState<TStateID, string>> onExit = null,
-            Func<CoState<TStateID, string>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false
-            ) : base( mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
-
-        }
-
-        /// <inheritdoc/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<IEnumerator> coroutine,
-            Action<CoState<TStateID, string>> onEnter = null,
-            Action<CoState<TStateID, string>> onExit = null,
-            Func<CoState<TStateID, string>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false
-            ) : base(mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
-
-        }
-    }
-
-
-    /// <inheritdoc/>
-    public class CoState : CoState<string, string>
-    {
-        /// <inheritdoc/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<CoState<string, string>, IEnumerator> coroutine,
-            Action<CoState<string, string>> onEnter = null,
-            Action<CoState<string, string>> onExit = null,
-            Func<CoState<string, string>, bool> canExit = null,
+            Func<CoState<string>, IEnumerator> coroutine,
+            Action<CoState<string>> onEnter = null,
+            Action<CoState<string>> onExit = null,
+            Func<CoState<string>, bool> canExit = null,
             bool loop = true, bool needsExitTime = false, bool isGhostState = false
             ) : base(mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
         {
@@ -204,9 +173,9 @@ namespace UnityHFSM
         public CoState(
             MonoBehaviour mono,
             Func<IEnumerator> coroutine,
-            Action<CoState<string, string>> onEnter = null,
-            Action<CoState<string, string>> onExit = null,
-            Func<CoState<string, string>, bool> canExit = null,
+            Action<CoState<string>> onEnter = null,
+            Action<CoState<string>> onExit = null,
+            Func<CoState<string>, bool> canExit = null,
             bool loop = true, bool needsExitTime = false, bool isGhostState = false
             ) : base(mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
         {
