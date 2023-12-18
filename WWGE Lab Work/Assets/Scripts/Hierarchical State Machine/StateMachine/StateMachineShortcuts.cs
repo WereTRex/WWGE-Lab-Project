@@ -100,32 +100,31 @@ namespace UnityHFSM
                 ));
         }
 
-        /// <summary> Shortcut method for adding a new trigger transition between two states that is only checked
-        ///     when the specified trigger is activated.
-        ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
-        /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
-        ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition(
+        /// <summary> Shortcut method for adding a new trigger transition between two states
+        ///     that is only checked if the specified trigger has been activated.</summary>
+        /// <inheritdoc cref="TriggerTransition(
         ///     IState,
         ///     IState,
-        ///     Func{Transition, bool},
-		/// 	Action{Transition},
-        /// 	Action{Transition},
+        ///     Action,
+        ///     Func{TriggerTransition, bool},
+		/// 	Action{TriggerTransition},
+        /// 	Action{TriggerTransition},
         /// 	bool
         /// )"/>
-        public static void AddTriggerTransition<TEvent>(
-            this StateMachine<TEvent> fsm,
-            TEvent trigger,
+        public static void AddTriggerTransition(
+            this StateMachine fsm,
             IState from,
             IState to,
-            Func<Transition, bool> condition = null,
-            Action<Transition> onTransition = null,
-            Action<Transition> afterTransition = null,
+            Action trigger,
+            Func<TriggerTransition, bool> condition = null,
+            Action<TriggerTransition> onTransition = null,
+            Action<TriggerTransition> afterTransition = null,
             bool forceInstantly = false)
         {
-            fsm.AddTriggerTransition(trigger, CreateOptimisedTransition(
+            fsm.AddTransition(new TriggerTransition(
                 from,
                 to,
+                trigger,
                 condition,
                 onTransition: onTransition,
                 afterTransition: afterTransition,
@@ -133,37 +132,37 @@ namespace UnityHFSM
                 ));
         }
 
-        /// <summary> Shortcut method for adding a new trigger transition that can happen from any possible state,
-        ///     but is only checked when the specified trigger is activated.
-        ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
-        /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
-        ///     otherwise it creates a Transition object.</remarks>
-        /// <inheritdoc cref="Transition(
-        ///     IState,
-        ///     IState,
-        ///     Func{Transition, bool},
-		/// 	Action{Transition},
-        /// 	Action{Transition},
-        /// 	bool
-        /// )"/>
-        public static void AddTriggerTransitionFromAny<TEvent>(
-            this StateMachine<TEvent> fsm,
-            TEvent trigger,
-            IState to,
-            Func<Transition, bool> condition = null,
-            Action<Transition> onTransition = null,
-            Action<Transition> afterTransition = null,
-            bool forceInstantly = false)
-        {
-            fsm.AddTriggerTransitionFromAny(trigger, CreateOptimisedTransition(
-                default,
-                to,
-                condition,
-                onTransition: onTransition,
-                afterTransition: afterTransition,
-                forceInstantly: forceInstantly
-                ));
-        }
+  //      /// <summary> Shortcut method for adding a new trigger transition that can happen from any possible state,
+  //      ///     but is only checked when the specified trigger is activated.
+  //      ///     It creates a new Transition() under the hood (See Transition for more information).</summary>
+  //      /// <remarks> When no condition or callbacks are required, it creates a TransitionBase for optimal performance,
+  //      ///     otherwise it creates a Transition object.</remarks>
+  //      /// <inheritdoc cref="Transition(
+  //      ///     IState,
+  //      ///     IState,
+  //      ///     Func{Transition, bool},
+		///// 	Action{Transition},
+  //      /// 	Action{Transition},
+  //      /// 	bool
+  //      /// )"/>
+  //      public static void AddTriggerTransitionFromAny<TEvent>(
+  //          this StateMachine<TEvent> fsm,
+  //          TEvent trigger,
+  //          IState to,
+  //          Func<Transition, bool> condition = null,
+  //          Action<Transition> onTransition = null,
+  //          Action<Transition> afterTransition = null,
+  //          bool forceInstantly = false)
+  //      {
+  //          fsm.AddTriggerTransitionFromAny(trigger, CreateOptimisedTransition(
+  //              default,
+  //              to,
+  //              condition,
+  //              onTransition: onTransition,
+  //              afterTransition: afterTransition,
+  //              forceInstantly: forceInstantly
+  //              ));
+  //      }
 
 
         /// <summary> Shortcut method for adding two transitions:
@@ -198,38 +197,38 @@ namespace UnityHFSM
                 ));
         }
 
-        /// <summary> Shortcut method for adding two transitions that are only checked when the specified trigger is activated:
-        ///     If the condition function is true, the FSM transition from the "From" state to the "To" state.
-        ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
-        /// <remarks> For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards.
-        ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.</remarks>
-        /// <inheritdoc cref="Transition(
-        ///     IState,
-        ///     IState,
-        ///     Func{Transition, bool},
-		/// 	Action{Transition},
-        /// 	Action{Transition},
-        /// 	bool
-        /// )"/>
-        public static void AddTwoWayTriggerTransition<TEvent>(
-            this StateMachine<TEvent> fsm,
-            TEvent trigger,
-            IState from,
-            IState to,
-            Func<Transition, bool> condition = null,
-            Action<Transition> onTransition = null,
-            Action<Transition> afterTransition = null,
-            bool forceInstantly = false)
-        {
-            fsm.AddTwoWayTriggerTransition(trigger, new Transition(
-                from,
-                to,
-                condition,
-                onTransition: onTransition,
-                afterTransition: afterTransition,
-                forceInstantly: forceInstantly
-                ));
-        }
+  //      /// <summary> Shortcut method for adding two transitions that are only checked when the specified trigger is activated:
+  //      ///     If the condition function is true, the FSM transition from the "From" state to the "To" state.
+  //      ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
+  //      /// <remarks> For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards.
+  //      ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.</remarks>
+  //      /// <inheritdoc cref="Transition(
+  //      ///     IState,
+  //      ///     IState,
+  //      ///     Func{Transition, bool},
+		///// 	Action{Transition},
+  //      /// 	Action{Transition},
+  //      /// 	bool
+  //      /// )"/>
+  //      public static void AddTwoWayTriggerTransition<TEvent>(
+  //          this StateMachine<TEvent> fsm,
+  //          TEvent trigger,
+  //          IState from,
+  //          IState to,
+  //          Func<Transition, bool> condition = null,
+  //          Action<Transition> onTransition = null,
+  //          Action<Transition> afterTransition = null,
+  //          bool forceInstantly = false)
+  //      {
+  //          fsm.AddTwoWayTriggerTransition(trigger, new Transition(
+  //              from,
+  //              to,
+  //              condition,
+  //              onTransition: onTransition,
+  //              afterTransition: afterTransition,
+  //              forceInstantly: forceInstantly
+  //              ));
+  //      }
         #endregion
 
 
@@ -308,24 +307,24 @@ namespace UnityHFSM
         /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTriggerTransition<TEvent>(
-            this StateMachine<TEvent> fsm,
-            TEvent trigger,
-            IState from,
-            Func<Transition, bool> condition = null,
-            Action<Transition> onTransition = null,
-            Action<Transition> afterTransition = null,
-            bool forceInstantly = false)
-        {
-            fsm.AddExitTriggerTransition(trigger, CreateOptimisedTransition(
-                from,
-                default,
-                condition,
-                onTransition: onTransition,
-                afterTransition: afterTransition,
-                forceInstantly: forceInstantly
-                ));
-        }
+        //public static void AddExitTriggerTransition<TEvent>(
+        //    this StateMachine<TEvent> fsm,
+        //    TEvent trigger,
+        //    IState from,
+        //    Func<Transition, bool> condition = null,
+        //    Action<Transition> onTransition = null,
+        //    Action<Transition> afterTransition = null,
+        //    bool forceInstantly = false)
+        //{
+        //    fsm.AddExitTriggerTransition(trigger, CreateOptimisedTransition(
+        //        from,
+        //        default,
+        //        condition,
+        //        onTransition: onTransition,
+        //        afterTransition: afterTransition,
+        //        forceInstantly: forceInstantly
+        //        ));
+        //}
 
         /// <summary> A shortcut method for adding a new exit transition that can happen from any possible state and is only checked when the specified trigger is activated.
         ///     It represents an exit point that allows the FSM to exit and the parent FSM to continue to the next state.
@@ -340,23 +339,23 @@ namespace UnityHFSM
         /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTriggerTransitionFromAny<TEvent>(
-            this StateMachine<TEvent> fsm,
-            TEvent trigger,
-            Func<Transition, bool> condition = null,
-            Action<Transition> onTransition = null,
-            Action<Transition> afterTransition = null,
-            bool forceInstantly = false)
-        {
-            fsm.AddExitTriggerTransitionFromAny(trigger, CreateOptimisedTransition(
-                default,
-                default,
-                condition,
-                onTransition: onTransition,
-                afterTransition: afterTransition,
-                forceInstantly: forceInstantly
-                ));
-        }
+        //public static void AddExitTriggerTransitionFromAny<TEvent>(
+        //    this StateMachine<TEvent> fsm,
+        //    TEvent trigger,
+        //    Func<Transition, bool> condition = null,
+        //    Action<Transition> onTransition = null,
+        //    Action<Transition> afterTransition = null,
+        //    bool forceInstantly = false)
+        //{
+        //    fsm.AddExitTriggerTransitionFromAny(trigger, CreateOptimisedTransition(
+        //        default,
+        //        default,
+        //        condition,
+        //        onTransition: onTransition,
+        //        afterTransition: afterTransition,
+        //        forceInstantly: forceInstantly
+        //        ));
+        //}
 #endregion
     }
 }

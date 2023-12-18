@@ -8,7 +8,7 @@ using WwGEProject.AI.Turret;
 public class TurretController : MonoBehaviour
 {
     // Declare the FSM.
-    private StateMachine<Events> _rootFSM;
+    private StateMachine<Action> _rootFSM;
 
     // Parameters.
     [ReadOnly] public string CurrentStatePath;
@@ -18,21 +18,11 @@ public class TurretController : MonoBehaviour
     [SerializeField] private bool _withinShootingRadius;
 
 
-    enum TurretStates { 
-        Idle, Aware, Deactivated
-    }
-    enum AwareStates {
-        Alert, Shooting
-    }
-    enum Events {
-        OnDamage, OnDead
-    }
-
     private void Start()
     {
         #region State Machine Setup
-        _rootFSM = new StateMachine<Events>();
-        var awareFSM = new TurretAwareState<Events>();
+        _rootFSM = new StateMachine<Action>();
+        var awareFSM = new TurretAwareState<Action>();
         var idleState = new TurretIdleState();
         var deactivatedState = new TurretDeactivatedState();
 
@@ -49,7 +39,7 @@ public class TurretController : MonoBehaviour
         _rootFSM.AddTransition(from: awareFSM, to: idleState, condition: t => Target == null);
         _rootFSM.AddTransitionFromAny(to: deactivatedState, condition: transition => _currentHealth <= 0);
 
-
+        
         // Setup Aware Sub-FSM.
         awareFSM.AddState(alertState);
         awareFSM.AddState(shootingState);

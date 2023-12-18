@@ -5,7 +5,7 @@ namespace UnityHFSM
     /// <summary> A class used to determine whether the State Machine should transition to another state.</summary>
     public class Transition : TransitionBase
     {
-        public Func<Transition, bool> Condition;
+        private Func<Transition, bool> _condition;
         private Action<Transition> _beforeTransition;
         private Action<Transition> _afterTransition;
 
@@ -23,7 +23,7 @@ namespace UnityHFSM
             Action<Transition> afterTransition = null,
             bool forceInstantly = false) : base(from, to, forceInstantly)
         {
-            this.Condition = condition;
+            this._condition = condition;
             this._beforeTransition = onTransition;
             this._afterTransition = afterTransition;
         }
@@ -32,11 +32,11 @@ namespace UnityHFSM
         public override bool ShouldTransition()
         {
             // If this transition has no condition, then we should transition.
-            if (Condition == null)
+            if (_condition == null)
                 return true;
 
             // Otherwise return the returned value of the condition.
-            return Condition(this);
+            return _condition(this);
         }
 
 

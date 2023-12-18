@@ -12,7 +12,7 @@ namespace UnityHFSM
 {
     /// <summary> A Finite State Machine that can also be used as a state of a parent state machine to create a Hierarchical State Machine.</summary>
     public class StateMachine<TEvent> :
-        ITriggerable<TEvent>,
+        //ITriggerable<TEvent>,
         IStateMachine,
         IActionable<TEvent>
     {
@@ -36,24 +36,24 @@ namespace UnityHFSM
                 Transitions.Add(transition);
             }
 
-            public void AddTriggerTransition(TEvent trigger, TransitionBase transition)
-            {
-                // If the TriggerToTransitions dictionary does not exist, create it.
-                TriggerToTransitions = TriggerToTransitions ?? new Dictionary<TEvent, List<TransitionBase>>();
+            //public void AddTriggerTransition(TEvent trigger, TransitionBase transition)
+            //{
+            //    // If the TriggerToTransitions dictionary does not exist, create it.
+            //    TriggerToTransitions = TriggerToTransitions ?? new Dictionary<TEvent, List<TransitionBase>>();
 
-                List<TransitionBase> transitionsOfTrigger;
+            //    List<TransitionBase> transitionsOfTrigger;
 
-                // Get the value of the transitions of this trigger.
-                if (!TriggerToTransitions.TryGetValue(trigger, out transitionsOfTrigger))
-                {
-                    // If there are none, create a new list and add the new values to the dictionary.
-                    transitionsOfTrigger = new List<TransitionBase>();
-                    TriggerToTransitions.Add(trigger, transitionsOfTrigger);
-                }
+            //    // Get the value of the transitions of this trigger.
+            //    if (!TriggerToTransitions.TryGetValue(trigger, out transitionsOfTrigger))
+            //    {
+            //        // If there are none, create a new list and add the new values to the dictionary.
+            //        transitionsOfTrigger = new List<TransitionBase>();
+            //        TriggerToTransitions.Add(trigger, transitionsOfTrigger);
+            //    }
 
-                // Add this transition to the list of transitions from this trigger.
-                transitionsOfTrigger.Add(transition);
-            }
+            //    // Add this transition to the list of transitions from this trigger.
+            //    transitionsOfTrigger.Add(transition);
+            //}
         }
 
         protected struct PendingTransition
@@ -88,7 +88,7 @@ namespace UnityHFSM
 
         // A cached empty list of transitions (For easier readability when assigning them).
         private static readonly List<TransitionBase> _noTransitions = new List<TransitionBase>(0);
-        private static readonly Dictionary<TEvent, List<TransitionBase>> _noTriggerTransitions = new Dictionary<TEvent, List<TransitionBase>>(0);
+        //private static readonly Dictionary<TEvent, List<TransitionBase>> _noTriggerTransitions = new Dictionary<TEvent, List<TransitionBase>>(0);
 
 
         protected (IState state, bool hasState) StartState = (default, false);
@@ -100,10 +100,10 @@ namespace UnityHFSM
 
         private IState _activeState = null;
         private List<TransitionBase> _activeTransitions = _noTransitions;
-        private Dictionary<TEvent, List<TransitionBase>> _activeTriggerTransitions = _noTriggerTransitions;
+        //private Dictionary<TEvent, List<TransitionBase>> _activeTriggerTransitions = _noTriggerTransitions;
 
         private List<TransitionBase> _transitionsFromAny = new List<TransitionBase>();
-        private Dictionary<TEvent, List<TransitionBase>> _triggerTransitionsFromAny = new Dictionary<TEvent, List<TransitionBase>>();
+        //private Dictionary<TEvent, List<TransitionBase>> _triggerTransitionsFromAny = new Dictionary<TEvent, List<TransitionBase>>();
 
 
         // Getters/Setters.
@@ -166,7 +166,7 @@ namespace UnityHFSM
 
             // Set the active transitions.
             _activeTransitions = bundle.Transitions ?? _noTransitions;
-            _activeTriggerTransitions = bundle.TriggerToTransitions ?? _noTriggerTransitions;
+            //_activeTriggerTransitions = bundle.TriggerToTransitions ?? _noTriggerTransitions;
 
             // Set our active state and inform it that it is now active.
             _activeState = bundle.State;
@@ -179,13 +179,13 @@ namespace UnityHFSM
             }
 
             // Inform all active trigger transitions that we have entered this state.
-            foreach (List<TransitionBase> transitions in _activeTriggerTransitions.Values)
+            /*foreach (List<TransitionBase> transitions in _activeTriggerTransitions.Values)
             {
                 for (int i = 0; i < transitions.Count; i++)
                 {
                     transitions[i].OnEnter();
                 }
-            }
+            }*/
 
             
             // Alert the listener (If it exists) that the transition has completed.
@@ -297,13 +297,13 @@ namespace UnityHFSM
                 _transitionsFromAny[i].OnEnter();
             }
 
-            foreach (List<TransitionBase> transitions in _triggerTransitionsFromAny.Values)
+            /*foreach (List<TransitionBase> transitions in _triggerTransitionsFromAny.Values)
             {
                 for (int i = 0; i < transitions.Count; i++)
                 {
                     transitions[i].OnEnter();
                 }
-            }
+            }*/
         }
 
         /// <summary> Runs one Logic Step. It does at most one transition itself and calls teh active state's logic function (After a state transition, if one occured).</summary>
@@ -411,40 +411,6 @@ namespace UnityHFSM
             _transitionsFromAny.Add(transition);
         }
 
-        /// <summary> Adds a new trigger transition between two states that is only checked when the specified trigger is activated. </summary>
-        /// <param name="trigger"> The name/identifier of the trigger.</param>
-        /// <param name="transition"> The transition instance (E.g. Transition, TransitionAfter, etc).</param>
-        public void AddTriggerTransition(TEvent trigger, TransitionBase transition)
-        {
-            // Initialise the transition.
-            InitTransition(transition);
-
-            // Bundles this transition with the associated state as a trigger transition.
-            StateBundle bundle = GetOrCreateStateBundle(transition.From);
-            bundle.AddTriggerTransition(trigger, transition);
-        }
-
-        /// <summary> Adds a new trigger transition that can happen from any possible state, but is only checked when the specified trigger is activated.</summary>
-        /// <param name="trigger"> The name/identifier of the trigger.</param>
-        /// <param name="transition"> The transition instance. The "From" field can be left empty, as it has no meaning in this context.</param>
-        public void AddTriggerTransitionFromAny(TEvent trigger, TransitionBase transition)
-        {
-            // Initialise the transition.
-            InitTransition(transition);
-
-            // Get the transitions of this trigger.
-            List<TransitionBase> transitionsOfTrigger;
-            if (!_triggerTransitionsFromAny.TryGetValue(trigger, out transitionsOfTrigger))
-            {
-                // If there are none, create a new list and add the new values to the dictionary. 
-                transitionsOfTrigger = new List<TransitionBase>();
-                _triggerTransitionsFromAny.Add(trigger, transitionsOfTrigger);
-            }
-
-            // Add this transition to the list of transitions from this trigger.
-            transitionsOfTrigger.Add(transition);
-        }
-
 
         /// <summary> Adds two transitions:
         ///     If the condition of the transition instance is true, it transitions from the "From" state to the "To" state.
@@ -463,25 +429,6 @@ namespace UnityHFSM
             ReverseTransition reverse = new ReverseTransition(transition, false);
             InitTransition(reverse);
             AddTransition(reverse);
-        }
-
-        /// <summary> Adds two transitions that are only checked when a specified trigger is activated:
-        ///     If the condition of the transition instance is true, it transitions from the "From" state to the "To" state.
-        ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
-        /// <remarks> Internally the same transition instance will be used for both transitions by wrapping it in a 'ReverseTransition'.
-		///     For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards. 
-        ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.
-		/// </remarks>
-        public void AddTwoWayTriggerTransition(TEvent trigger, TransitionBase transition)
-        {
-            // Initialise and add the forward transition.
-            InitTransition(transition);
-            AddTriggerTransition(trigger, transition);
-
-            // Initialise and add the reverse transition.
-            ReverseTransition reverse = new ReverseTransition(transition, false);
-            InitTransition(reverse);
-            AddTriggerTransition(trigger, reverse);
         }
 
 
@@ -504,26 +451,6 @@ namespace UnityHFSM
             transition.IsExitTransition = true;
             AddTransitionFromAny(transition);
         }
-
-        /// <summary> Adds a new exit transition from a state that is only checked when the specified trigger is activated.
-        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
-        ///     It is only checked if the parent FSM has a pending transition.</summary>
-        /// <param name="transition"> The transition instance. The "To" field can be left empty, as it has no meaning in this context.</param>
-        public void AddExitTriggerTransition(TEvent trigger, TransitionBase transition)
-        {
-            transition.IsExitTransition = true;
-            AddTriggerTransition(trigger, transition);
-        }
-
-        /// <summary> Adds a new exit transition that can happen from any possible state and is only checked when the specified trigger is activated.
-        ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
-        ///     It is only checked if the parent FSM has a pending transition.</summary>
-        /// <param name="transition"> The transition instance. The "From" and "To" fields can be left empty, as they have no meaning in this context.</param>
-        public void AddExitTriggerTransitionFromAny(TEvent trigger, TransitionBase transition)
-        {
-            transition.IsExitTransition = true;
-            AddTriggerTransitionFromAny(trigger, transition);
-        }
 #endregion
 
 
@@ -531,7 +458,7 @@ namespace UnityHFSM
         /// <summary> Activates the specified trigger, checking all targeted trigger transitions to see whether a transition should occur.</summary>
         /// <param name="trigger"> The name/identifier of the trigger.</param>
         /// <returns> True when a transition occured, otherwise false.</returns>
-        private bool TryTrigger(TEvent trigger)
+        /*private bool TryTrigger(TEvent trigger)
         {
             // Ensure that the StateMachine is initialised.
             EnsureIsInitialisedFor("Checking for all trigger transitions of the active state");
@@ -589,7 +516,7 @@ namespace UnityHFSM
         public void TriggerLocally(TEvent trigger)
         {
             TryTrigger(trigger);
-        }
+        }*/
 
 
         /// <summary> Runs an action on the currently active state.</summary>
