@@ -5,102 +5,72 @@ using UnityEngine;
 namespace UnityHFSM
 {
     /// <summary> A state that can run a UnityCoroutine as its OnLogic method.</summary>
-    public abstract class CoState<TEvent> : ActionState<TEvent>
+    public abstract class CoState : IState
     {
-        private MonoBehaviour _mono;
+        public abstract string Name { get; }
 
-        private Func<IEnumerator> _coroutineCreator;
-        private Action<CoState<TEvent>> _onEnter;
-        private Action<CoState<TEvent>> _onExit;
-        private Func<CoState<TEvent>, bool> _canExit;
+        public bool NeedsExitTime { get; }
+        public bool IsGhostState { get; }
 
-        private bool _shouldLoopCoroutine;
+        public IStateMachine FSM { get; set; }
 
 
-        public ITimer Timer;
+        protected MonoBehaviour Mono;
 
-        private Coroutine _activeCoroutine;
+        protected Coroutine ActiveCoroutine;
+        protected bool ShouldLoopCoroutine;
 
 
-        #region Constructors
         // The CoState class allows you to use either a function without any parameters
         //  or a function that takes the state as a parameter to create the coroutine.
         //  To allow for this and ease of use, the class has two nearly identical constructors.
 
         /// <summary> Initialises a new instance of the CoState class.</summary>
         /// <param name="mono"> The MonoBehaviour of the script that should run the coroutine.</param>
-        /// <param name="coroutine"> A coroutine that is run while this state is active.
-        ///     It runs independently from the paren State Machine's OnLogic(), because it is handled by Unity.
-        ///     It is started once the state enters and is terminated when the state exits.</param>
-        /// <param name="onEnter"> A function that is called when the State Machine enters this state.</param>
-        /// <param name="onExit"> A function that is called when teh State Machine exits this state.</param>
-        /// <param name="canExit"> (Only if needsExitTime is true):
-        ///     A function that determines if the state is ready to exit (True) or not (False).
-        ///     It is called in OnExitRequest and on each logic step when a transition is pending.</param>
         /// <param name="loop"> If true, it will loop the coroutine, running it again once it has completed.</param>
-        /// <inheritdoc cref="StateBase{T}(bool, bool)"/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<CoState<TEvent>, IEnumerator> coroutine,
-            Action<CoState<TEvent>> onEnter = null,
-            Action<CoState<TEvent>> onExit = null,
-            Func<CoState<TEvent>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false) : base (needsExitTime, isGhostState)
+        /// <param name="needsExitTime"> Determines if a state is allowed to instantly exit on a transition (False),
+        ///     or if the State Machine should wait for until the State is ready for a state change (True).</param>
+        /// <param name="isGhostState">If true, this state becomes a Ghost State, which the FSM doesn't want to stay in,
+        ///     and will test all outgoing transitions instantly, as opposed to waiting for the next OnLogic call.</param>
+        public CoState(MonoBehaviour mono, bool loop = true, bool needsExitTime = false, bool isGhostState = false)
         {
-            this._mono = mono;
-            this._coroutineCreator = () => coroutine(this);
-            this._onEnter = onEnter;
-            this._onExit = onExit;
-            this._canExit = canExit;
-            this._shouldLoopCoroutine = loop;
+            this.Mono = mono;
+            this.ShouldLoopCoroutine = loop;
 
-            Timer = new Timer();
+            this.NeedsExitTime = needsExitTime;
+            this.IsGhostState = isGhostState;
         }
 
 
-        /// <inheritdoc cref="CoState{TStateID, TEvent}(
-		/// 	MonoBehaviour,
-		/// 	Func{CoState{TStateID, TEvent}, IEnumerator},
-		/// 	Action{CoState{TStateID, TEvent}},
-		/// 	Action{CoState{TStateID, TEvent}},
-		/// 	Func{CoState{TStateID, TEvent}, bool},
-		/// 	bool,
-		/// 	bool,
-		/// 	bool
-		/// )"/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<IEnumerator> coroutine,
-            Action<CoState<TEvent>> onEnter = null,
-            Action<CoState<TEvent>> onExit = null,
-            Func<CoState<TEvent>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false) : base (needsExitTime, isGhostState)
+        public virtual void Init() { }
+        public virtual void OnEnter() => ActiveCoroutine = Mono.StartCoroutine(ShouldLoopCoroutine ? LoopCoroutine() : PrimaryCoroutine());
+        
+        public virtual void OnLogic()
         {
-            this._mono = mono;
-            this._coroutineCreator = coroutine;
-            this._onEnter = onEnter;
-            this._onExit = onExit;
-            this._canExit = canExit;
-            this._shouldLoopCoroutine = loop;
-
-            Timer = new Timer();
+            // If we can exit this state, and the FSM is awaiting a transition, tell the FSM that we can transition.
+            if (NeedsExitTime && FSM.HasPendingTransition && CanExit())
+                FSM.StateCanExit();
         }
-        #endregion
-
-
-        public override void OnEnter()
+        public virtual void OnExit()
         {
-            Timer.Reset();
-
-            _onEnter?.Invoke(this);
-
-            if (_coroutineCreator != null)
-                _activeCoroutine = _mono.StartCoroutine(_shouldLoopCoroutine ? LoopCoroutine() : _coroutineCreator());
+            // Stop the coroutine if it is still active.
+            if (ActiveCoroutine != null)
+            {
+                Mono.StopCoroutine(ActiveCoroutine);
+                ActiveCoroutine = null;
+            }
         }
+        public virtual void OnExitRequest()
+        {
+            if (CanExit())
+                FSM.StateCanExit();
+        }
+        protected virtual bool CanExit() => true;
+
 
         private IEnumerator LoopCoroutine()
         {
-            IEnumerator routine = _coroutineCreator();
+            IEnumerator routine = PrimaryCoroutine();
 
             while (true)
             {
@@ -117,70 +87,9 @@ namespace UnityHFSM
 
 
                 // Restart the coroutine.
-                routine = _coroutineCreator();
+                routine = PrimaryCoroutine();
             }
         }
-
-
-        public override void OnLogic()
-        {
-            // Check for whether we can transition.
-            if (NeedsExitTime && _canExit != null & FSM.HasPendingTransition && _canExit(this))
-                FSM.StateCanExit();
-        }
-
-
-        public override void OnExit()
-        {
-            // Stop the coroutine if it is still active
-            if (_activeCoroutine != null)
-            {
-                _mono.StopCoroutine(_activeCoroutine);
-                _activeCoroutine = null;
-            }
-
-            _onExit?.Invoke(this);
-        }
-
-        public override void OnExitRequest()
-        {
-            if (_canExit != null && _canExit(this))
-                FSM.StateCanExit();
-        }
+        protected abstract IEnumerator PrimaryCoroutine();
     }
-
-
-    #region Overloaded Classes
-    // Overloaded Classes allow for an easier useage of the class for common cases.
-
-    /// <inheritdoc/>
-    public abstract class CoState : CoState<string>
-    {
-        /// <inheritdoc/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<CoState<string>, IEnumerator> coroutine,
-            Action<CoState<string>> onEnter = null,
-            Action<CoState<string>> onExit = null,
-            Func<CoState<string>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false
-            ) : base(mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
-
-        }
-
-        /// <inheritdoc/>
-        public CoState(
-            MonoBehaviour mono,
-            Func<IEnumerator> coroutine,
-            Action<CoState<string>> onEnter = null,
-            Action<CoState<string>> onExit = null,
-            Func<CoState<string>, bool> canExit = null,
-            bool loop = true, bool needsExitTime = false, bool isGhostState = false
-            ) : base(mono, coroutine: coroutine, onEnter: onEnter, onExit: onExit, canExit: canExit, loop: loop, needsExitTime: needsExitTime, isGhostState: isGhostState)
-        {
-
-        }
-    }
-    #endregion
 }

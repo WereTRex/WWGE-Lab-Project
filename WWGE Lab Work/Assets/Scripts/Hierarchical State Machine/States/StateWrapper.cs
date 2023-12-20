@@ -6,7 +6,7 @@ namespace UnityHFSM
     ///     It does not interfere with the wrapped state's timing/needsExitTime/etc behaviour.</summary>
     public class StateWrapper<TEvent>
     {
-        public class WrappedState : IState, ITriggerable<TEvent>, IActionable<TEvent>
+        public class WrappedState : IState, IActionable<TEvent>
         {
             // Companion Code Functions.
             private Action<IState>
@@ -89,7 +89,6 @@ namespace UnityHFSM
             
 
 
-            public void Trigger(TEvent trigger) => (_state as ITriggerable<TEvent>)?.Trigger(trigger);
             public void OnAction(TEvent trigger) => (_state as IActionable<TEvent>)?.OnAction(trigger);
             public void OnAction<TData>(TEvent trigger, TData data) => (_state as IActionable<TEvent>)?.OnAction<TData>(trigger, data);
         }
