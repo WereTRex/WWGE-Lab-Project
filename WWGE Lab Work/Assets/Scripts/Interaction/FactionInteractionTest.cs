@@ -12,11 +12,9 @@ public class FactionInteractionTest : MonoBehaviour, IInteractable
     #region IInteractable Methods
     public void Interact(Transform interactingTransform)
     {
-        Debug.Log("Interacted");
-
-
+        // If the interacting object is not an ally of this one, then return.
         if (interactingTransform.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
-            if (_factionScript.IsOpposingFaction(entityFaction.Faction))
+            if (_factionScript.IsAllyFaction(entityFaction.Faction) == false)
                 return;
 
         _currentInteractionTransform = interactingTransform;

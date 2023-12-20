@@ -14,19 +14,19 @@ public class EntityFaction : MonoBehaviour
         this.Faction = newFaction;
     }
 
-    /// <summary> A function to check whether this entity is part of an inputted faction. </summary>
-    /// <returns> True if the factions don't contain an ally, false if they do.</returns>
-    public bool IsOpposingFaction(Faction factionToCheck)
+    /// <summary> A function to check whether this entity is a part of an inputted faction. </summary>
+    /// <returns> True if the factions contain an ally, false if they don't.</returns>
+    public bool IsAllyFaction(Faction factionToCheck)
     {
         // Check if either faction is unaligned (Will never team with another entity).
         if (Faction == Faction.Unaligned || factionToCheck == Faction.Unaligned)
-            return true;
-
-        // Check if this entity is a part of the factionToCheck.
-        if ((Faction & factionToCheck) != 0)
             return false;
 
-        // This entity is not a part of the factionToCheck.
-        return true;
+        // If this entity is in the same faction as the FactionToCheck, then they are allies.
+        if ((Faction & factionToCheck) != 0)
+            return true;
+
+        // Otherwise, this entity is not an ally of the factionToCheck.
+        return false;
     }
 }

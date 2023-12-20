@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityHFSM;
 
@@ -9,6 +10,7 @@ namespace WwGEProject.AI.Turret
 
 
         private readonly TurretController _brain;
+        private Coroutine _detectionCoroutine;
 
 
         private readonly Transform _rotationTarget;
@@ -24,6 +26,7 @@ namespace WwGEProject.AI.Turret
         
 
         private const float FOUND_TARGET_BUFFER = 2f;
+        private const float DETECTION_CHECK_DELAY = 0.25f;
 
 
         /// <summary> Create a new instance of the TurretIdleState class.</summary>
@@ -53,7 +56,19 @@ namespace WwGEProject.AI.Turret
             base.OnEnter();
 
             _rotationIndex = 0;
+
+            if (_detectionCoroutine != null)
+                _brain.StopCoroutine(_detectionCoroutine);
+            _detectionCoroutine = _brain.StartCoroutine(TryDetection());
         }
+        public override void OnExit()
+        {
+            base.OnExit();
+
+            if (_detectionCoroutine != null)
+                _brain.StopCoroutine(_detectionCoroutine);
+        }
+
         public override void OnLogic()
         {
             base.OnLogic();
@@ -78,6 +93,15 @@ namespace WwGEProject.AI.Turret
                     _rotationIndex++;
                 else
                     _rotationIndex = 0;
+            }
+        }
+
+        private IEnumerator TryDetection()
+        {
+            while (true)
+            {
+                _brain.TryGetTarget();
+                yield return new WaitForSeconds(DETECTION_CHECK_DELAY);
             }
         }
     }

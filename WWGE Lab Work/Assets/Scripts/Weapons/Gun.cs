@@ -507,7 +507,7 @@ public class Gun : MonoBehaviour
     #region Gizmos
     private void OnDrawGizmosSelected()
     {
-        float distanceToTarget = Physics.Raycast(_raycastOrigin.position, _raycastOrigin.forward, out RaycastHit hitInfo, 100f, _shootConfigs[_currentFiringIndex].HitMask) ? hitInfo.distance : 100f;
+        /*float distanceToTarget = Physics.Raycast(_raycastOrigin.position, _raycastOrigin.forward, out RaycastHit hitInfo, 100f, _shootConfigs[_currentFiringIndex].HitMask) ? hitInfo.distance : 100f;
         float crosshairRadius = Mathf.Tan((_shootConfigs[_currentFiringIndex].MaxSpreadAngle / 2f) * Mathf.Deg2Rad) * distanceToTarget;
         TopPos = _raycastOrigin.forward * distanceToTarget + _raycastOrigin.up * crosshairRadius;
 
@@ -517,31 +517,27 @@ public class Gun : MonoBehaviour
         Gizmos.DrawSphere(_raycastOrigin.position + TopPos, 0.25f);
         Gizmos.DrawSphere(_raycastOrigin.position + (_raycastOrigin.forward + -_raycastOrigin.up * bottomRadius), 0.1f);
 
+        Gizmos.DrawSphere(Camera.main.ViewportToScreenPoint(_raycastOrigin.forward + _raycastOrigin.up * crosshairRadius), 25f);*/
 
-        Gizmos.DrawSphere(Camera.main.ViewportToScreenPoint(_raycastOrigin.forward + _raycastOrigin.up * crosshairRadius), 25f);
         if (!_drawGizmos)
             return;
 
 
-        // (Gizmos) Display the spread radius.
+        // (Gizmos) Display the spread angle.
         if (_raycastOrigin != null)
         {
             Gizmos.color = Color.red;
 
-            float radius = Mathf.Tan((_shootConfigs[_currentFiringIndex].MaxSpreadAngle / 2f) * Mathf.Deg2Rad);
-            Vector2 verticalCircle = Vector3.up * radius;
-            Vector3 upDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, verticalCircle.y);
-            Vector3 downDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(verticalCircle.x, -verticalCircle.y);
+            float halfAngle = _shootConfigs[_currentFiringIndex].MaxSpreadAngle / 2f;
+            Vector3 upDirection = Quaternion.AngleAxis(halfAngle, _raycastOrigin.right) * _raycastOrigin.forward;
+            Vector3 downDirection = Quaternion.AngleAxis(-halfAngle, _raycastOrigin.right) * _raycastOrigin.forward;
+            Vector3 rightDirection = Quaternion.AngleAxis(halfAngle, _raycastOrigin.up) * _raycastOrigin.forward;
+            Vector3 leftDirection = Quaternion.AngleAxis(-halfAngle, _raycastOrigin.up) * _raycastOrigin.forward;
 
             Gizmos.DrawRay(_raycastOrigin.position, upDirection * 10f);
             Gizmos.DrawRay(_raycastOrigin.position, downDirection * 10f);
-
-            Vector2 horizontalCircle = Vector3.right * radius;
-            Vector3 rightDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(horizontalCircle.x, horizontalCircle.y);
-            Vector3 leftDirection = _raycastOrigin.forward + _raycastOrigin.rotation * new Vector3(-horizontalCircle.x, horizontalCircle.y);
-
-            Gizmos.DrawRay(_raycastOrigin.position, leftDirection * 10f);
             Gizmos.DrawRay(_raycastOrigin.position, rightDirection * 10f);
+            Gizmos.DrawRay(_raycastOrigin.position, leftDirection * 10f);
         }
     }
     #endregion

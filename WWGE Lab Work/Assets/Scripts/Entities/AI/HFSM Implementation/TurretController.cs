@@ -7,39 +7,59 @@ using WwGEProject.AI.Turret;
 
 public class TurretController : MonoBehaviour
 {
-    // Declare the FSM.
     private StateMachine<Action> _rootFSM;
 
-    // Parameters.
-    [field: SerializeField/*, ReadOnly*/] private Transform _target;
-    public Transform Target { get => _target; }
+    
+    [field: SerializeField, ReadOnly] public Transform Target { get; private set; }
 
     [ReadOnly] public string CurrentStatePath;
     [ReadOnly] public string CurrentState;
-    [SerializeField] private float _currentHealth;
-    [SerializeField] private bool _withinShootingRadius;
+
+    private Coroutine _detectionCoroutine;
+    private const float DETECTION_CHECK_DELAY = 0.15f;
+
+
+    [Header("Assorted")]
+    [SerializeField] private HealthComponent _healthComponent;
+    [SerializeField] private EnemySenses _senses;
+    private bool _withinShootingRadius;
+
+    [SerializeField] private float _targetLossAngleMultiplier = 1.2f;
 
     
-    [Header("Assorted")]
+    [Header("Movement & Rotation")]
     [SerializeField] private Transform _rotationTarget;
+
+
+    
     private Quaternion _currentTargetRotation;
-    [field: SerializeField, ReadOnly] private float _currentTargetRotationSpeed;
-    [field: SerializeField, ReadOnly] private float _currentRotationSpeed;
+    private float _currentTargetRotationSpeed;
+    private float _currentRotationSpeed;
 
 
     [Header("Idle State Parameters")]
     [SerializeField] private Quaternion[] _idleTargetRotations;
-    [SerializeField] private float _idleRotationSpeed;
-    [SerializeField] private float _idleRotationAcceleration;
-    [SerializeField] private float _idleRotationDeceleration;
     [SerializeField] private float _idleRotationPause;
+
+    [Space(5)]
+
+    [SerializeField] private float _idleRotationSpeed = 45f;
+    [SerializeField] private float _idleRotationAcceleration = 75f;
+    [SerializeField] private float _idleRotationDeceleration = 45f;
+
+
+    [Header("Aware State Parameters")]
+    [SerializeField] private float _detectionLostTime = 0.6f;
 
 
     [Header("Alert State Parameters")]
-    [SerializeField] private float _alertMaxSpeed;
+    [SerializeField] private float _alertInitialPause;
+
+    [Space(5)]
+
+    [SerializeField] private float _alertRotationSpeed;
     [SerializeField] private float _alertRotationAcceleration;
     [SerializeField] private float _alertRotationDeceleration;
-    [SerializeField] private float _alertInitialPause;
 
 
     [Header("Shooting State Parameters")]
@@ -64,10 +84,10 @@ public class TurretController : MonoBehaviour
         #region State Machine Setup
         _rootFSM = new StateMachine<Action>();
         var idleState = new TurretIdleState(this, _rotationTarget, _idleTargetRotations, _idleRotationSpeed, _idleRotationAcceleration, _idleRotationDeceleration, _idleRotationPause);
-        var awareFSM = new TurretAwareState<Action>();
+        var awareFSM = new TurretAwareState(this, _detectionLostTime);
         var deactivatedState = new TurretDeactivatedState(_repairableComponent);
 
-        var alertState = new TurretAlertState(this, _alertMaxSpeed, _alertRotationAcceleration, _alertRotationDeceleration, _alertInitialPause);
+        var alertState = new TurretAlertState(this, _alertRotationSpeed, _alertRotationAcceleration, _alertRotationDeceleration, _alertInitialPause);
         var shootingState = new TurretShootingState(this, _turretGun, _shootingMaxSpeed, _shootingRotationAcceleration, _shootingRotationDeceleration);
 
 
@@ -76,11 +96,27 @@ public class TurretController : MonoBehaviour
         _rootFSM.AddState(awareFSM);
         _rootFSM.AddState(deactivatedState);
 
-        _rootFSM.AddTransition(from: idleState, to: awareFSM, condition: transition => Target != null, onTransition: transition => PlayAlertEffects());
-        _rootFSM.AddTransition(from: awareFSM, to: idleState, condition: t => Target == null);
-        _rootFSM.AddTransitionFromAny(to: deactivatedState, condition: transition => _currentHealth <= 0);
+        #region Root FSM Transitions
+        _rootFSM.AddTransition(
+            from: idleState,
+            to: awareFSM,
+            condition: t => Target != null,
+            onTransition: transition => PlayAlertEffects());
+        _rootFSM.AddTransition(
+            from: awareFSM,
+            to: idleState,
+            condition: t => Target == null);
+        _rootFSM.AddTransitionFromAny(
+            to: deactivatedState,
+            condition: t => _healthComponent.HasHealth == false);
+        _rootFSM.AddTransition(
+            from: deactivatedState,
+            to: idleState,
+            condition: t => _healthComponent.HasFullHealth);
+        #endregion
 
-        
+
+
         // Setup Aware Sub-FSM.
         awareFSM.AddState(alertState);
         awareFSM.AddState(shootingState);
@@ -193,6 +229,13 @@ public class TurretController : MonoBehaviour
     #endregion
 
 
+    public void TryGetTarget()
+    {
+        if (Target == null)
+            Target = _senses.TryGetTarget(out _withinShootingRadius);
+        else
+            Target = _senses.TryGetTarget(out _withinShootingRadius, angleMultiplier: _targetLossAngleMultiplier);
+    }
 
     private void PlayAlertEffects()
     {
@@ -218,10 +261,10 @@ public class TurretController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(_rotationTarget.position, (_currentTargetRotation * Vector3.forward).normalized * 1.5f);
 
-        if (_target != null)
+        if (Target != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawRay(_rotationTarget.position, Quaternion.LookRotation((_target.position - _rotationTarget.position).normalized) * Vector3.forward * 1.5f);
+            Gizmos.DrawRay(_rotationTarget.position, Quaternion.LookRotation((Target.position - _rotationTarget.position).normalized) * Vector3.forward * 1.5f);
         }
     }
 }

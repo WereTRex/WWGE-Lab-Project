@@ -17,8 +17,9 @@ public class Repairable : MonoBehaviour, IInteractable
     /// <summary> Start interacting with this object</summary>
     public virtual void Interact(Transform interactorTransform)
     {
+        // If the interacting object is not an ally of this one, then return.
         if (interactorTransform.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
-            if (EntityFaction.IsOpposingFaction(entityFaction.Faction))
+            if (EntityFaction.IsAllyFaction(entityFaction.Faction) == false)
                 return;
 
         if (RepairCoroutine == null)

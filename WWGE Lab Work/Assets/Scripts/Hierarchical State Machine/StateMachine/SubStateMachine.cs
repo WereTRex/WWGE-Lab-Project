@@ -32,8 +32,8 @@ namespace UnityHFSM
         {
             if (transition.IsExitTransition)
             {
-                // If the parent FSM is null, or has a pending transition, or we shouldn't transition, then don't transition.
-                if (FSM == null || !FSM.HasPendingTransition || !transition.ShouldTransition())
+                // If the parent FSM is null, or has a pending transition, or we shouldn't/can't transition, then don't transition.
+                if (FSM == null || !FSM.HasPendingTransition || !transition.ShouldTransition() || !CanExit())
                     return false;
 
                 // Otherwise, request an exit transition.
@@ -61,6 +61,7 @@ namespace UnityHFSM
 
 
             ITransitionListener listener = CurrentPendingTransition.Listener;
+
             if (CurrentPendingTransition.IsExitTransition)
             {
                 // This is a vertical transition (Up the Hierarchy).
@@ -87,6 +88,10 @@ namespace UnityHFSM
         /// <param name="listener"> An optional object that recieves callbacks before and after the transition.</param>
         public void RequestExit(bool forceInstantly = false, ITransitionListener listener = null)
         {
+            // If we cannot currently exit, then stop the exit request.
+            if (!CanExit())
+                return;
+            
             // If we don't need to wait for the state to exit, then instantly transition.
             if (!ActiveState.NeedsExitTime || forceInstantly)
             {
@@ -119,6 +124,7 @@ namespace UnityHFSM
             if (ActiveState.NeedsExitTime)
                 ActiveState.OnExitRequest();
         }
+        public virtual bool CanExit() => true;
 
 
         public override string GetActiveHierarchyPath()
