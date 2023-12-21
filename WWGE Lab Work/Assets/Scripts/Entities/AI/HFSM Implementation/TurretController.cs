@@ -54,6 +54,7 @@ public class TurretController : MonoBehaviour
 
     [Header("Alert State Parameters")]
     [SerializeField] private float _alertInitialPause;
+    [SerializeField] private ParticleSystem _awareEnterPS;
 
     [Space(5)]
 
@@ -108,7 +109,9 @@ public class TurretController : MonoBehaviour
             condition: t => Target == null);
         _rootFSM.AddTransitionFromAny(
             to: deactivatedState,
-            condition: t => _healthComponent.HasHealth == false);
+            condition: t => _healthComponent.HasHealth == false,
+            onTransition: t => ResetRotationSpeeds(),
+            forceInstantly: true);
         _rootFSM.AddTransition(
             from: deactivatedState,
             to: idleState,
@@ -240,6 +243,7 @@ public class TurretController : MonoBehaviour
     private void PlayAlertEffects()
     {
         Debug.Log("Entered Alert State");
+        _awareEnterPS.Play();
     }
 
 

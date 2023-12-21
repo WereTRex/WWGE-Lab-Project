@@ -35,25 +35,6 @@ namespace UnityHFSM
                 // Add this transition to the Transitions list.
                 Transitions.Add(transition);
             }
-
-            //public void AddTriggerTransition(TEvent trigger, TransitionBase transition)
-            //{
-            //    // If the TriggerToTransitions dictionary does not exist, create it.
-            //    TriggerToTransitions = TriggerToTransitions ?? new Dictionary<TEvent, List<TransitionBase>>();
-
-            //    List<TransitionBase> transitionsOfTrigger;
-
-            //    // Get the value of the transitions of this trigger.
-            //    if (!TriggerToTransitions.TryGetValue(trigger, out transitionsOfTrigger))
-            //    {
-            //        // If there are none, create a new list and add the new values to the dictionary.
-            //        transitionsOfTrigger = new List<TransitionBase>();
-            //        TriggerToTransitions.Add(trigger, transitionsOfTrigger);
-            //    }
-
-            //    // Add this transition to the list of transitions from this trigger.
-            //    transitionsOfTrigger.Add(transition);
-            //}
         }
 
         protected struct PendingTransition
@@ -81,14 +62,13 @@ namespace UnityHFSM
                 TargetState = target,
                 IsExitTransition = false,
                 Listener = listener,
-                IsPending = false,
+                IsPending = true,
             };
         }
         #endregion
 
         // A cached empty list of transitions (For easier readability when assigning them).
         private static readonly List<TransitionBase> _noTransitions = new List<TransitionBase>(0);
-        //private static readonly Dictionary<TEvent, List<TransitionBase>> _noTriggerTransitions = new Dictionary<TEvent, List<TransitionBase>>(0);
 
 
         protected (IState state, bool hasState) StartState = (default, false);
@@ -100,10 +80,8 @@ namespace UnityHFSM
 
         private IState _activeState = null;
         private List<TransitionBase> _activeTransitions = _noTransitions;
-        //private Dictionary<TEvent, List<TransitionBase>> _activeTriggerTransitions = _noTriggerTransitions;
 
         private List<TransitionBase> _transitionsFromAny = new List<TransitionBase>();
-        //private Dictionary<TEvent, List<TransitionBase>> _triggerTransitionsFromAny = new Dictionary<TEvent, List<TransitionBase>>();
 
 
         // Getters/Setters.
@@ -133,10 +111,11 @@ namespace UnityHFSM
         /// <summary> Notifies the State Machine that the state can clearnly exit, allowing us to execute any pending transitions.</summary>
         public virtual void StateCanExit()
         {
+            UnityEngine.Debug.Log("Target State Pending: " + CurrentPendingTransition.IsPending);
+            
             // If there is no pending transition, return.
             if (!CurrentPendingTransition.IsPending)
                 return;
-
 
             ITransitionListener listener = CurrentPendingTransition.Listener;
             // This is a horizontal transition (Across the Hierarchy).
@@ -166,7 +145,6 @@ namespace UnityHFSM
 
             // Set the active transitions.
             _activeTransitions = bundle.Transitions ?? _noTransitions;
-            //_activeTriggerTransitions = bundle.TriggerToTransitions ?? _noTriggerTransitions;
 
             // Set our active state and inform it that it is now active.
             _activeState = bundle.State;
@@ -177,15 +155,6 @@ namespace UnityHFSM
             {
                 _activeTransitions[i].OnEnter();
             }
-
-            // Inform all active trigger transitions that we have entered this state.
-            /*foreach (List<TransitionBase> transitions in _activeTriggerTransitions.Values)
-            {
-                for (int i = 0; i < transitions.Count; i++)
-                {
-                    transitions[i].OnEnter();
-                }
-            }*/
 
             
             // Alert the listener (If it exists) that the transition has completed.
@@ -296,14 +265,6 @@ namespace UnityHFSM
             {
                 _transitionsFromAny[i].OnEnter();
             }
-
-            /*foreach (List<TransitionBase> transitions in _triggerTransitionsFromAny.Values)
-            {
-                for (int i = 0; i < transitions.Count; i++)
-                {
-                    transitions[i].OnEnter();
-                }
-            }*/
         }
 
         /// <summary> Runs one Logic Step. It does at most one transition itself and calls teh active state's logic function (After a state transition, if one occured).</summary>
@@ -312,7 +273,7 @@ namespace UnityHFSM
             // Throws an exception if the FSM is not yet initialised.
             EnsureIsInitialisedFor("Running OnTick");
 
-            // Attempt to transition.
+            // Attempt to transition (If we got a successful transition, skip to running OnLogic. Otherwise, we'll arrive there after trying all transitions).
             if (TryAllGlobalTransitions())
                 goto runOnLogic;
 
@@ -417,8 +378,7 @@ namespace UnityHFSM
         ///     Otherwise, it performs a transition in the opposite direction ("To" to "From").</summary>
         /// <remarks> Internally the same transition instance will be used for both transitions by wrapping it in a 'ReverseTransition'.
 		///     For the reverse transition the afterTransition callback is called before the transition and the onTransition callback afterwards. 
-        ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions.
-		/// </remarks>
+        ///     If this is not desired then replicate the behaviour of the two way transitions by creating two separate transitions. </remarks>
         public void AddTwoWayTransition(TransitionBase transition)
         {
             // Initialise and add the forward transition.
@@ -453,70 +413,6 @@ namespace UnityHFSM
         }
 #endregion
 
-
-
-        /// <summary> Activates the specified trigger, checking all targeted trigger transitions to see whether a transition should occur.</summary>
-        /// <param name="trigger"> The name/identifier of the trigger.</param>
-        /// <returns> True when a transition occured, otherwise false.</returns>
-        /*private bool TryTrigger(TEvent trigger)
-        {
-            // Ensure that the StateMachine is initialised.
-            EnsureIsInitialisedFor("Checking for all trigger transitions of the active state");
-
-            List<TransitionBase> triggerTransitions;
-
-            // Attempt global trigger transitions.
-            if (_triggerTransitionsFromAny.TryGetValue(trigger, out triggerTransitions))
-            {
-                for (int i = 0; i < triggerTransitions.Count; i++)
-                {
-                    TransitionBase transition = triggerTransitions[i];
-
-                    // Ensure that we don't transition to the state we are currently in.
-                    if (transition.To == _activeState)
-                        continue;
-
-                    // Attempt the transition.
-                    if (TryTransition(transition))
-                        return true;
-                }
-            }
-
-            // Attempt local trigger transitions.
-            if (_activeTriggerTransitions.TryGetValue(trigger, out triggerTransitions))
-            {
-                for (int i = 0; i < triggerTransitions.Count; i++)
-                {
-                    TransitionBase transition = triggerTransitions[i];
-
-                    // Attempt the transition.
-                    if (TryTransition(transition))
-                        return true;
-                }
-            }
-
-            // We didn't successfully transition.
-            return false;
-        }
-
-        /// <summary> Activates the specified trigger in all active states of the hierarchy, checking all trigger transitions to see whether a transition should occur.</summary>
-        /// <param name="trigger"> The name/identifier of the trigger.</param>
-        public void Trigger(TEvent trigger)
-        {
-            // If a transition occurs, then the trigger should not be activated in the new/active state that the State Machine just switched to.
-            if (TryTrigger(trigger))
-                return;
-
-            // Activate the trigger on the current state (If the state is triggerable).
-            (_activeState as ITriggerable<TEvent>)?.Trigger(trigger);
-        }
-
-        /// <summary> Only activates the specified trigger locally in this State Machine.</summary>
-        /// <param name="trigger"> The name/identifier of the trigger.</param>
-        public void TriggerLocally(TEvent trigger)
-        {
-            TryTrigger(trigger);
-        }*/
 
 
         /// <summary> Runs an action on the currently active state.</summary>
@@ -589,31 +485,6 @@ namespace UnityHFSM
 
 
     #region Overloaded Classes
-    // Overloaded classes to allow for an easier useage of the StateMachine for common cases.
-    // (E.g. "new StateMachine()" instead of "new StateMachine<string, string, string>()").
-    
-    
-    ///// <inheritdoc/>
-    //public class StateMachine<TStateID, TEvent> : StateMachine<TStateID, TStateID, TEvent>
-    //{
-    //    /// <inheritdoc/>
-    //    public StateMachine(bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
-    //    {
-
-    //    }
-    //}
-
-    ///// <inheritdoc/>
-    //public class StateMachine<TStateID> : StateMachine<TStateID, TStateID, string>
-    //{
-    //    /// <inheritdoc/>
-    //    public StateMachine(bool needsExitTime = false, bool isGhostState = false) : base(needsExitTime: needsExitTime, isGhostState: isGhostState)
-    //    {
-
-    //    }
-    //}
-
-    /// <inheritdoc/>
     public class StateMachine : StateMachine<string>
     {
 

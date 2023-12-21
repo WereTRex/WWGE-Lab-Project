@@ -121,8 +121,16 @@ namespace UnityHFSM
         
         public virtual void OnExitRequest()
         {
+            UnityEngine.Debug.Log("Exit Request");
+            if (CanExit() == false)
+                return;
+
+            UnityEngine.Debug.Log("Can Exit Passed");
+            
             if (ActiveState.NeedsExitTime)
                 ActiveState.OnExitRequest();
+            else
+                FSM.StateCanExit();
         }
         public virtual bool CanExit() => true;
 

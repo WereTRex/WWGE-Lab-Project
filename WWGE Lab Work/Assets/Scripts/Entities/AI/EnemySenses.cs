@@ -50,8 +50,13 @@ public class EnemySenses : MonoBehaviour
                 continue;
 
             // If this collider is a part of the same faction, discount it (Don't target allies).
-            if (potentialTarget.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
+            if (TryGetComponent<EntityFaction>(potentialTarget, out EntityFaction entityFaction))
                 if (_factionScript.IsAllyFaction(entityFaction.Faction))
+                    continue;
+
+            // If this collider is out of health, discount it (Don't target dead things).
+            if (TryGetComponent<HealthComponent>(potentialTarget, out HealthComponent healthComponent))
+                if (healthComponent.HasHealth == false)
                     continue;
 
 
@@ -86,6 +91,19 @@ public class EnemySenses : MonoBehaviour
 
         // Return a value weighted towards a closer distance than angle.
         return (percentageDistance * 3f) + percentageAngle;
+    }
+    private bool TryGetComponent<T>(Component component, out T script)
+    {
+        Transform currentTransform = component.transform;
+        do
+        {
+            if (currentTransform.TryGetComponent<T>(out script))
+                return true;
+
+            currentTransform = currentTransform.root;
+        } while (currentTransform != null);
+
+        return false;
     }
 
 

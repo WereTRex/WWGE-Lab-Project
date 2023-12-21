@@ -15,6 +15,8 @@ namespace WwGEProject.AI.Turret
         private readonly float _rotationAcceleration;
         private readonly float _rotationDeceleration;
 
+        private Vector3 _targetPosition;
+
 
         public TurretShootingState(TurretController brain, Gun gun, float maxSpeed, float acceleration, float deceleration)
         {
@@ -36,12 +38,12 @@ namespace WwGEProject.AI.Turret
         {
             base.OnLogic();
 
-            // Rotate towards the current target.
-            if (_brain.Target == null)
-                return;
+            // If the brain still has a target, update the target position.
+            if (_brain.Target != null)
+                _targetPosition = _brain.Target.position;
 
             // Rotate to face the target.
-            _brain.RotateToTarget(_brain.Target.position, _maxRotationSpeed, _rotationAcceleration, _rotationDeceleration);
+            _brain.RotateToTarget(_targetPosition, _maxRotationSpeed, _rotationAcceleration, _rotationDeceleration);
         }
         public override void OnExit()
         {

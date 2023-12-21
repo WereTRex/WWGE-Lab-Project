@@ -17,6 +17,8 @@ namespace WwGEProject.AI.Turret
         private readonly float _initialPause;
         private float _pauseTime;
 
+        private Vector3 _targetPosition;
+
 
         public TurretAlertState(TurretController brain, float maxSpeed, float acceleration, float deceleration, float initialPause)
         {
@@ -39,14 +41,16 @@ namespace WwGEProject.AI.Turret
         {
             base.OnLogic();
 
-
-            // Rotate towards the current target.
-            if (_pauseTime > Time.time || _brain.Target == null)
+            // Don't rotate if we are in the pause.
+            if (_pauseTime > Time.time)
                 return;
 
+            // If the brain still has a target, update the target position.
+            if (_brain.Target != null)
+                _targetPosition = _brain.Target.position;
 
             // Rotate to face the target.
-            _brain.RotateToTarget(_brain.Target.position, _maxRotationSpeed, _rotationAcceleration, _rotationDeceleration);
+            _brain.RotateToTarget(_targetPosition, _maxRotationSpeed, _rotationAcceleration, _rotationDeceleration);
         }
     }
 }

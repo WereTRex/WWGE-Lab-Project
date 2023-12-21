@@ -15,14 +15,14 @@ namespace WwGEProject.AI.Turret
 
         private readonly float _detectionLostTime;
         private float _lastDetectionTime;
+        private bool _lostTarget; // Used so that we don't miss a target and transition between detection checks.
 
         private const float DETECTION_CHECK_DELAY = 0.2f;
 
 
-        public TurretAwareState(TurretController brain, float detectionLostTime)
+        public TurretAwareState(TurretController brain, float detectionLostTime) : base(needsExitTime: true)
         {
             this._brain = brain;
-
             this._detectionLostTime = detectionLostTime;
         }
 
@@ -36,6 +36,7 @@ namespace WwGEProject.AI.Turret
 
             _detectionCoroutine = _brain.StartCoroutine(TryDetection());
             _lastDetectionTime = Time.time;
+            _lostTarget = false;
         }
         public override void OnExit()
         {
@@ -51,8 +52,11 @@ namespace WwGEProject.AI.Turret
             {
                 _brain.TryGetTarget();
 
-                if (_brain.Target != null)
+                if (_brain.Target == null && !_lostTarget)
+                {
                     _lastDetectionTime = Time.time;
+                    _lostTarget = true;
+                }
 
                 yield return new WaitForSeconds(DETECTION_CHECK_DELAY);
             }
@@ -63,11 +67,13 @@ namespace WwGEProject.AI.Turret
         public override bool CanExit()
         {
             // Check whether enough time has passed from the last detection time for us to transition.
-            if (_lastDetectionTime + (Mathf.Max(_detectionLostTime, DETECTION_CHECK_DELAY + 0.1f)) <= Time.time)
+            if (_lostTarget && (_lastDetectionTime + _detectionLostTime <= Time.time))
             {
+                UnityEngine.Debug.Log("Can Exit");
                 return true;
             }
 
+            UnityEngine.Debug.Log("Cannot Exit");
             return false;
         }
     }
