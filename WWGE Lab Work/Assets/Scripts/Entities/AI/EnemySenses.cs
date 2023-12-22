@@ -39,7 +39,6 @@ public class EnemySenses : MonoBehaviour
         {
             // Get the angle from the origin of the senses to this potential target.
             float currentTargetAngle = Vector3.Angle(transform.forward, (potentialTarget.transform.position - transform.position).normalized);
-            Debug.Log(currentTargetAngle);
 
             // If the target is outwith our vision angle, discount it.
             if (currentTargetAngle > (viewAngle / 2f))
@@ -50,12 +49,12 @@ public class EnemySenses : MonoBehaviour
                 continue;
 
             // If this collider is a part of the same faction, discount it (Don't target allies).
-            if (TryGetComponent<EntityFaction>(potentialTarget, out EntityFaction entityFaction))
+            if (potentialTarget.TryGetComponentThroughParents<EntityFaction>(out EntityFaction entityFaction))
                 if (_factionScript.IsAllyFaction(entityFaction.Faction))
                     continue;
 
             // If this collider is out of health, discount it (Don't target dead things).
-            if (TryGetComponent<HealthComponent>(potentialTarget, out HealthComponent healthComponent))
+            if (potentialTarget.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
                 if (healthComponent.HasHealth == false)
                     continue;
 

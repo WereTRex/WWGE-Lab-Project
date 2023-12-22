@@ -377,12 +377,12 @@ public class Gun : MonoBehaviour
 
 
         // (Logic) Apply Damage.
-        if (hitCollider.transform.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+        if (hitCollider.transform.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
             healthComponent.TakeDamage(_damageConfig.GetDamage(distanceTravelled));
 
 
         // (Logic) Apply Force.
-        if (hitCollider.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        if (hitCollider.TryGetComponentThroughParents<Rigidbody>(out Rigidbody rigidbody))
         {
             Vector3 direction = (hitCollider.transform.position - transform.position).normalized;
             rigidbody.AddForceAtPosition(direction * _damageConfig.HitForce, hitLocation);

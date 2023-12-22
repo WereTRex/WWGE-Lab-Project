@@ -1,57 +1,63 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary> A Singleton Manager script that handles waves and the spawning of enemies.</summary>
 public class WaveManager : MonoBehaviour
 {
+    // Singleton.
     public static WaveManager Instance;
-
     private void Awake()
     {
-        // Set the Singleton instance.
         if (Instance == null)
             Instance = this;
     }
 
 
-    [SerializeField] private Transform _player;
+    [Header("Spawn Points")]
+    [SerializeField] private SpawnPoint[] _spawnPoints;
 
-    [SerializeField] private SpawnPosition[] _spawnPoints;
-    [SerializeField] private Wave[] _waves;
-    [ReadOnly] private int _currentWave = 0;
+
+    [Header("Waves")]
+    [SerializeField] private SpawnWave[] _waves;
+    [SerializeField] private float _timeBetweenWaves = 10f;
+    [ReadOnly, SerializeField] private int _currentWave;
 
 
     [Header("UI")]
-
     [SerializeField] private WaveCounterUI _waveUI;
 
 
-    // (Temp)
+    [Header("Debug")]
+    [SerializeField] private bool _drawGizmos;
+
+
     private void Start()
     {
-        // Start the waves.
-        _currentWave = 0;
-        StartCoroutine(WaveCountdown(_currentWave));
+        // Start the first wave.
+        _currentWave = 1;
+        StartCoroutine(WaveCountdown());
     }
 
-    private IEnumerator WaveCountdown(int wave)
+    private IEnumerator WaveCountdown()
     {
-        // Update the current wave text.
-        _waveUI.SetWaveText(_currentWave + 1, _waves.Length);
-        
-        // Wait until between wave time has elapsed.
-        float waveTimeRemaining = _waves[wave].WaveTimer;
-        while (waveTimeRemaining > 0)
+        int waveIndex = _currentWave - 1;
+
+        // Notify the UI that the wave countdown has started.
+        _waveUI.SetWaveText(_currentWave, _waves.Length);
+
+        // Wait until the wave delay has elapsed.
+        for (float timeRemaining = _timeBetweenWaves; timeRemaining > 0; timeRemaining -= Time.deltaTime)
         {
-            // Update the between wave timer.
-            _waveUI.SetTimer(waveTimeRemaining);
-            
-            waveTimeRemaining -= Time.deltaTime;
+            // Update the UI.
+            _waveUI.SetTimer(timeRemaining);
+
+            // Wait for the next frame.
             yield return null;
         }
 
-        // Hide the between wave timer.
+        // Notify the wave UI to hide itself.
         _waveUI.HideTimer();
 
         // Start the wave.
@@ -61,136 +67,132 @@ public class WaveManager : MonoBehaviour
 
     private IEnumerator HandleWave()
     {
-        // Get the current wave.
-        Wave wave = _waves[_currentWave];
-        
-        List<GameObject> currentEnemies = new List<GameObject>();
+        // Cache the current wave.
+        SpawnWave wave = _waves[_currentWave - 1];
+
         int spawns = 0;
+        List<GameObject> aliveEnemies = new List<GameObject>();
 
         // Loop until all enemies have been spawned.
-        do
+        while(spawns < wave.TotalSpawns)
         {
             // Loop for each enemy we should spawn.
-            for (int i = 0; i < wave.SpawnCount; i++)
+            for (int i = 0; i < wave.SpawnsPerTrigger; i++)
             {
-                if (spawns >= wave.TotalSpawns)
+                // If we have spawned enough enemies, then break out of the loop.
+                if (spawns > wave.TotalSpawns)
                     break;
-                
+
                 // Get a random enemy from the current wave's available enemies.
-                int enemyIndex = Random.Range(0, wave.WaveContents.Length);
+                int enemyIndex = Random.Range(0, wave.WaveContents.Where(content => content.ValidSpawn).Count());
 
-                // Spawn the chosen enemy & add it to the currentEnemies list.
-                currentEnemies.Add(SpawnEnemy(prefab: wave.WaveContents[enemyIndex].EnemyPrefab));
+                // Spawn the chosen enemy & add it to the aliveEnemies list.
+                aliveEnemies.Add(SpawnEnemy(wave.WaveContents[i].EnemyPrefab));
+                wave.WaveContents[enemyIndex].EnemySpawned();
 
-                // Decrement the spawns remaining for that spawn & increment the total spawns made.
-                wave.WaveContents[enemyIndex].Count--;
+                // Increment the total spawns made.
                 spawns++;
             }
 
-            
-            // Wait until time elapsed OR enemies are all dead.
+            // Wait until the time between spawns has elapsed OR all enemies are dead.
             float pauseTimeRemaining = wave.TimeBetweenSpawns;
             yield return new WaitUntil(() =>
             {
                 pauseTimeRemaining -= Time.deltaTime;
-                currentEnemies.RemoveAll(enemy => enemy == null);
-                Debug.Log(string.Format("Time Remaining: {0}. Enemies Remaining: {1}", pauseTimeRemaining, currentEnemies.Count));
-                return currentEnemies.Count <= 0 || pauseTimeRemaining <= 0;
+                aliveEnemies.RemoveAll(enemy => enemy == null);
+                
+                return aliveEnemies.Count < 0 || pauseTimeRemaining <= 0;
             });
         }
-        while (spawns < wave.TotalSpawns);
+
 
         // Wait until all enemies are dead before ending the wave.
         yield return new WaitUntil(() =>
         {
-            currentEnemies.RemoveAll(enemy => enemy == null);
-            return currentEnemies.Count <= 0;
+            aliveEnemies.RemoveAll(enemy => enemy == null);
+            return aliveEnemies.Count <= 0;
         });
 
-
         // The wave has ended.
-        Debug.Log("Wave " + _currentWave + " has ended");
-
-        // Start the next wave.
+        // Start the countdown for the next wave.
         _currentWave++;
         if (_currentWave < _waves.Length)
-        {
-            StartCoroutine(WaveCountdown(_currentWave));
-        }
+            StartCoroutine(WaveCountdown());
+        else
+            Debug.Log("Defeated All Waves");
     }
 
-    // Instantiate an enemy at a random spawn position & set their first target.
+    /// <summary> Instantiate and Setup an enemy from a prefab.</summary>
     private GameObject SpawnEnemy(GameObject prefab)
     {
         // Select a spawn position.
-        SpawnPosition selectedSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
-        
+        SpawnPoint selectedSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+
         // Instantiate the enemy.
-        Enemy enemy = Instantiate(prefab, selectedSpawn.SpawnPos, Quaternion.identity).GetComponent<Enemy>();
+        GameObject enemyGO = Instantiate(prefab, selectedSpawn.SpawnPosition, Quaternion.identity);
 
-        // Set the Target & InitialTarget of the instantiated enemy.
-        enemy.SetTarget(_player);
-        enemy.SetInitialTarget(selectedSpawn.InitialTarget);
+        // Set the InitialTarget of the instantiated enemy.
+        enemyGO.GetComponent<Enemy>().SetInitialTarget(selectedSpawn.CorrespondingBarrier.transform);
 
-        return enemy.gameObject;
+        // Return the setup enemy.
+        return enemyGO;
     }
 
 
-    private void OnDrawGizmosSelected()
+
+    #region Structs
+    [System.Serializable]
+    private struct SpawnPoint
     {
-        // Draw Gizmos where the Spawn Position of each Spawn Point is.
-        Gizmos.color = Color.green;
-        for (int i = 0; i < _spawnPoints.Length; i++)
+        public string name;
+
+        public Vector3 SpawnPosition;
+        public RepairableBarrier CorrespondingBarrier;
+    }
+
+    [System.Serializable]
+    private struct SpawnWave
+    {
+        public string name;
+
+        // Wave Contents.
+        [System.Serializable]
+        public struct WaveContent
         {
-            Gizmos.DrawWireSphere(_spawnPoints[i].SpawnPos, 1.5f);
+            public GameObject EnemyPrefab;
+            [Min(1)] public int Count;
+            private int _spawns;
+
+            public bool ValidSpawn => _spawns < Count;
+            public void EnemySpawned() => _spawns++;
         }
-    }
-
-
-    /// <summary> A struct representing a Spawn Position available to spawned enemies.</summary>
-    [System.Serializable]
-    struct SpawnPosition
-    {
-        public Vector3 SpawnPos;
-        public Transform InitialTarget;
-    }
-    /// <summary> A struct representing a Wave of Enemies.</summary>
-    [System.Serializable]
-    struct Wave
-    {
-        public float WaveTimer;
-
-        [Space(5)]
 
         public WaveContent[] WaveContents;
+        private int _cachedTotalSpawns;
         public int TotalSpawns
         {
             get
             {
-                // If we haven't yet cached the total spawns, then cache it.
+                // If we have not yet cached the total spawns, calculate and cache it.
                 if (_cachedTotalSpawns == 0)
-                {
-                    _cachedTotalSpawns = 0;
                     for (int i = 0; i < WaveContents.Length; i++)
                         _cachedTotalSpawns += WaveContents[i].Count;
-                }
-
+                
+                // Return the cached value.
                 return _cachedTotalSpawns;
             }
         }
-        private int _cachedTotalSpawns;
 
-        public int SpawnCount;
+
+        // Timing Parameters.
         public float TimeBetweenSpawns;
+        public int SpawnsPerTrigger;
+    }
+    #endregion
 
 
-        /// <summary> A struct containing the information on how many of a certain type of enemy should be spawned in a wave.</summary>
-        [System.Serializable]
-        public struct WaveContent
-        {
-            public string name;
-            public GameObject EnemyPrefab;
-            [Min(1)] public int Count;
-        }
+    private void OnDrawGizmosSelected()
+    {
+        
     }
 }

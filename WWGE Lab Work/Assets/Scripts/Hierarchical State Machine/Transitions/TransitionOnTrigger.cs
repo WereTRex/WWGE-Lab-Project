@@ -18,13 +18,13 @@ namespace UnityHFSM
         public TriggerTransition(
             IState from,
             IState to,
-            Action trigger,
+            ref Action trigger,
             Func<TriggerTransition, bool> condition = null,
             Action<TriggerTransition> onTransition = null,
             Action<TriggerTransition> afterTransition = null,
             bool forceInstantly = false) : base(from, to, forceInstantly)
         {
-            trigger += TriggerActivated;
+            trigger += () => _shouldTransition = true;
             this._shouldTransition = false;
             
             this._condition = condition;
@@ -33,7 +33,7 @@ namespace UnityHFSM
         }
 
 
-        private void TriggerActivated() => _shouldTransition = true;
+        public override void OnEnter() => _shouldTransition = false;
 
 
         public override bool ShouldTransition()

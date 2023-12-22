@@ -262,6 +262,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   _explosionRadius: 3.5
   _explosionForce: 500
+  _staggerChance: 25
   _fuseTime: 2
   _maxCollisions: 0
   _explosionPrefab: {fileID: 8779840912387216700, guid: db57bcac240559e45b78399fb1d7c6d6, type: 3}

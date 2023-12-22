@@ -19,9 +19,18 @@ public class HurtboxAttack : EnemyAttack
 
     [Space(5)]
 
+    [SerializeField] private bool _useWindupValues = false;
+    // Position and Rotation of the Hurtbox when winding up
+    [SerializeField] private Vector3 _windupPos;
+    [SerializeField] private Vector3 _windupRot;
+
+    [Space(5)]
+
     // Ending position and rotation of the hurtbox.
     [SerializeField] private Vector3 _endPos;
     [SerializeField] private Vector3 _endRot;
+
+    [SerializeField] private bool _resetPositionOnRecovery = true;
 
 
     public override IEnumerator MakeAttack()
@@ -31,17 +40,44 @@ public class HurtboxAttack : EnemyAttack
         // Setup the Attack.
         SetupAttack();
 
-        // Commit the Attack.
-        float durationElapsed = 0;
-        while (durationElapsed <= AttackDuration)
+        // Windup the attack.
+        if (_startPos == _windupPos && _startRot == _windupRot)
+            yield return new WaitForSeconds(WindupDuration);
+        else
         {
-            _hurtbox.transform.localPosition = Vector3.Lerp(_startPos, _endPos, durationElapsed / AttackDuration);
-            _hurtbox.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(_startRot), Quaternion.Euler(_endRot), durationElapsed / AttackDuration);
+            for (float timeElapsed = 0; timeElapsed < WindupDuration; timeElapsed += Time.deltaTime)
+            {
+                _hurtbox.transform.localPosition = Vector3.Lerp(_startPos, _windupPos, timeElapsed / WindupDuration);
+                _hurtbox.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(_startRot), Quaternion.Euler(_windupRot), timeElapsed / WindupDuration);
+
+                yield return null;
+            }
+        }
+
+
+        // Commit the Attack.
+        for (float timeElapsed = 0; timeElapsed < AttackDuration; timeElapsed += Time.deltaTime)
+        {
+            _hurtbox.transform.localPosition = Vector3.Lerp(_useWindupValues ? _windupPos : _startPos, _endPos, timeElapsed / AttackDuration);
+            _hurtbox.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(_useWindupValues ? _windupRot : _startRot), Quaternion.Euler(_endRot), timeElapsed / AttackDuration);
 
             yield return null;
-            durationElapsed += Time.deltaTime;
         }
-        yield return new WaitForSeconds(AttackRecovery);
+
+        // Recovery.
+        if (!_resetPositionOnRecovery)
+            yield return new WaitForSeconds(RecoveryDuration);
+        else
+        {
+            for (float timeElapsed = 0; timeElapsed < RecoveryDuration; timeElapsed += Time.deltaTime)
+            {
+                _hurtbox.transform.localPosition = Vector3.Lerp(_endPos, _startPos, timeElapsed / RecoveryDuration);
+                _hurtbox.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(_endRot), Quaternion.Euler(_startRot), timeElapsed / RecoveryDuration);
+
+                yield return null;
+            }
+        }
+
 
         // The Attack has concluded.
         AttackComplete();
@@ -83,7 +119,7 @@ public class HurtboxAttack : EnemyAttack
 
 
         // Deal Damage (& Eventually Force).
-        if (hit.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+        if (hit.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
         {
             healthComponent.TakeDamage(AttackDamage);
         }

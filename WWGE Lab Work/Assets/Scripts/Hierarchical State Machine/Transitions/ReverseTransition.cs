@@ -30,6 +30,7 @@ namespace UnityHFSM
         }
 
         public override void OnEnter() => _wrappedTransition.OnEnter();
+        public override void OnExit() => _wrappedTransition.OnExit();
         public override bool ShouldTransition() => !_wrappedTransition.ShouldTransition();
         public override void BeforeTransition() => _wrappedTransition.AfterTransition();
         public override void AfterTransition() => _wrappedTransition.BeforeTransition();

@@ -9,7 +9,7 @@ public class Repairable : MonoBehaviour, IInteractable
     [SerializeField] protected EntityFaction EntityFaction;
     protected Transform InteractingTransform;
 
-    [Space(5)]
+    [Header("Repair Parameters")]
     [SerializeField] protected float RepairTime;
     protected Coroutine RepairCoroutine;
 

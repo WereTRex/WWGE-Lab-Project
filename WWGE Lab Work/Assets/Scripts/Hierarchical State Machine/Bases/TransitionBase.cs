@@ -34,6 +34,12 @@ namespace UnityHFSM
         {
 
         }
+        /// <summary> Called when the State Machine exits the "From" state.</summary>
+        public virtual void OnExit()
+        {
+
+        }
+
 
         /// <summary> Called to determine whether the state machine should transition to the "To" state..</summary>
         /// <returns> True if the state machine should transition.</returns>

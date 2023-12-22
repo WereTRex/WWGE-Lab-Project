@@ -134,6 +134,13 @@ namespace UnityHFSM
             listener?.BeforeTransition();
             _activeState?.OnExit();
 
+            // Inform all active transitions that we have exited this state.
+            for (int i = 0; i < _activeTransitions.Count; i++)
+            {
+                _activeTransitions[i].OnExit();
+            }
+
+
             StateBundle bundle;
 
             // If we are trying to transition to a state that does not exist, throw an exception.
@@ -485,7 +492,7 @@ namespace UnityHFSM
 
 
     #region Overloaded Classes
-    public class StateMachine : StateMachine<string>
+    public class StateMachine : StateMachine<System.Action>
     {
 
     }

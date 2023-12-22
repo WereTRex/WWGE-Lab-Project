@@ -9,7 +9,8 @@ namespace UnityHFSM
         {
            private Action<TransitionBase>
                 _beforeOnEnter, _afterOnEnter,
-                _beforeShouldTransition, _afterShouldTransition;
+                _beforeShouldTransition, _afterShouldTransition,
+                _beforeOnExit, _afterOnExit;
 
             private TransitionBase _transition;
 
@@ -19,16 +20,21 @@ namespace UnityHFSM
                 Action<TransitionBase> beforeOnEnter,
                 Action<TransitionBase> afterOnEnter,
                 Action<TransitionBase> beforeShouldTransition,
-                Action<TransitionBase> afterShouldTransition
+                Action<TransitionBase> afterShouldTransition,
+                Action<TransitionBase> beforeOnExit,
+                Action<TransitionBase> afterOnExit
                 ) : base(transition.From, transition.To, forceInstantly: transition.ForceInstantly)
             {
                 this._transition = transition;
 
                 this._beforeOnEnter = beforeOnEnter;
                 this._afterOnEnter = afterOnEnter;
-
+                
                 this._beforeShouldTransition = beforeShouldTransition;
                 this._afterShouldTransition = afterShouldTransition;
+
+                this._beforeOnExit = beforeOnExit;
+                this._afterOnExit = afterOnExit;
             }
 
 
@@ -39,6 +45,12 @@ namespace UnityHFSM
                 _beforeOnEnter?.Invoke(this);
                 _transition.OnEnter();
                 _afterOnEnter?.Invoke(this);
+            }
+            public override void OnExit()
+            {
+                _beforeOnExit?.Invoke(this);
+                _transition.OnExit();
+                _afterOnExit?.Invoke(this);
             }
 
             public override bool ShouldTransition()
@@ -56,23 +68,29 @@ namespace UnityHFSM
 
         private Action<TransitionBase>
             _beforeOnEnter, _afterOnEnter,
-            _beforeShouldTransition, _afterShouldTransition;
+            _beforeShouldTransition, _afterShouldTransition,
+            _beforeOnExit, _afterOnExit;
 
 
         public TransitionWrapper(
             Action<TransitionBase> beforeOnEnter = null,
             Action<TransitionBase> afterOnEnter = null,
             Action<TransitionBase> beforeShouldTransition = null,
-            Action<TransitionBase> afterShouldTransition = null)
+            Action<TransitionBase> afterShouldTransition = null,
+            Action<TransitionBase> beforeOnExit = null,
+            Action<TransitionBase> afterOnExit = null)
         {
             this._beforeOnEnter = beforeOnEnter;
             this._afterOnEnter = afterOnEnter;
 
             this._beforeShouldTransition = beforeShouldTransition;
             this._afterShouldTransition = afterShouldTransition;
+
+            this._beforeOnExit = beforeOnExit;
+            this._afterOnExit = afterOnExit;
         }
 
 
-        public WrappedTransition Wrap(TransitionBase transition) => new WrappedTransition(transition, _beforeOnEnter, _afterOnEnter, _beforeShouldTransition, _afterShouldTransition);
+        public WrappedTransition Wrap(TransitionBase transition) => new WrappedTransition(transition, _beforeOnEnter, _afterOnEnter, _beforeShouldTransition, _afterShouldTransition, _beforeOnExit, _afterOnExit);
     }
 }

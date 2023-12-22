@@ -112,10 +112,10 @@ namespace UnityHFSM
         /// 	bool
         /// )"/>
         public static void AddTriggerTransition(
-            this StateMachine fsm,
+            this StateMachine<Action> fsm,
             IState from,
             IState to,
-            Action trigger,
+            ref Action trigger,
             Func<TriggerTransition, bool> condition = null,
             Action<TriggerTransition> onTransition = null,
             Action<TriggerTransition> afterTransition = null,
@@ -124,7 +124,7 @@ namespace UnityHFSM
             fsm.AddTransition(new TriggerTransition(
                 from,
                 to,
-                trigger,
+                ref trigger,
                 condition,
                 onTransition: onTransition,
                 afterTransition: afterTransition,

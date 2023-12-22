@@ -44,7 +44,7 @@ public class EnemyChasing : IState
         while (true)
         {
             // Set the agent's destination to the position of the current target.
-            _agent.SetDestination(_brain.GetTarget().position);
+            //_agent.SetDestination(_brain.GetTarget().position);
 
             yield return new WaitForSeconds(AI_UPDATE_DELAY);
         }

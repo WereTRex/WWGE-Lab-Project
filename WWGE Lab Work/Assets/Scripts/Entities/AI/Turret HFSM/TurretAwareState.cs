@@ -69,11 +69,9 @@ namespace WwGEProject.AI.Turret
             // Check whether enough time has passed from the last detection time for us to transition.
             if (_lostTarget && (_lastDetectionTime + _detectionLostTime <= Time.time))
             {
-                UnityEngine.Debug.Log("Can Exit");
                 return true;
             }
 
-            UnityEngine.Debug.Log("Cannot Exit");
             return false;
         }
     }

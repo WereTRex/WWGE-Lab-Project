@@ -12,6 +12,8 @@ public class Grenade : MonoBehaviour
     [SerializeField] private float _explosionRadius = 3f;
     [SerializeField] private float _explosionForce = 500f;
 
+    [Range(0, 100)] [SerializeField] private float _staggerChance = 25f;
+
     [Space(5)]
 
     [Tooltip("How long until this grenade detonates on its own. (<0 For Infinite)"), Min(-1)]
@@ -66,8 +68,13 @@ public class Grenade : MonoBehaviour
             if (hitObject.TryGetComponent<Rigidbody>(out Rigidbody rb))
                 rb.AddExplosionForce(_explosionForce, transform.position, _explosionRadius, 0.1f);
 
+            // Apply a stagger.
+            if (Random.Range(0, 100f) < _staggerChance)
+                if (hitObject.TryGetComponent<IStaggerable>(out IStaggerable staggerScript))
+                    staggerScript.Stagger();
+
             // Deal damage scaled by distance.
-            if (hitObject.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+            if (hitObject.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
             {
                 float distance = Vector3.Distance(transform.position, hitObject.ClosestPoint(transform.position));
                 healthComponent.TakeDamage(_damageCurve.Evaluate(distance / _explosionRadius));

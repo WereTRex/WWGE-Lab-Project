@@ -33,8 +33,8 @@ public class EnemyAttacking : IState
         _maxAttackRange = 0f;
         foreach (EnemyAttack attack in _attacks)
         {
-            if (attack.GetMaxAttackRange() > _maxAttackRange)
-                _maxAttackRange = attack.GetMaxAttackRange();
+            if (attack.GetAttackRange() > _maxAttackRange)
+                _maxAttackRange = attack.GetAttackRange();
         }
     }
 
@@ -54,12 +54,12 @@ public class EnemyAttacking : IState
 
 
         // Check if we are within the maximum attack range.
-        float distanceToTarget = Vector3.Distance(_brain.transform.position, _brain.GetTarget().position);
+        /*float distanceToTarget = Vector3.Distance(_brain.transform.position, _brain.GetTarget().position);
         if (distanceToTarget < _maxAttackRange)
         {
             // Attempt to attack
             _attackCoroutine = _brain.StartCoroutine(Attack(distanceToTarget));
-        }
+        }*/
     }
 
     public void OnEnter() { }

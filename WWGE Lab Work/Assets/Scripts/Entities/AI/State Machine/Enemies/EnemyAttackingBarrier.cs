@@ -35,7 +35,7 @@ public class EnemyAttackingBarrier : IState
     private void MakeAttack()
     {
         // Damage the initial target (Typically the barrier).
-        if (_brain.InitialTarget.TryGetComponent<HealthComponent>(out HealthComponent healthComponent))
+        if (_brain.InitialTarget.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
         {
             healthComponent.TakeDamage(_attackDamage);
         }
