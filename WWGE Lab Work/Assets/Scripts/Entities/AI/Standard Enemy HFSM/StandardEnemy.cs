@@ -6,7 +6,7 @@ using EnemyStates.Standard;
 using System;
 using UnityEngine.AI;
 
-public class StandardEnemy : MonoBehaviour, IStaggerable
+public class StandardEnemy : SpawnableEntity, IStaggerable
 {
     private StateMachine<Action> _rootFSM;
     [ReadOnly] public string CurrentStatePath;
@@ -18,10 +18,9 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
     [Header("General")]
 
     [SerializeField] private Transform _target;
-    public Transform Target => _target;
-    [SerializeField] private HealthComponent _healthComponent;
+    private RepairableBarrier _initialTarget;
 
-    [SerializeField] private RepairableBarrier _initialTarget;
+    [SerializeField] private HealthComponent _healthComponent;
 
     [SerializeField] private float _tauntDuration;
     [SerializeField] private float _staggerDuration;
@@ -39,6 +38,7 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
 
     [Header("Debug")]
     [SerializeField] private bool _drawGizmos;
+    private Timer timeAlive;
 
 
 
@@ -56,6 +56,7 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
         var deadState = new Dead(this.gameObject, 1f);
 
         // Outside Sub-States.
+        var waitingForTarget = new WaitingForInitialTarget(hasTarget: () => _initialTarget != null);
         var moveToBarrier = new MovingToBarrier(_agent, () => _initialTarget.transform);
         var attackingBarrier = new AttackingBarrier(this, _attacks, () => _initialTarget.transform, _agent, _attackStoppingDistance);
         
@@ -73,17 +74,17 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
         _rootFSM.AddState(deadState);
 
         #region RootFSM Transitions
-        // Transition to the Taunt State upon entering the building.
-        /*_rootFSM.AddTriggerTransition(
-            from: outsideFSM,
-            to: tauntState,
-            onTransition: t => DisableNavMeshAgent(),
-            trigger: ref OnEnteredBuilding);*/
         // Transition to the Taunt State when we reach our initial target AND the initial target is not blocking us (Has no health).
         _rootFSM.AddTransition(
             from: outsideFSM,
             to: tauntState,
-            condition: t => (Vector3.Distance(transform.position, _initialTarget.transform.position) <= _attackStoppingDistance + 0.5f) && (!_initialTarget.IsActive),
+            condition: t => _initialTarget != null && (Vector3.Distance(transform.position, _initialTarget.transform.position) <= _attackStoppingDistance + 0.5f) && (!_initialTarget.IsActive),
+            onTransition: t => _isInside = true);
+        // Also transition to the Taunt State if we have no initial target after being alive for 5 seconds.
+        _rootFSM.AddTransition(
+            from: outsideFSM,
+            to: tauntState,
+            condition: t => _initialTarget == null && timeAlive.Elapsed > 5f,
             onTransition: t => _isInside = true);
 
         // Transition to Inside once the Taunt State has completed (The Taunt State prevents transitions till it has elapsed).
@@ -135,10 +136,14 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
 
 
         // Setup Outside Sub-FSM.
+        outsideFSM.AddState(waitingForTarget);
         outsideFSM.AddState(moveToBarrier);
         outsideFSM.AddState(attackingBarrier);
 
         #region OutsideFSM Transitions
+        outsideFSM.AddTransition(
+            from: waitingForTarget,
+            to: moveToBarrier);
         outsideFSM.AddTwoWayTransition(
             from: moveToBarrier,
             to: attackingBarrier,
@@ -159,8 +164,13 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
 
 
         _rootFSM.SetStartState(outsideFSM);
+        outsideFSM.SetStartState(waitingForTarget);
+        insideFSM.SetStartState(moveToTarget);
         _rootFSM.Init();
         #endregion
+
+
+        timeAlive = new Timer();
     }
 
 
@@ -178,7 +188,7 @@ public class StandardEnemy : MonoBehaviour, IStaggerable
     }
 
 
-    public void SetInitialTarget(RepairableBarrier target) => _initialTarget = target;
+    public override void SetInitialTarget(Transform target) => _initialTarget = target.GetComponent<RepairableBarrier>();
     public void EnteredBuilding() => _isInside = true;
 
 

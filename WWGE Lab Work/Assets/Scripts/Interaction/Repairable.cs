@@ -14,6 +14,15 @@ public class Repairable : MonoBehaviour, IInteractable
     protected Coroutine RepairCoroutine;
 
 
+    private void Start()
+    {
+        if (HealthComponent == null)
+            HealthComponent = GetComponent<HealthComponent>();
+        if (EntityFaction == null)
+            EntityFaction = GetComponent<EntityFaction>();
+    }
+
+
     /// <summary> Start interacting with this object</summary>
     public virtual void Interact(Transform interactorTransform)
     {

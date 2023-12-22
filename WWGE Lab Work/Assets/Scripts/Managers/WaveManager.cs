@@ -42,8 +42,6 @@ public class WaveManager : MonoBehaviour
 
     private IEnumerator WaveCountdown()
     {
-        int waveIndex = _currentWave - 1;
-
         // Notify the UI that the wave countdown has started.
         _waveUI.SetWaveText(_currentWave, _waves.Length);
 
@@ -87,7 +85,7 @@ public class WaveManager : MonoBehaviour
                 int enemyIndex = Random.Range(0, wave.WaveContents.Where(content => content.ValidSpawn).Count());
 
                 // Spawn the chosen enemy & add it to the aliveEnemies list.
-                aliveEnemies.Add(SpawnEnemy(wave.WaveContents[i].EnemyPrefab));
+                aliveEnemies.Add(SpawnEnemy(wave.WaveContents[enemyIndex].EnemyPrefab));
                 wave.WaveContents[enemyIndex].EnemySpawned();
 
                 // Increment the total spawns made.
@@ -130,9 +128,10 @@ public class WaveManager : MonoBehaviour
 
         // Instantiate the enemy.
         GameObject enemyGO = Instantiate(prefab, selectedSpawn.SpawnPosition, Quaternion.identity);
+        enemyGO.SetActive(true);
 
         // Set the InitialTarget of the instantiated enemy.
-        enemyGO.GetComponent<Enemy>().SetInitialTarget(selectedSpawn.CorrespondingBarrier.transform);
+        enemyGO.GetComponent<SpawnableEntity>().SetInitialTarget(selectedSpawn.CorrespondingBarrier.transform);
 
         // Return the setup enemy.
         return enemyGO;
@@ -175,9 +174,12 @@ public class WaveManager : MonoBehaviour
             {
                 // If we have not yet cached the total spawns, calculate and cache it.
                 if (_cachedTotalSpawns == 0)
+                {
+                    _cachedTotalSpawns = 0;
                     for (int i = 0; i < WaveContents.Length; i++)
                         _cachedTotalSpawns += WaveContents[i].Count;
-                
+                }
+
                 // Return the cached value.
                 return _cachedTotalSpawns;
             }
@@ -193,6 +195,13 @@ public class WaveManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (!_drawGizmos)
+            return;
         
+        Gizmos.color = Color.blue;
+        for (int i = 0; i < _spawnPoints.Length; i++)
+        {
+            Gizmos.DrawWireSphere(_spawnPoints[i].SpawnPosition, 1f);
+        }
     }
 }
