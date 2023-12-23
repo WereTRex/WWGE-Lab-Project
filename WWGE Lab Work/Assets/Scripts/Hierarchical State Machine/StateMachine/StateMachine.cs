@@ -370,7 +370,7 @@ namespace UnityHFSM
 
         /// <summary> Adds a new transition that can happen from any possible state.</summary>
         /// <param name="transition"> The transition instance. The "From" field can be left empty, as it has no meaning in this context.</param>
-        public void AddTransitionFromAny(TransitionBase transition)
+        public void AddAnyTransition(TransitionBase transition)
         {
             // Initialise the transition.
             InitTransition(transition);
@@ -413,10 +413,10 @@ namespace UnityHFSM
         ///     It represents an exit point that allows the FSM to exit and allows the parent FSM to continue to the next state.
         ///     It is only checked if the parent FSM has a pending transition.</summary>
         /// <param name="transition"> The transition instance. The "From" and "To" fields can be left empty, as they have no meaning in this context.</param>
-        public void AddExitTransitionFromAny(TransitionBase transition)
+        public void AddExitAnyTransition(TransitionBase transition)
         {
             transition.IsExitTransition = true;
-            AddTransitionFromAny(transition);
+            AddAnyTransition(transition);
         }
 #endregion
 

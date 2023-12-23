@@ -107,7 +107,7 @@ public class TurretController : MonoBehaviour
             from: awareFSM,
             to: idleState,
             condition: t => Target == null);
-        _rootFSM.AddTransitionFromAny(
+        _rootFSM.AddAnyTransition(
             to: deactivatedState,
             condition: t => _healthComponent.HasHealth == false,
             onTransition: t => ResetRotationSpeeds(),

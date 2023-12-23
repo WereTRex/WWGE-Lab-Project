@@ -117,6 +117,11 @@ public class HurtboxAttack : EnemyAttack
         // Add this collider to the list of colliders we have already hit.
         HitColliders.Add(hit);
 
+        // If we ignore our own faction in this attack, check whether what we hit is in our faction. Return if it is.
+        if (OnlyHitEnemies && hit.TryGetComponent<EntityFaction>(out EntityFaction factionScript))
+            if (EntityFaction.IsAllyOf(factionScript.Faction))
+                return;
+
 
         // Deal Damage (& Eventually Force).
         if (hit.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))

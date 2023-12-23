@@ -23,6 +23,7 @@ public class EnemySenses : MonoBehaviour
 
 
     // Try to get a target within range, returning the most favourable target if there are none.
+    public Transform TryGetTarget(float distanceMultiplier = 1f, float angleMultiplier = 1f) => GetTarget(_maxDetectionRange * distanceMultiplier, _viewAngle * angleMultiplier, _secondaryViewAngle * angleMultiplier, out bool withinSecondaryRadius);
     public Transform TryGetTarget(out bool withinSecondaryRadius, float distanceMultiplier = 1f, float angleMultiplier = 1f) => GetTarget(_maxDetectionRange * distanceMultiplier, _viewAngle * angleMultiplier, _secondaryViewAngle * angleMultiplier, out withinSecondaryRadius);
 
 
@@ -50,7 +51,7 @@ public class EnemySenses : MonoBehaviour
 
             // If this collider is a part of the same faction, discount it (Don't target allies).
             if (potentialTarget.TryGetComponentThroughParents<EntityFaction>(out EntityFaction entityFaction))
-                if (_factionScript.IsAllyFaction(entityFaction.Faction))
+                if (_factionScript.IsAllyOf(entityFaction.Faction))
                     continue;
 
             // If this collider is out of health, discount it (Don't target dead things).

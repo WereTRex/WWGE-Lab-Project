@@ -28,7 +28,7 @@ public class Repairable : MonoBehaviour, IInteractable
     {
         // If the interacting object is not an ally of this one, then return.
         if (interactorTransform.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
-            if (EntityFaction.IsAllyFaction(entityFaction.Faction) == false)
+            if (EntityFaction.IsAllyOf(entityFaction.Faction) == false)
                 return;
 
         if (RepairCoroutine == null)

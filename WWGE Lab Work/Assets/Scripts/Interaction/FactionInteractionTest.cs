@@ -14,7 +14,7 @@ public class FactionInteractionTest : MonoBehaviour, IInteractable
     {
         // If the interacting object is not an ally of this one, then return.
         if (interactingTransform.TryGetComponent<EntityFaction>(out EntityFaction entityFaction))
-            if (_factionScript.IsAllyFaction(entityFaction.Faction) == false)
+            if (_factionScript.IsAllyOf(entityFaction.Faction) == false)
                 return;
 
         _currentInteractionTransform = interactingTransform;

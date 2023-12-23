@@ -82,7 +82,7 @@ namespace UnityHFSM
         ///     Action{Transition},
         ///     bool
         /// )"/>
-        public static void AddTransitionFromAny<TEvent>(
+        public static void AddAnyTransition<TEvent>(
             this StateMachine<TEvent> fsm,
             IState to,
             Func<Transition, bool> condition = null,
@@ -90,7 +90,7 @@ namespace UnityHFSM
             Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
-            fsm.AddTransitionFromAny(CreateOptimisedTransition(
+            fsm.AddAnyTransition(CreateOptimisedTransition(
                 default,
                 to,
                 condition,
@@ -277,14 +277,14 @@ namespace UnityHFSM
         /// 	Action{Transition},
         /// 	bool
         /// )"/>
-        public static void AddExitTransitionFromAny<TEvent>(
+        public static void AddExitAnyTransition<TEvent>(
             this StateMachine<TEvent> fsm,
             Func<Transition, bool> condition = null,
             Action<Transition> onTransition = null,
             Action<Transition> afterTransition = null,
             bool forceInstantly = false)
         {
-            fsm.AddExitTransitionFromAny(CreateOptimisedTransition(
+            fsm.AddExitAnyTransition(CreateOptimisedTransition(
                 default,
                 default,
                 condition,

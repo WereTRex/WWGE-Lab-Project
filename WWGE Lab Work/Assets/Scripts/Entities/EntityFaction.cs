@@ -16,7 +16,7 @@ public class EntityFaction : MonoBehaviour
 
     /// <summary> A function to check whether this entity is a part of an inputted faction. </summary>
     /// <returns> True if the factions contain an ally, false if they don't.</returns>
-    public bool IsAllyFaction(Faction factionToCheck)
+    public bool IsAllyOf(Faction factionToCheck)
     {
         // Check if either faction is unaligned (Will never team with another entity).
         if (Faction == Faction.Unaligned || factionToCheck == Faction.Unaligned)

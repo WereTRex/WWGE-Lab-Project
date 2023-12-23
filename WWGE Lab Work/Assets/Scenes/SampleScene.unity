@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 2550242}
   - component: {fileID: 2550241}
   - component: {fileID: 2550240}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3417,10 +3417,12 @@ GameObject:
   - component: {fileID: 178619887}
   - component: {fileID: 178619886}
   - component: {fileID: 178619885}
+  - component: {fileID: 178619889}
   - component: {fileID: 178619884}
+  - component: {fileID: 178619888}
   - component: {fileID: 178619883}
   - component: {fileID: 178619882}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Larger Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3467,15 +3469,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentStatePath: 
-  _target: {fileID: 70386889}
   _healthComponent: {fileID: 178619883}
   _tauntDuration: 2
   _staggerDuration: 1.5
-  _agent: {fileID: 1924082314}
+  _agent: {fileID: 178619886}
+  _currentTarget: {fileID: 0}
+  _senses: {fileID: 178619888}
+  _wanderStoppingDistance: 0.5
+  _wanderMinIdleTime: 1
+  _wanderMaxIdleTime: 3
   _attacks:
   - name: Claws
     AttackDamage: 25
     onlyHitOnce: 1
+    OnlyHitEnemies: 0
+    EntityFaction: {fileID: 0}
     maxAttackRange: 2.5
     WindupDuration: 0
     AttackDuration: 0.3
@@ -3493,6 +3501,8 @@ MonoBehaviour:
   - name: Tail Strike
     AttackDamage: 25
     onlyHitOnce: 1
+    OnlyHitEnemies: 0
+    EntityFaction: {fileID: 0}
     maxAttackRange: 2
     WindupDuration: 0.1
     AttackDuration: 0.2
@@ -3572,6 +3582,56 @@ Transform:
   - {fileID: 274846446}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &178619888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178619881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eaae8d22bb32c240b34da45fc13ff2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _factionScript: {fileID: 178619882}
+  _targetLayers:
+    serializedVersion: 2
+    m_Bits: 264
+  _obstructionMask:
+    serializedVersion: 2
+    m_Bits: 65
+  _maxDetectionRange: 15
+  _viewAngle: 145
+  _secondaryViewAngle: 90
+  _drawGizmos: 1
+--- !u!54 &178619889
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178619881}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &188157928
 GameObject:
   m_ObjectHideFlags: 0
@@ -4087,6 +4147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 210075054}
   - component: {fileID: 210075053}
+  - component: {fileID: 210075055}
   - component: {fileID: 210075052}
   - component: {fileID: 210075051}
   - component: {fileID: 210075050}
@@ -4348,6 +4409,33 @@ Transform:
   - {fileID: 823092321}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &210075055
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 210075045}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &216976307
 GameObject:
   m_ObjectHideFlags: 0
@@ -6323,7 +6411,6 @@ GameObject:
   - component: {fileID: 419890170}
   - component: {fileID: 419890169}
   - component: {fileID: 419890171}
-  - component: {fileID: 419890172}
   m_Layer: 0
   m_Name: Spawn 1 Barrier GFX
   m_TagString: Untagged
@@ -6417,19 +6504,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &419890172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419890166}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d00761250dd6b14ab508b9689593356, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 2077631908}
 --- !u!1 &423237334
 GameObject:
   m_ObjectHideFlags: 0
@@ -40975,7 +41049,6 @@ GameObject:
   - component: {fileID: 1088152024}
   - component: {fileID: 1088152023}
   - component: {fileID: 1088152025}
-  - component: {fileID: 1088152026}
   m_Layer: 0
   m_Name: Spawn 2 Barrier GFX
   m_TagString: Untagged
@@ -41069,19 +41142,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1088152026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1088152021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d00761250dd6b14ab508b9689593356, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _healthComponent: {fileID: 220433862}
 --- !u!1 &1116631197
 GameObject:
   m_ObjectHideFlags: 0
@@ -44798,7 +44858,7 @@ GameObject:
   - component: {fileID: 1432614217}
   - component: {fileID: 1432614218}
   - component: {fileID: 1432614216}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60946,11 +61006,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921357341}
   m_CullTransparentMesh: 1
---- !u!195 &1924082314 stripped
-NavMeshAgent:
-  m_CorrespondingSourceObject: {fileID: 150757109117184313, guid: e3619ee42ed0dba40b458513c2d631f3, type: 3}
-  m_PrefabInstance: {fileID: 8096272306674248700}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1925738542
 GameObject:
   m_ObjectHideFlags: 0
@@ -62204,6 +62259,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2020820741}
   - component: {fileID: 2020820750}
+  - component: {fileID: 2020820751}
   - component: {fileID: 2020820749}
   - component: {fileID: 2020820742}
   - component: {fileID: 2020820747}
@@ -62465,6 +62521,33 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!54 &2020820751
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020820740}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &2023491662
 GameObject:
   m_ObjectHideFlags: 0
@@ -64895,17 +64978,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1594962326375350421, guid: e3619ee42ed0dba40b458513c2d631f3, type: 3}
-      propertyPath: _target
-      value: 
-      objectReference: {fileID: 70386889}
     - target: {fileID: 2523263066043359198, guid: e3619ee42ed0dba40b458513c2d631f3, type: 3}
       propertyPath: m_Name
       value: Standard Enemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 2523263066043359198, guid: e3619ee42ed0dba40b458513c2d631f3, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7741870596247558547, guid: e3619ee42ed0dba40b458513c2d631f3, type: 3}
       propertyPath: m_LocalPosition.x

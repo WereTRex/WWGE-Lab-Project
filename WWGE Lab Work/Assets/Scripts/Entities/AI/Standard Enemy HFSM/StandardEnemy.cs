@@ -11,15 +11,12 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
     private StateMachine<Action> _rootFSM;
     [ReadOnly] public string CurrentStatePath;
 
-
     private bool _isInside = false;
     private Action OnStaggered;
+    private Coroutine _searchForTargetCoroutine;
+
 
     [Header("General")]
-
-    [SerializeField] private Transform _target;
-    private RepairableBarrier _initialTarget;
-
     [SerializeField] private HealthComponent _healthComponent;
 
     [SerializeField] private float _tauntDuration;
@@ -28,6 +25,23 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
     [Header("Movement")]
     [SerializeField] private NavMeshAgent _agent;
+
+
+    [Header("Targeting")]
+    //[SerializeField] private Transform _player;
+    [ReadOnly, SerializeField] private Transform _currentTarget;
+    //private Transform _currentTargetProperty => _currentTarget == null ? _player : _currentTarget;
+    
+    [SerializeField] private EnemySenses _senses;
+    private RepairableBarrier _initialTarget;
+
+    private const float TARGET_DETECTION_DELAY = 0.2f;
+
+
+    [Header("Wandering")]
+    [SerializeField] private float _wanderStoppingDistance;
+    [SerializeField] private float _wanderMinIdleTime;
+    [SerializeField] private float _wanderMaxIdleTime;
 
 
     [Header("Attacking")]
@@ -51,7 +65,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         // Root States.
         var outsideFSM = new Outside();
         var tauntState = new Taunting(_tauntDuration);
-        var insideFSM = new Inside();
+        var insideFSM = new Inside(this);
         var staggerState = new Stagger(_staggerDuration);
         var deadState = new Dead(this.gameObject, 1f);
 
@@ -59,10 +73,11 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         var waitingForTarget = new WaitingForInitialTarget(hasTarget: () => _initialTarget != null);
         var moveToBarrier = new MovingToBarrier(_agent, () => _initialTarget.transform);
         var attackingBarrier = new AttackingBarrier(this, _attacks, () => _initialTarget.transform, _agent, _attackStoppingDistance);
-        
+
         // Inside Sub-States.
-        var moveToTarget = new MovingToTarget(_agent, () => _target);
-        var attackingTarget = new AttackingTarget(this, _attacks, () => _target, _agent, _attackRotationSpeed, _attackStoppingDistance);
+        var wanderState = new Wander(_agent, _wanderStoppingDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
+        var moveToTarget = new MovingToTarget(_agent, () => _currentTarget);
+        var attackingTarget = new AttackingTarget(this, _attacks, () => _currentTarget, _agent, _attackRotationSpeed, _attackStoppingDistance);
 
 
 
@@ -127,7 +142,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
         // Instantly transition to the Dead state from any state if we are out of health.
-        _rootFSM.AddTransitionFromAny(
+        _rootFSM.AddAnyTransition(
             to: deadState,
             condition: t => _healthComponent.HasHealth == false,
             onTransition: t => DisableNavMeshAgent(),
@@ -152,20 +167,34 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
         // Setup Inside Sub-FSM.
+        insideFSM.AddState(wanderState);
         insideFSM.AddState(moveToTarget);
         insideFSM.AddState(attackingTarget);
 
         #region InsideFSM Transitions
+        // Transition to the moveToTarget state if we find a target while wandering.
+        insideFSM.AddTransition(
+            from: wanderState,
+            to: moveToTarget,
+            condition: t => _currentTarget != null);
+
+        // Transition between the moveToTarget and attackingTarget states depending on whether the target is within the range of our attacks.
         insideFSM.AddTwoWayTransition(
             from: moveToTarget,
             to: attackingTarget,
-            condition: t => Vector3.Distance(transform.position, _target.position) <= attackingTarget.MaxAttackRange);
+            condition: t => Vector3.Distance(transform.position, _currentTarget.position) <= attackingTarget.MaxAttackRange);
+
+        // Transition to the wander state if we have no target.
+        insideFSM.AddAnyTransition(
+            to: wanderState,
+            condition: t => _currentTarget == null);
         #endregion
 
 
         _rootFSM.SetStartState(outsideFSM);
         outsideFSM.SetStartState(waitingForTarget);
         insideFSM.SetStartState(moveToTarget);
+
         _rootFSM.Init();
         #endregion
 
@@ -185,6 +214,31 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
         // Update Debug Info.
         CurrentStatePath = _rootFSM.GetActiveHierarchyPath();
+    }
+
+
+    public void StartDetection()
+    {
+        StopDetection();
+        _searchForTargetCoroutine = StartCoroutine(SearchForTarget());
+    }
+    public void StopDetection()
+    {
+        if (_searchForTargetCoroutine != null)
+            StopCoroutine(_searchForTargetCoroutine);
+    }
+    private IEnumerator SearchForTarget()
+    {
+        while (true)
+        {
+            // Detect a new target only if they are within the secondary sight area.
+            Transform potentialTarget = _senses.TryGetTarget(out bool withinSight);
+            if (_currentTarget != null || withinSight)
+                _currentTarget = potentialTarget;
+
+
+            yield return new WaitForSeconds(TARGET_DETECTION_DELAY);
+        }
     }
 
 

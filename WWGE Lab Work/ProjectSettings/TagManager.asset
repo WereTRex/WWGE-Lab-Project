@@ -14,7 +14,7 @@ TagManager:
   - UI
   - Ground
   - Grenade
-  - Enemy
+  - Entity
   - Bullets
   - Entrance Barrier
   - 

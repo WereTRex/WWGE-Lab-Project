@@ -8,21 +8,30 @@ using UnityEngine;
 public abstract class EnemyAttack
 {
     [SerializeField] private string name; // The attack's name (Used for organisation in the inspector).
-    
-    
+
+    [Space(5)]
+
     [SerializeField] protected float AttackDamage;
     [Tooltip("Can this attack hit the same target more than once?")]
         [SerializeField] protected bool onlyHitOnce;
 
+    [Space(5)]
+
+    [SerializeField] protected bool OnlyHitEnemies;
+    [SerializeField] protected EntityFaction EntityFaction;
+
+    [Space(5)]
 
     [SerializeField] protected float maxAttackRange; // The maximum range that this attack can be made from.
     public float GetAttackRange() => maxAttackRange;
 
+    [Space(5)]
 
     [SerializeField] protected float WindupDuration; // How long after starting this attack until it can deal damage.
     [SerializeField] protected float AttackDuration; // How long this attack lasts (Time between the Windup and Recovery).
     [SerializeField] protected float RecoveryDuration; // How long after making the attack that the attacker must wait until they can act again.
 
+    [Space(5)]
 
     [SerializeField] protected float AttackCooldown; // How long after use until this attack can be used again.
     protected float AttackCooldownCompletionTime; // The time that the attack cooldown will have completed by.
