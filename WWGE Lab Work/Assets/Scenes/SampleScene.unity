@@ -3484,7 +3484,8 @@ MonoBehaviour:
     onlyHitOnce: 1
     OnlyHitEnemies: 0
     EntityFaction: {fileID: 0}
-    maxAttackRange: 2.5
+    MaxAttackRange: 4
+    MaxAttackAngle: 150
     WindupDuration: 0
     AttackDuration: 0.3
     RecoveryDuration: 0.5
@@ -3503,7 +3504,8 @@ MonoBehaviour:
     onlyHitOnce: 1
     OnlyHitEnemies: 0
     EntityFaction: {fileID: 0}
-    maxAttackRange: 2
+    MaxAttackRange: 3
+    MaxAttackAngle: 50
     WindupDuration: 0.1
     AttackDuration: 0.2
     RecoveryDuration: 0.15
@@ -3514,12 +3516,13 @@ MonoBehaviour:
     _useWindupValues: 1
     _windupPos: {x: 0, y: 0.3, z: -0.5}
     _windupRot: {x: 0, y: 0, z: 0}
-    _endPos: {x: 0, y: 0.3, z: 2.5}
+    _endPos: {x: 0, y: 0.3, z: 3.5}
     _endRot: {x: 0, y: 0, z: 0}
     _resetPositionOnRecovery: 1
   _attackRotationSpeed: 120
   _attackStoppingDistance: 2
   _drawGizmos: 1
+  _attackToDisplay: 0
 --- !u!65 &178619885
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -45279,7 +45282,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1449055553
 Transform:
   m_ObjectHideFlags: 0

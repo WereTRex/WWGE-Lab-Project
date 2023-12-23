@@ -30,6 +30,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
     [Header("Targeting")]
     //[SerializeField] private Transform _player;
     [ReadOnly, SerializeField] private Transform _currentTarget;
+    [ReadOnly, SerializeField] private Vector3? _suspiciousPosition = null;
     //private Transform _currentTargetProperty => _currentTarget == null ? _player : _currentTarget;
     
     [SerializeField] private EnemySenses _senses;
@@ -52,6 +53,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
     [Header("Debug")]
     [SerializeField] private bool _drawGizmos;
+    [SerializeField] private int _attackToDisplay;
     private Timer timeAlive;
 
 
@@ -76,6 +78,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
         // Inside Sub-States.
         var wanderState = new Wander(_agent, _wanderStoppingDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
+        var investigatePosition = new InvestigatePosition(_agent, () => _suspiciousPosition.Value);
         var moveToTarget = new MovingToTarget(_agent, () => _currentTarget);
         var attackingTarget = new AttackingTarget(this, _attacks, () => _currentTarget, _agent, _attackRotationSpeed, _attackStoppingDistance);
 
@@ -168,6 +171,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
         // Setup Inside Sub-FSM.
         insideFSM.AddState(wanderState);
+        insideFSM.AddState(investigatePosition);
         insideFSM.AddState(moveToTarget);
         insideFSM.AddState(attackingTarget);
 
@@ -178,11 +182,30 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
             to: moveToTarget,
             condition: t => _currentTarget != null);
 
+        // Transition to the investigatePosition state from wandering if we have a suspicious point.
+        insideFSM.AddTransition(
+            from: wanderState,
+            to: investigatePosition,
+            condition: t => _suspiciousPosition != null);
+
+
+        // Transition to the Wandering state from Investigating if we no longer have a suspicious point.
+        insideFSM.AddTransition(
+            from: investigatePosition,
+            to: wanderState,
+            condition: t => _suspiciousPosition == null);
+        insideFSM.AddTransition(
+            from: investigatePosition,
+            to: moveToTarget,
+            condition: t => _currentTarget != null);
+
+
         // Transition between the moveToTarget and attackingTarget states depending on whether the target is within the range of our attacks.
         insideFSM.AddTwoWayTransition(
             from: moveToTarget,
             to: attackingTarget,
             condition: t => Vector3.Distance(transform.position, _currentTarget.position) <= attackingTarget.MaxAttackRange);
+
 
         // Transition to the wander state if we have no target.
         insideFSM.AddAnyTransition(
@@ -198,9 +221,13 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         _rootFSM.Init();
         #endregion
 
-
         timeAlive = new Timer();
     }
+
+    private void OnEnable() => _healthComponent.OnHealthDecreased += OnDamaged;
+    private void OnDisable() => _healthComponent.OnHealthDecreased -= OnDamaged;
+    
+
 
 
     private void EnableNavMeshAgent() => _agent.enabled = true;
@@ -211,6 +238,9 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
     {
         // Tick the Root FSM.
         _rootFSM.OnTick();
+
+        if (_suspiciousPosition.HasValue && Vector3.Distance(transform.position, _suspiciousPosition.Value) <= _agent.stoppingDistance + 0.5f)
+            _suspiciousPosition = null;
 
         // Update Debug Info.
         CurrentStatePath = _rootFSM.GetActiveHierarchyPath();
@@ -249,17 +279,29 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
     public void Stagger() => OnStaggered?.Invoke();
 
 
+    private void OnDamaged(Vector3 origin, float newValue) => _suspiciousPosition = origin;
+
+
 
     private void OnDrawGizmosSelected()
     {
         if (!_drawGizmos)
             return;
 
-        Gizmos.color = Color.red;
 
-        for (int i = 0; i < _attacks.Length; i++)
-        {
-            Gizmos.DrawWireSphere(transform.position, _attacks[i].GetAttackRange());
-        }
+        Gizmos.color = Color.red;
+        _attackToDisplay = Mathf.Clamp(_attackToDisplay, 0, _attacks.Length - 1);
+
+        // (Gizmo) Display the maxAttackRange.
+        float maxAttackRange = _attacks[_attackToDisplay].GetAttackRange();
+        Gizmos.DrawWireSphere(transform.position, maxAttackRange);
+
+        // (Gizmo) Display the attackAngle.
+        float maxAttackAngle = _attacks[_attackToDisplay].GetAttackAngle();
+        Vector3 leftDirection = Quaternion.AngleAxis(-(maxAttackAngle / 2f), transform.up) * transform.forward;
+        Vector3 rightDirection = Quaternion.AngleAxis(maxAttackAngle / 2f, transform.up) * transform.forward;
+
+        Gizmos.DrawRay(transform.position, leftDirection * maxAttackRange);
+        Gizmos.DrawRay(transform.position, rightDirection * maxAttackRange);
     }
 }

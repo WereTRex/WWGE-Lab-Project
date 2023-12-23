@@ -8,8 +8,9 @@ public class HealthComponent : MonoBehaviour
 {
     // Events.
     public event Action OnDead;
-    public event Action<float> OnHealthChanged;
-    
+    public event Action<Vector3, float> OnHealthDecreased; // Vector3 source, float newValue.
+    public event Action<Vector3, float> OnHealthIncreased; // Vector3 source, float newValue.
+
 
     [SerializeField] private float _maxHealth;
     public float MaxHealthProperty { get => _maxHealth; private set => _maxHealth = value; }
@@ -22,7 +23,6 @@ public class HealthComponent : MonoBehaviour
         {
             // Clamp the new health between 0 & the entity's maximum health.
             _currentHealth = Mathf.Clamp(value, 0, MaxHealthProperty);
-            OnHealthChanged?.Invoke(_currentHealth);
 
             // If it exists, update the Health Bar.
             if (_healthBar != null)
@@ -41,24 +41,36 @@ public class HealthComponent : MonoBehaviour
 
 
 
-    private void Start() => CurrentHealthProperty = _maxHealth;
+    private void Awake() => CurrentHealthProperty = _maxHealth;
 
 
     /// <summary> Deal damage to this HealthComponent</summary>
-    public void TakeDamage(float damage)
+    public void TakeDamage(Vector3 damageOrigin, float damage)
     {
-        // Reduce the health by damage.
+        // Reduce the health by 'damage'.
         CurrentHealthProperty -= damage;
+        OnHealthDecreased?.Invoke(damageOrigin, CurrentHealthProperty);
+
+        Debug.Log("Take Damage: " + damage);
 
         // Check if we are dead.
-        if (CurrentHealthProperty < 0)
+        if (CurrentHealthProperty <= 0)
         {
             OnDead?.Invoke();
         }
     }
     /// <summary> Heal the HealthComponent by healing</summary>
-    public void ReceiveHealing(float healing) => CurrentHealthProperty += healing;
-    
+    public void ReceiveHealing(Vector3 healingOrigin, float healing)
+    {
+        // Increase the health by 'healing'.
+        CurrentHealthProperty += healing;
+        OnHealthIncreased?.Invoke(healingOrigin, CurrentHealthProperty);
+    }
+
     /// <summary> Reset this component's health to its maximum</summary>
-    public void ResetHealth() => CurrentHealthProperty = MaxHealthProperty;
+    public void ResetHealth()
+    {
+        CurrentHealthProperty = MaxHealthProperty;
+        OnHealthIncreased?.Invoke(transform.position, CurrentHealthProperty);
+    }
 }

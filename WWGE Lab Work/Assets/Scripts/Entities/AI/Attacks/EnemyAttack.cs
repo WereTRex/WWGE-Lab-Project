@@ -22,8 +22,11 @@ public abstract class EnemyAttack
 
     [Space(5)]
 
-    [SerializeField] protected float maxAttackRange; // The maximum range that this attack can be made from.
-    public float GetAttackRange() => maxAttackRange;
+    [SerializeField] protected float MaxAttackRange; // The maximum range that this attack can be made from.
+    public float GetAttackRange() => MaxAttackRange;
+
+    [SerializeField] protected float MaxAttackAngle = 360f;
+    public float GetAttackAngle() => MaxAttackAngle;
 
     [Space(5)]
 

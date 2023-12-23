@@ -378,7 +378,7 @@ public class Gun : MonoBehaviour
 
         // (Logic) Apply Damage.
         if (hitCollider.transform.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
-            healthComponent.TakeDamage(_damageConfig.GetDamage(distanceTravelled));
+            healthComponent.TakeDamage(transform.position, _damageConfig.GetDamage(distanceTravelled));
 
 
         // (Logic) Apply Force.

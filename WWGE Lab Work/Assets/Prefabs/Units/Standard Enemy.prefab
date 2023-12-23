@@ -440,7 +440,8 @@ MonoBehaviour:
     onlyHitOnce: 1
     OnlyHitEnemies: 1
     EntityFaction: {fileID: 6568900450689851568}
-    maxAttackRange: 2.5
+    MaxAttackRange: 3
+    MaxAttackAngle: 150
     WindupDuration: 0
     AttackDuration: 0.3
     RecoveryDuration: 0.5
@@ -459,7 +460,8 @@ MonoBehaviour:
     onlyHitOnce: 1
     OnlyHitEnemies: 1
     EntityFaction: {fileID: 6568900450689851568}
-    maxAttackRange: 2
+    MaxAttackRange: 3
+    MaxAttackAngle: 50
     WindupDuration: 0.1
     AttackDuration: 0.2
     RecoveryDuration: 0.15
@@ -476,6 +478,7 @@ MonoBehaviour:
   _attackRotationSpeed: 120
   _attackStoppingDistance: 2
   _drawGizmos: 1
+  _attackToDisplay: 0
 --- !u!114 &5929477295356213853
 MonoBehaviour:
   m_ObjectHideFlags: 0

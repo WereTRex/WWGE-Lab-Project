@@ -16,9 +16,17 @@ public class RepairableBarrier : Repairable
     public bool IsActive => HealthComponent.HasHealth;
 
 
-    private void OnEnable() => HealthComponent.OnHealthChanged += UpdateGFX;
-    private void OnDisable() => HealthComponent.OnHealthChanged -= UpdateGFX;
-    private void Start() => UpdateGFX(HealthComponent.CurrentHealthProperty); // Set default values of the animator.
+    private void OnEnable()
+    {
+        HealthComponent.OnHealthIncreased += UpdateGFX;
+        HealthComponent.OnHealthDecreased += UpdateGFX;
+    }
+    private void OnDisable()
+    {
+        HealthComponent.OnHealthIncreased -= UpdateGFX;
+        HealthComponent.OnHealthDecreased -= UpdateGFX;
+    }
+    private void Start() => UpdateGFX(Vector3.zero, HealthComponent.CurrentHealthProperty); // Set default values of the animator.
     
 
 
@@ -30,7 +38,7 @@ public class RepairableBarrier : Repairable
         while (!HealthComponent.HasFullHealth)
         {
             yield return new WaitForSeconds(RepairTime / _repairStages);
-            HealthComponent.ReceiveHealing(HealthComponent.MaxHealthProperty / _repairStages);
+            HealthComponent.ReceiveHealing(transform.position, HealthComponent.MaxHealthProperty / _repairStages);
         }
 
         // Complete the repair.
@@ -57,7 +65,7 @@ public class RepairableBarrier : Repairable
         if (_animator != null)
             _animator.SetInteger("Stage", stage);
     }*/
-    private void UpdateGFX(float newHealth)
+    private void UpdateGFX(Vector3 origin, float newHealth)
     {
         // Get the current stage.
         int stage;

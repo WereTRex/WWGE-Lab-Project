@@ -77,7 +77,7 @@ public class Grenade : MonoBehaviour
             if (hitObject.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
             {
                 float distance = Vector3.Distance(transform.position, hitObject.ClosestPoint(transform.position));
-                healthComponent.TakeDamage(_damageCurve.Evaluate(distance / _explosionRadius));
+                healthComponent.TakeDamage(transform.position, _damageCurve.Evaluate(distance / _explosionRadius));
             }
         }
 

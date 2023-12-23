@@ -52,10 +52,10 @@ namespace EnemyStates.Standard
         protected override bool CanExit() => AttackCoroutine != null;
 
 
-        protected IEnumerator Attack(float distanceToTarget)
+        protected IEnumerator Attack(float distanceToTarget, float angleToTarget)
         {
             // Check for a valid attack.
-            if (TryGetAttack(distanceToTarget, out EnemyAttack attack))
+            if (TryGetAttack(distanceToTarget, angleToTarget, out EnemyAttack attack))
             {
                 // Start the attack & wait until it has completed (Note: This includes recovery time).
                 yield return Mono.StartCoroutine(attack.MakeAttack());
@@ -64,10 +64,10 @@ namespace EnemyStates.Standard
                 AttackCoroutine = null;
             }
         }
-        private bool TryGetAttack(float distanceToTarget, out EnemyAttack foundAttack)
+        private bool TryGetAttack(float distanceToTarget, float angleToTarget, out EnemyAttack foundAttack)
         {
             // Get all attacks that are within range & are not on cooldown.
-            List<EnemyAttack> attackList = EnemyAttacks.Where(attack => distanceToTarget <= attack.GetAttackRange() && !attack.IsInCooldown).ToList();
+            List<EnemyAttack> attackList = EnemyAttacks.Where(attack => (distanceToTarget <= attack.GetAttackRange()) && (angleToTarget <= attack.GetAttackAngle() / 2f) && !attack.IsInCooldown).ToList();
 
             if (attackList.Count > 0)
             {

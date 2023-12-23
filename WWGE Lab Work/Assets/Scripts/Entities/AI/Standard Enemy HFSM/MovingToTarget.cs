@@ -10,8 +10,8 @@ namespace EnemyStates.Standard
         public override string Name { get => "Moving to Target"; }
 
 
-        private readonly Func<Transform> _target;
         private readonly NavMeshAgent _agent;
+        private readonly Func<Transform> _target;
 
 
         public MovingToTarget(NavMeshAgent agent, Func<Transform> target)

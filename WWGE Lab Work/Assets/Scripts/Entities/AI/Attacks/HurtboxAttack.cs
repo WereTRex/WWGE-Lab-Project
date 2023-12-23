@@ -118,7 +118,7 @@ public class HurtboxAttack : EnemyAttack
         HitColliders.Add(hit);
 
         // If we ignore our own faction in this attack, check whether what we hit is in our faction. Return if it is.
-        if (OnlyHitEnemies && hit.TryGetComponent<EntityFaction>(out EntityFaction factionScript))
+        if (OnlyHitEnemies && hit.TryGetComponentThroughParents<EntityFaction>(out EntityFaction factionScript))
             if (EntityFaction.IsAllyOf(factionScript.Faction))
                 return;
 
@@ -126,7 +126,7 @@ public class HurtboxAttack : EnemyAttack
         // Deal Damage (& Eventually Force).
         if (hit.TryGetComponentThroughParents<HealthComponent>(out HealthComponent healthComponent))
         {
-            healthComponent.TakeDamage(AttackDamage);
+            healthComponent.TakeDamage(_hurtbox.transform.position, AttackDamage);
         }
     }
 }

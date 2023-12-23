@@ -51,7 +51,8 @@ namespace EnemyStates.Standard
 
             // Attempt to make an attack.
             float distanceToTarget = Vector3.Distance(_agent.transform.position, _target().position);
-            AttackCoroutine = Mono.StartCoroutine(Attack(distanceToTarget));
+            float angleToTarget = Vector3.Angle(_agent.transform.forward, (_target().position - _agent.transform.position).normalized);
+            AttackCoroutine = Mono.StartCoroutine(Attack(distanceToTarget, angleToTarget));
 
             // Stop moving if we have an attack.
             if (AttackCoroutine != null)
