@@ -40,6 +40,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
     [Header("Wandering")]
+    [SerializeField] private float _maxWanderDistance;
     [SerializeField] private float _wanderStoppingDistance;
     [SerializeField] private float _wanderMinIdleTime;
     [SerializeField] private float _wanderMaxIdleTime;
@@ -77,7 +78,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         var attackingBarrier = new AttackingBarrier(this, _attacks, () => _initialTarget.transform, _agent, _attackStoppingDistance);
 
         // Inside Sub-States.
-        var wanderState = new Wander(_agent, _wanderStoppingDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
+        var wanderState = new Wander(_agent, _wanderStoppingDistance, _maxWanderDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
         var investigatePosition = new InvestigatePosition(_agent, () => _suspiciousPosition.Value);
         var moveToTarget = new MovingToTarget(_agent, () => _currentTarget);
         var attackingTarget = new AttackingTarget(this, _attacks, () => _currentTarget, _agent, _attackRotationSpeed, _attackStoppingDistance);

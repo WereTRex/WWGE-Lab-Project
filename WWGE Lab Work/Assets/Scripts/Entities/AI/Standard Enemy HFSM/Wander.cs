@@ -12,16 +12,20 @@ namespace EnemyStates.Standard
         private readonly NavMeshAgent _agent;
         private readonly float _stoppingDistance;
 
+        private readonly float _maxWanderDistance;
+
         private readonly float _minIdleTime;
         private readonly float _maxIdleTime;
         private float _idleElapsedTime;
         private bool _idle;
 
 
-        public Wander(NavMeshAgent agent, float stoppingDistance, float minIdleTime, float maxIdleTime)
+        public Wander(NavMeshAgent agent, float stoppingDistance, float maxWanderDistance, float minIdleTime, float maxIdleTime)
         {
             this._agent = agent;
             this._stoppingDistance = stoppingDistance;
+
+            this._maxWanderDistance = maxWanderDistance;
 
             this._minIdleTime = minIdleTime;
             this._maxIdleTime = maxIdleTime;
@@ -60,10 +64,19 @@ namespace EnemyStates.Standard
         private void SetWanderPosition()
         {
             // Get a random position on the NavMesh.
-            Vector3 wanderPosition = Vector3.zero;
+            Vector3 randomPosition = Random.insideUnitSphere * _maxWanderDistance;
+            randomPosition += _agent.transform.position;
 
-            // Set the agent's target destination.
-            _agent.SetDestination(wanderPosition);
+            if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, _maxWanderDistance, 1))
+            {
+                // Set the agent's target destination.
+                _agent.SetDestination(hit.position);
+            }
+            else
+            {
+                // If we could not find a point, set the destination as the world origin.
+                _agent.SetDestination(Vector3.zero);
+            }
         }
     }
 }
