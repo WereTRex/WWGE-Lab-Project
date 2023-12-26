@@ -16,7 +16,7 @@ public class WaveManager : MonoBehaviour
 
 
     [Header("Spawn Points")]
-    [SerializeField] private SpawnPoint[] _spawnPoints;
+    [SerializeField] private EnemySpawn[] _spawnPoints;
 
 
     [Header("Waves")]
@@ -27,10 +27,6 @@ public class WaveManager : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private WaveCounterUI _waveUI;
-
-
-    [Header("Debug")]
-    [SerializeField] private bool _drawGizmos;
 
 
     private void Start()
@@ -124,14 +120,14 @@ public class WaveManager : MonoBehaviour
     private GameObject SpawnEnemy(GameObject prefab)
     {
         // Select a spawn position.
-        SpawnPoint selectedSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+        EnemySpawn selectedSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
 
         // Instantiate the enemy.
         GameObject enemyGO = Instantiate(prefab, selectedSpawn.SpawnPosition, Quaternion.identity);
         enemyGO.SetActive(true);
 
         // Set the InitialTarget of the instantiated enemy.
-        enemyGO.GetComponent<SpawnableEntity>().SetInitialTarget(selectedSpawn.CorrespondingBarrier.transform);
+        enemyGO.GetComponent<SpawnableEntity>().SetInitialTarget(selectedSpawn.AssociatedBarrier.transform);
 
         // Return the setup enemy.
         return enemyGO;
@@ -140,15 +136,6 @@ public class WaveManager : MonoBehaviour
 
 
     #region Structs
-    [System.Serializable]
-    private struct SpawnPoint
-    {
-        public string name;
-
-        public Vector3 SpawnPosition;
-        public RepairableBarrier CorrespondingBarrier;
-    }
-
     [System.Serializable]
     private struct SpawnWave
     {
@@ -191,17 +178,4 @@ public class WaveManager : MonoBehaviour
         public int SpawnsPerTrigger;
     }
     #endregion
-
-
-    private void OnDrawGizmosSelected()
-    {
-        if (!_drawGizmos)
-            return;
-        
-        Gizmos.color = Color.blue;
-        for (int i = 0; i < _spawnPoints.Length; i++)
-        {
-            Gizmos.DrawWireSphere(_spawnPoints[i].SpawnPosition, 1f);
-        }
-    }
 }

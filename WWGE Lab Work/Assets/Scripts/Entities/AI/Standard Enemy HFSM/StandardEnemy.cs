@@ -97,7 +97,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         _rootFSM.AddTransition(
             from: outsideFSM,
             to: tauntState,
-            condition: t => _initialTarget != null && (Vector3.Distance(transform.position, _initialTarget.transform.position) <= _attackStoppingDistance + 0.5f) && (!_initialTarget.IsActive),
+            condition: t => _initialTarget != null && (Vector3.Distance(transform.position, _initialTarget.transform.position) <= attackingBarrier.MaxAttackRange + 0.5f) && (!_initialTarget.IsActive),
             onTransition: t => _isInside = true);
         // Also transition to the Taunt State if we have no initial target after being alive for 5 seconds.
         _rootFSM.AddTransition(

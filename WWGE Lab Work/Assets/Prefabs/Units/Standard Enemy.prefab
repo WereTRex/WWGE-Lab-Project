@@ -431,6 +431,7 @@ MonoBehaviour:
   _agent: {fileID: 150757109117184313}
   _currentTarget: {fileID: 0}
   _senses: {fileID: 5929477295356213853}
+  _maxWanderDistance: 20
   _wanderStoppingDistance: 0.5
   _wanderMinIdleTime: 1
   _wanderMaxIdleTime: 3
