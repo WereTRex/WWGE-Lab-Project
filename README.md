@@ -1,5 +1,5 @@
-#A-Witchlings-Trial
-	A short personal project about a young witch trying to pass through several trials.
+#WwGE-Lab-Project
+	My coursework project for my Year 2 module 'Working With Game Engines'.
 
 This is the ReadME doccument. If there is anything that we require to know before the opening of this project, put it here.
 
