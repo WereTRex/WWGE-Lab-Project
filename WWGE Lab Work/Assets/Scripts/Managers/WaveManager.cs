@@ -110,7 +110,7 @@ public class WaveManager : MonoBehaviour
         // The wave has ended.
         // Start the countdown for the next wave.
         _currentWave++;
-        if (_currentWave < _waves.Length)
+        if (_currentWave <= _waves.Length)
             StartCoroutine(WaveCountdown());
         else
             Debug.Log("Defeated All Waves");
