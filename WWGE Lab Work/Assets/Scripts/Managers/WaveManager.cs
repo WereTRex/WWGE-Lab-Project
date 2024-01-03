@@ -132,14 +132,15 @@ public class WaveManager : MonoBehaviour
         EnemySpawn selectedSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
 
         // Instantiate the enemy.
-        GameObject enemyGO = Instantiate(prefab, selectedSpawn.SpawnPosition, Quaternion.identity);
-        enemyGO.SetActive(true);
+        SpawnableEntity enemy = Instantiate(prefab, selectedSpawn.SpawnPosition, Quaternion.identity).GetComponent<SpawnableEntity>();
+        enemy.gameObject.SetActive(true);
 
         // Set the InitialTarget of the instantiated enemy.
-        enemyGO.GetComponent<SpawnableEntity>().SetInitialTarget(selectedSpawn.AssociatedBarrier.transform);
+        enemy.SetInitialTarget(selectedSpawn.AssociatedBarrier.transform);
+        enemy.SetDefaultTarget(PlayerManager.Instance.Player);
 
         // Return the setup enemy.
-        return enemyGO;
+        return enemy.gameObject;
     }
 
 

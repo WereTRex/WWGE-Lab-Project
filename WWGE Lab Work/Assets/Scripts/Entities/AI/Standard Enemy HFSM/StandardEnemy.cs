@@ -28,10 +28,10 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
     [Header("Targeting")]
-    //[SerializeField] private Transform _player;
+    [SerializeField] private Transform _defaultTarget;
     [ReadOnly, SerializeField] private Transform _currentTarget;
     [ReadOnly, SerializeField] private Vector3? _suspiciousPosition = null;
-    //private Transform _currentTargetProperty => _currentTarget == null ? _player : _currentTarget;
+    private Transform _currentTargetProperty => _currentTarget == null ? _defaultTarget : _currentTarget;
     
     [SerializeField] private EnemySenses _senses;
     private RepairableBarrier _initialTarget;
@@ -80,8 +80,8 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         // Inside Sub-States.
         var wanderState = new Wander(_agent, _wanderStoppingDistance, _maxWanderDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
         var investigatePosition = new InvestigatePosition(_agent, () => _suspiciousPosition.Value);
-        var moveToTarget = new MovingToTarget(_agent, () => _currentTarget);
-        var attackingTarget = new AttackingTarget(this, _attacks, () => _currentTarget, _agent, _attackRotationSpeed, _attackStoppingDistance);
+        var moveToTarget = new MovingToTarget(_agent, () => _currentTargetProperty);
+        var attackingTarget = new AttackingTarget(this, _attacks, () => _currentTargetProperty, _agent, _attackRotationSpeed, _attackStoppingDistance);
 
 
 
@@ -171,14 +171,14 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
         // Setup Inside Sub-FSM.
-        insideFSM.AddState(wanderState);
-        insideFSM.AddState(investigatePosition);
+        //insideFSM.AddState(wanderState);
+        //insideFSM.AddState(investigatePosition);
         insideFSM.AddState(moveToTarget);
         insideFSM.AddState(attackingTarget);
 
         #region InsideFSM Transitions
         // Transition to the moveToTarget state if we find a target while wandering.
-        insideFSM.AddTransition(
+        /*insideFSM.AddTransition(
             from: wanderState,
             to: moveToTarget,
             condition: t => _currentTarget != null);
@@ -198,20 +198,20 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
         insideFSM.AddTransition(
             from: investigatePosition,
             to: moveToTarget,
-            condition: t => _currentTarget != null);
+            condition: t => _currentTarget != null);*/
 
 
         // Transition between the moveToTarget and attackingTarget states depending on whether the target is within the range of our attacks.
         insideFSM.AddTwoWayTransition(
             from: moveToTarget,
             to: attackingTarget,
-            condition: t => Vector3.Distance(transform.position, _currentTarget.position) <= attackingTarget.MaxAttackRange);
+            condition: t => Vector3.Distance(transform.position, _currentTargetProperty.position) <= attackingTarget.MaxAttackRange);
 
 
         // Transition to the wander state if we have no target.
-        insideFSM.AddAnyTransition(
+        /*insideFSM.AddAnyTransition(
             to: wanderState,
-            condition: t => _currentTarget == null);
+            condition: t => _currentTarget == null);*/
         #endregion
 
 
@@ -274,6 +274,7 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
 
     public override void SetInitialTarget(Transform target) => _initialTarget = target.GetComponent<RepairableBarrier>();
+    public override void SetDefaultTarget(Transform target) => _defaultTarget = target;
     public void EnteredBuilding() => _isInside = true;
 
 

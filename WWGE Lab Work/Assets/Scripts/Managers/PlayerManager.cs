@@ -20,6 +20,9 @@ public class PlayerManager : MonoBehaviour
     }
 
 
+    [field: SerializeField] public Transform Player { get; private set; }
+    [Space(5)]
+
     // Camera Related Stuff.
     [ReadOnly] public float FieldOfView;
 
@@ -28,6 +31,7 @@ public class PlayerManager : MonoBehaviour
 
     [ReadOnly] public Vector2 GamepadSensitivity;
     [ReadOnly] public bool InvertGamepadY = false;
+    [Space(5)]
 
 
     // UI Related Stuff.

@@ -5,4 +5,5 @@ using UnityEngine;
 public abstract class SpawnableEntity : MonoBehaviour
 {
     public abstract void SetInitialTarget(Transform target);
+    public abstract void SetDefaultTarget(Transform target);
 }
