@@ -22,7 +22,13 @@ public class WaveManager : MonoBehaviour
     [Header("Waves")]
     [SerializeField] private SpawnWave[] _waves;
     [SerializeField] private float _timeBetweenWaves = 10f;
-    [ReadOnly, SerializeField] private int _currentWave;
+    [ReadOnly, SerializeField] private int _currentWave; // Note: Current waves starts at 1, so subtract 1 when accessing arrays.
+
+    public static event System.Action OnFinalWaveCompleted;
+
+    // Accessors
+    public int CurrentWave { get => _currentWave; }
+    public int MaxWaves { get => _waves.Length; }
 
 
     [Header("UI")]
@@ -68,7 +74,7 @@ public class WaveManager : MonoBehaviour
         List<GameObject> aliveEnemies = new List<GameObject>();
 
         // Loop until all enemies have been spawned.
-        while(spawns < wave.TotalSpawns)
+        while (spawns < wave.TotalSpawns)
         {
             // Loop for each enemy we should spawn.
             for (int i = 0; i < wave.SpawnsPerTrigger; i++)
@@ -94,7 +100,7 @@ public class WaveManager : MonoBehaviour
             {
                 pauseTimeRemaining -= Time.deltaTime;
                 aliveEnemies.RemoveAll(enemy => enemy == null);
-                
+
                 return aliveEnemies.Count < 0 || pauseTimeRemaining <= 0;
             });
         }
@@ -113,7 +119,10 @@ public class WaveManager : MonoBehaviour
         if (_currentWave <= _waves.Length)
             StartCoroutine(WaveCountdown());
         else
+        {
             Debug.Log("Defeated All Waves");
+            OnFinalWaveCompleted?.Invoke();
+        }
     }
 
     /// <summary> Instantiate and Setup an enemy from a prefab.</summary>
