@@ -74,8 +74,8 @@ public class StandardEnemy : SpawnableEntity, IStaggerable
 
         // Outside Sub-States.
         var waitingForTarget = new WaitingForInitialTarget(hasTarget: () => _initialTarget != null);
-        var moveToBarrier = new MovingToBarrier(_agent, () => _initialTarget.transform);
-        var attackingBarrier = new AttackingBarrier(this, _attacks, () => _initialTarget.transform, _agent, _attackStoppingDistance);
+        var moveToBarrier = new MovingToTarget(_agent, () => _initialTarget.transform);
+        var attackingBarrier = new AttackingTarget(this, _attacks, () => _initialTarget.transform, _agent, _attackRotationSpeed, _attackStoppingDistance);
 
         // Inside Sub-States.
         var wanderState = new Wander(_agent, _wanderStoppingDistance, _maxWanderDistance, _wanderMinIdleTime, _wanderMaxIdleTime);
