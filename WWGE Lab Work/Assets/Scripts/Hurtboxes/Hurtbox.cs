@@ -24,6 +24,18 @@ public class Hurtbox : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other) => OnColliderEntered?.Invoke(other);
-    private void OnTriggerExit(Collider other) => OnColliderExited?.Invoke(other);
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.isTrigger)
+            return;
+
+        OnColliderEntered?.Invoke(other);
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.isTrigger)
+            return;
+
+        OnColliderExited?.Invoke(other);
+    }
 }
